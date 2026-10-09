@@ -4,140 +4,155 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#05070a">
-<title>WILDERNESS — Survival</title>
+<title>WILDERNESS</title>
 <style>
   :root{
-    --amber:#d8a24a;
-    --amber-dim:#8a6a2c;
-    --glass:rgba(14,16,18,0.55);
-    --glass-hi:rgba(255,255,255,0.08);
-    --brd:rgba(255,255,255,0.10);
+    --amber:#d8a24a; --amber-dim:#8a6a2c;
+    --glass:rgba(14,16,18,0.55); --brd:rgba(255,255,255,0.10);
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;}
   html,body{width:100%;height:100%;overflow:hidden;background:#05070a;color:#e9e6e0;
-    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',Roboto,sans-serif;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Roboto,sans-serif;
     touch-action:none;overscroll-behavior:none;position:fixed;}
   canvas{display:block;position:fixed;inset:0;width:100%;height:100%;}
 
-  /* ===== Overlays ===== */
   #vignette{position:fixed;inset:0;pointer-events:none;z-index:11;
-    background:radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.35) 70%, rgba(0,0,0,0.85) 100%);}
-  #grade{position:fixed;inset:0;pointer-events:none;z-index:10;mix-blend-mode:overlay;opacity:.20;
+    background:radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 32%, rgba(0,0,0,0.38) 72%, rgba(0,0,0,0.88) 100%);}
+  #grade{position:fixed;inset:0;pointer-events:none;z-index:10;mix-blend-mode:overlay;opacity:.18;
     background:linear-gradient(140deg,#28382a 0%,#1a1f26 45%,#3a281a 100%);}
-  #frost{position:fixed;inset:0;pointer-events:none;z-index:12;opacity:0;transition:opacity 1.2s;
-    background:radial-gradient(ellipse at 50% 50%, rgba(180,220,255,0) 26%, rgba(180,220,255,0.28) 66%, rgba(230,245,255,0.62) 100%);}
+  #frost{position:fixed;inset:0;pointer-events:none;z-index:12;opacity:0;transition:opacity 1s;
+    background:radial-gradient(ellipse at 50% 50%, rgba(180,220,255,0) 26%, rgba(180,220,255,0.30) 66%, rgba(230,245,255,0.66) 100%);}
   #blood{position:fixed;inset:0;pointer-events:none;z-index:13;opacity:0;transition:opacity .4s;
-    background:radial-gradient(ellipse at 50% 50%, rgba(120,0,0,0) 22%, rgba(140,0,0,0.44) 74%, rgba(70,0,0,0.82) 100%);}
+    background:radial-gradient(ellipse at 50% 50%, rgba(120,0,0,0) 22%, rgba(140,0,0,0.46) 74%, rgba(70,0,0,0.84) 100%);}
   #flash{position:fixed;inset:0;pointer-events:none;z-index:14;opacity:0;
-    background:radial-gradient(ellipse at 50% 50%, rgba(255,40,40,0) 38%, rgba(255,30,30,0.42) 100%);}
-  #breath{position:fixed;inset:0;pointer-events:none;z-index:15;opacity:0;transition:opacity .5s;
-    background:radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0) 40%, rgba(0,0,0,0.5) 100%);}
+    background:radial-gradient(ellipse at 50% 50%, rgba(255,40,40,0) 38%, rgba(255,30,30,0.45) 100%);}
+  #wet{position:fixed;inset:0;pointer-events:none;z-index:15;opacity:0;transition:opacity .6s;
+    background:radial-gradient(ellipse at 50% 70%, rgba(60,110,140,0) 30%, rgba(80,130,160,0.32) 100%);}
 
-  /* ===== Rotate hint ===== */
-  #rotate{
-    position:fixed;inset:0;z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;
-    background:radial-gradient(ellipse at 50% 40%, #10161a 0%, #05070a 70%);
-    gap:20px;color:#e8e4dc;text-align:center;padding:20px;
-  }
+  #rotate{position:fixed;inset:0;z-index:200;display:none;flex-direction:column;
+    align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 40%, #10161a 0%, #05070a 70%);
+    gap:20px;color:#e8e4dc;text-align:center;padding:20px;}
   #rotate.on{display:flex;}
-  #rotate svg{width:64px;height:64px;stroke:var(--amber);fill:none;stroke-width:2;
-    animation:rot 2s ease-in-out infinite;}
+  #rotate svg{width:64px;height:64px;stroke:var(--amber);fill:none;stroke-width:2;animation:rot 2s ease-in-out infinite;}
   @keyframes rot{0%,40%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
   #rotate p{font-size:13px;letter-spacing:4px;color:rgba(200,164,92,0.85);font-weight:600;}
 
-  /* ===== Loader ===== */
   #loader{position:fixed;inset:0;z-index:150;display:flex;flex-direction:column;
     align-items:center;justify-content:center;gap:22px;
     background:radial-gradient(ellipse at 50% 40%, #10161a 0%, #05070a 70%);
-    transition:opacity .9s, visibility .9s;}
+    transition:opacity .8s, visibility .8s;}
   #loader.gone{opacity:0;visibility:hidden;}
   #loader h1{font-size:clamp(24px,7vw,44px);font-weight:200;letter-spacing:14px;color:#e8e4dc;
-    text-shadow:0 0 40px rgba(200,164,92,0.35);padding-left:14px;}
+    text-shadow:0 0 40px rgba(200,164,92,0.4);padding-left:14px;}
   #loader .sub{font-size:9px;letter-spacing:6px;color:rgba(200,164,92,0.75);font-weight:600;margin-top:-14px;}
   #bar{width:min(260px,60vw);height:2px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;}
   #bar i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#8a6a2c,#e2c47e,#fff3d0);
     transition:width .3s;box-shadow:0 0 12px rgba(226,196,126,.8);}
   #ltxt{font-size:10px;letter-spacing:3px;color:rgba(255,255,255,.35);font-weight:600;height:12px;}
 
-  /* ===== Main Menu ===== */
+  /* ============ MENU ============ */
   #menu{position:fixed;inset:0;z-index:130;display:flex;flex-direction:column;
-    align-items:center;justify-content:center;gap:26px;
-    background:
-      radial-gradient(ellipse at 50% 40%, rgba(30,20,10,0.4) 0%, rgba(5,7,10,0.96) 70%),
-      linear-gradient(140deg,#0a0d10 0%,#05070a 100%);
+    align-items:center;justify-content:center;gap:22px;
+    background:radial-gradient(ellipse at 50% 40%, rgba(30,20,10,0.45) 0%, rgba(5,7,10,0.97) 70%);
     transition:opacity .8s, visibility .8s;}
   #menu.gone{opacity:0;visibility:hidden;pointer-events:none;}
-  #menu::before{
-    content:'';position:absolute;inset:0;opacity:.32;pointer-events:none;
+  #menu::before{content:'';position:absolute;inset:0;opacity:.30;pointer-events:none;
     background:
       repeating-linear-gradient(90deg, rgba(255,255,255,0.015) 0 2px, transparent 2px 5px),
       repeating-linear-gradient(0deg, rgba(0,0,0,0.35) 0 3px, transparent 3px 7px);
     mask-image:radial-gradient(ellipse at 50% 50%, #000 20%, transparent 78%);
-    -webkit-mask-image:radial-gradient(ellipse at 50% 50%, #000 20%, transparent 78%);
-  }
+    -webkit-mask-image:radial-gradient(ellipse at 50% 50%, #000 20%, transparent 78%);}
   #menu .brand{position:relative;text-align:center;padding:0 24px;}
-  #menu h1{font-size:clamp(34px,9vw,68px);font-weight:100;letter-spacing:22px;
-    color:#f0e8da;text-shadow:0 0 60px rgba(216,162,74,0.4),0 0 20px rgba(216,162,74,0.25);
-    padding-left:22px;}
-  #menu .sub{margin-top:6px;font-size:10px;letter-spacing:12px;color:var(--amber);font-weight:700;
-    padding-left:12px;opacity:.85;}
-  #menu .line{width:120px;height:1px;margin:16px auto 0;
+  #menu h1{font-size:clamp(30px,8.5vw,60px);font-weight:100;letter-spacing:20px;
+    color:#f0e8da;text-shadow:0 0 60px rgba(216,162,74,0.45),0 0 20px rgba(216,162,74,0.25);padding-left:20px;}
+  #menu .sub{margin-top:6px;font-size:10px;letter-spacing:11px;color:var(--amber);font-weight:700;
+    padding-left:11px;opacity:.85;}
+  #menu .line{width:120px;height:1px;margin:14px auto 0;
     background:linear-gradient(90deg,transparent,var(--amber),transparent);opacity:.6;}
-  #menu .btns{display:flex;flex-direction:column;gap:12px;width:min(300px,78vw);position:relative;}
-  .mbtn{
-    position:relative;padding:14px 26px;border-radius:12px;font-size:13px;font-weight:800;
+  #menu .btns{display:flex;flex-direction:column;gap:11px;width:min(290px,76vw);position:relative;}
+  .mbtn{position:relative;padding:13px 26px;border-radius:11px;font-size:12px;font-weight:800;
     letter-spacing:4px;color:#e8e4dc;cursor:pointer;
-    background:
-      linear-gradient(160deg, rgba(60,50,36,0.75), rgba(18,16,12,0.92)),
-      repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0 3px, transparent 3px 6px);
+    background:linear-gradient(160deg, rgba(60,50,36,0.75), rgba(18,16,12,0.92));
     border:1px solid rgba(216,162,74,0.30);
-    box-shadow:0 8px 26px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.10);
+    box-shadow:0 8px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.10);
     backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-    transition:transform .14s, box-shadow .2s, border-color .2s;
-    text-align:center;
-  }
-  .mbtn:hover,.mbtn:active{transform:translateY(-1px);
-    border-color:rgba(216,162,74,0.7);
+    transition:transform .14s, box-shadow .2s, border-color .2s;text-align:center;}
+  .mbtn:active{transform:translateY(-1px);border-color:rgba(216,162,74,0.7);
     box-shadow:0 10px 30px rgba(0,0,0,0.7), 0 0 30px rgba(216,162,74,0.15), inset 0 1px 0 rgba(255,255,255,0.15);}
-  .mbtn.primary{
-    background:
-      linear-gradient(160deg, rgba(216,162,74,0.28), rgba(60,40,18,0.9)),
-      repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0 3px, transparent 3px 6px);
-    border-color:rgba(216,162,74,0.55);
-  }
-  #menu .foot{position:absolute;bottom:22px;font-size:9px;letter-spacing:3px;
-    color:rgba(255,255,255,0.24);font-weight:600;}
+  .mbtn.primary{background:linear-gradient(160deg, rgba(216,162,74,0.28), rgba(60,40,18,0.92));
+    border-color:rgba(216,162,74,0.55);}
+  .mbtn.ghost{background:linear-gradient(160deg, rgba(30,32,36,0.75), rgba(10,12,14,0.92));
+    border-color:rgba(255,255,255,0.12);}
+  #menu .foot{position:absolute;bottom:18px;font-size:9px;letter-spacing:3px;
+    color:rgba(255,255,255,0.22);font-weight:600;}
 
-  /* ===== HUD ===== */
+  /* ============ SETTINGS PANEL ============ */
+  #settings{position:fixed;inset:0;z-index:140;display:none;align-items:center;justify-content:center;
+    background:rgba(5,7,10,0.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);}
+  #settings.on{display:flex;animation:fadeIn .35s ease;}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .spanel{width:min(440px,90vw);padding:24px 26px;border-radius:18px;
+    background:linear-gradient(160deg, rgba(30,26,20,0.85), rgba(10,10,12,0.95));
+    border:1px solid rgba(216,162,74,0.25);
+    box-shadow:0 30px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.08);}
+  .spanel h3{font-size:18px;font-weight:200;letter-spacing:9px;color:#e8e4dc;padding-left:9px;
+    margin-bottom:20px;text-align:center;}
+  .srow{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+  .srow .head{display:flex;justify-content:space-between;align-items:center;}
+  .srow label{font-size:11px;font-weight:700;letter-spacing:2.4px;color:rgba(255,255,255,0.72);}
+  .srow .val{font-size:11px;font-weight:700;color:var(--amber);font-variant-numeric:tabular-nums;}
+  .srow input[type=range]{width:100%;height:4px;appearance:none;-webkit-appearance:none;
+    background:linear-gradient(90deg,var(--amber) 0%,var(--amber) 50%, rgba(255,255,255,0.08) 50%);
+    border-radius:2px;outline:none;}
+  .srow input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;
+    width:18px;height:18px;border-radius:50%;
+    background:radial-gradient(circle at 38% 32%, #fff, #d8a24a 60%, #6a4a1a);
+    border:1px solid rgba(255,255,255,0.4);
+    box-shadow:0 2px 8px rgba(0,0,0,0.7);cursor:pointer;}
+  .srow input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;
+    background:radial-gradient(circle at 38% 32%, #fff, #d8a24a 60%, #6a4a1a);
+    border:1px solid rgba(255,255,255,0.4);cursor:pointer;}
+  .quality-picker{display:flex;gap:6px;}
+  .quality-picker div{flex:1;padding:9px 4px;border-radius:8px;font-size:10px;font-weight:800;
+    letter-spacing:1.4px;text-align:center;cursor:pointer;color:rgba(255,255,255,0.55);
+    background:linear-gradient(160deg, rgba(40,40,44,0.65), rgba(14,14,16,0.9));
+    border:1px solid rgba(255,255,255,0.08);transition:all .2s;}
+  .quality-picker div.on{color:#f0e8da;border-color:rgba(216,162,74,0.6);
+    background:linear-gradient(160deg, rgba(216,162,74,0.30), rgba(60,40,18,0.9));
+    box-shadow:0 0 20px rgba(216,162,74,0.18);}
+  .spanel .row-end{display:flex;gap:8px;margin-top:22px;}
+  .spanel .row-end .mbtn{flex:1;padding:11px 20px;font-size:11px;}
+
+  /* ============ HUD ============ */
   #hud{position:fixed;inset:0;pointer-events:none;z-index:20;opacity:0;transition:opacity .6s;}
   #hud.on{opacity:1;}
 
   #stats{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);left:calc(env(safe-area-inset-left,0px) + 14px);
-    display:flex;flex-direction:column;gap:5px;width:170px;}
+    display:flex;flex-direction:column;gap:5px;width:180px;}
   .stat{position:relative;height:9px;border-radius:5px;overflow:hidden;
     background:linear-gradient(180deg,rgba(14,16,18,0.7),rgba(6,7,8,0.88));
     border:1px solid var(--brd);
-    box-shadow:inset 0 1px 3px rgba(0,0,0,0.85), 0 1px 0 rgba(255,255,255,0.04);
+    box-shadow:inset 0 1px 3px rgba(0,0,0,0.85);
     backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
   .stat > .fill{position:absolute;inset:1px;border-radius:4px;transform-origin:left center;
     transition:transform .28s cubic-bezier(.22,.61,.36,1);}
   .stat > .lbl{position:absolute;left:6px;top:50%;transform:translateY(-50%);
-    font-size:7px;font-weight:800;letter-spacing:1.2px;color:rgba(255,255,255,.7);
+    font-size:7px;font-weight:800;letter-spacing:1.2px;color:rgba(255,255,255,.72);
     text-shadow:0 1px 2px rgba(0,0,0,.95);z-index:2;}
-  .s-hp   .fill{background:linear-gradient(90deg,#7a1010,#e03a3a 60%,#ff6b6b);box-shadow:0 0 10px rgba(224,58,58,.5);}
-  .s-food .fill{background:linear-gradient(90deg,#6b4a12,#d69a34 60%,#f0c46a);box-shadow:0 0 10px rgba(214,154,52,.45);}
-  .s-water .fill{background:linear-gradient(90deg,#0d3d5c,#2a8fc4 60%,#63c6ef);box-shadow:0 0 10px rgba(42,143,196,.45);}
-  .s-temp .fill{background:linear-gradient(90deg,#1c3a5c,#5b93c9 55%,#a8d4f5);box-shadow:0 0 10px rgba(91,147,201,.4);}
-  .s-stam .fill{background:linear-gradient(90deg,#2c4a1c,#7bbf45 60%,#b6e878);box-shadow:0 0 10px rgba(123,191,69,.4);}
+  .s-hp   .fill{background:linear-gradient(90deg,#7a1010,#e03a3a 60%,#ff6b6b);}
+  .s-food .fill{background:linear-gradient(90deg,#6b4a12,#d69a34 60%,#f0c46a);}
+  .s-water .fill{background:linear-gradient(90deg,#0d3d5c,#2a8fc4 60%,#63c6ef);}
+  .s-temp .fill{background:linear-gradient(90deg,#1c3a5c,#5b93c9 55%,#a8d4f5);}
+  .s-stam .fill{background:linear-gradient(90deg,#2c4a1c,#7bbf45 60%,#b6e878);}
+  .s-air  .fill{background:linear-gradient(90deg,#0c4a5a,#3ac0d8 60%,#9ae8f5);}
 
   #inv{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);right:calc(env(safe-area-inset-right,0px) + 14px);
     display:flex;flex-direction:column;gap:5px;align-items:flex-end;}
   .slot{display:flex;align-items:center;gap:7px;padding:4px 10px 4px 6px;border-radius:10px;
     background:var(--glass);border:1px solid var(--brd);
-    backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
     box-shadow:0 4px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07);
     min-width:68px;justify-content:flex-end;}
   .slot svg{width:15px;height:15px;flex:0 0 15px;opacity:.9;}
@@ -147,7 +162,7 @@
     display:flex;align-items:center;gap:8px;padding:4px 12px;border-radius:18px;
     background:var(--glass);border:1px solid var(--brd);
     backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-    box-shadow:0 4px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07);
+    box-shadow:0 4px 14px rgba(0,0,0,0.5);
     font-size:10px;font-weight:700;letter-spacing:1.4px;color:rgba(255,255,255,0.82);}
   #clock .dot{width:5px;height:5px;border-radius:50%;background:#ffd27a;box-shadow:0 0 8px #ffd27a;}
 
@@ -162,41 +177,36 @@
     padding:6px 16px;border-radius:18px;font-size:11px;font-weight:600;letter-spacing:.4px;
     background:var(--glass);border:1px solid var(--brd);color:rgba(255,255,255,0.9);
     backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-    box-shadow:0 6px 20px rgba(0,0,0,0.5);
-    opacity:0;transition:opacity .3s;white-space:nowrap;}
+    box-shadow:0 6px 20px rgba(0,0,0,0.5);opacity:0;transition:opacity .3s;white-space:nowrap;}
 
   #toasts{position:absolute;left:50%;top:16%;transform:translateX(-50%);
     display:flex;flex-direction:column;gap:6px;align-items:center;}
-  .toast{padding:6px 16px;border-radius:18px;font-size:11.5px;font-weight:700;letter-spacing:.3px;
+  .toast{padding:6px 16px;border-radius:18px;font-size:11.5px;font-weight:700;
     background:rgba(18,20,22,0.6);border:1px solid rgba(255,255,255,0.12);
     backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-    box-shadow:0 6px 20px rgba(0,0,0,0.55);
-    animation:tin .35s cubic-bezier(.2,.9,.3,1.4) both;white-space:nowrap;}
+    box-shadow:0 6px 20px rgba(0,0,0,0.55);animation:tin .35s cubic-bezier(.2,.9,.3,1.4) both;white-space:nowrap;}
   .toast.warn{color:#ffb3a0;border-color:rgba(255,120,90,0.35);}
   .toast.good{color:#bfe8a0;border-color:rgba(150,220,110,0.35);}
   .toast.fade{animation:tout .4s ease forwards;}
   @keyframes tin{from{opacity:0;transform:translateY(-12px) scale(.92);}to{opacity:1;transform:none;}}
   @keyframes tout{to{opacity:0;transform:translateY(-10px) scale(.95);}}
 
-  /* ===== Controls ===== */
+  /* ============ CONTROLS ============ */
   #controls{position:fixed;inset:0;z-index:30;pointer-events:none;display:none;}
   #controls.on{display:block;}
 
-  #joy-base{
-    position:absolute;
-    left:calc(env(safe-area-inset-left,0px) + 26px);
-    bottom:calc(env(safe-area-inset-bottom,0px) + 26px);
-    width:128px;height:128px;border-radius:50%;
+  #joy-base{position:absolute;
+    left:calc(env(safe-area-inset-left,0px) + 30px);
+    bottom:calc(env(safe-area-inset-bottom,0px) + 30px);
+    width:130px;height:130px;border-radius:50%;
     background:radial-gradient(circle at 50% 40%, rgba(255,255,255,0.10), rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.22));
     border:1.5px solid rgba(255,255,255,0.14);
     backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
     box-shadow:inset 0 2px 10px rgba(0,0,0,0.6), 0 8px 26px rgba(0,0,0,0.5);
     opacity:.55;transition:opacity .25s, transform .12s;
-    display:flex;align-items:center;justify-content:center;
-    pointer-events:none;
-  }
+    display:flex;align-items:center;justify-content:center;pointer-events:none;}
   #joy-base.active{opacity:1;transform:scale(1.04);}
-  #joy-knob{width:52px;height:52px;border-radius:50%;
+  #joy-knob{width:54px;height:54px;border-radius:50%;
     background:radial-gradient(circle at 38% 32%, rgba(255,255,255,0.5), rgba(190,200,210,0.16) 55%, rgba(40,44,48,0.55));
     border:1.5px solid rgba(255,255,255,0.3);
     box-shadow:0 4px 14px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.5);
@@ -204,33 +214,28 @@
   #joy-base::after{content:'';position:absolute;inset:14px;border-radius:50%;
     border:1px dashed rgba(255,255,255,0.10);}
 
-  #actions{
-    position:absolute;right:calc(env(safe-area-inset-right,0px) + 18px);
+  #actions{position:absolute;right:calc(env(safe-area-inset-right,0px) + 18px);
     bottom:calc(env(safe-area-inset-bottom,0px) + 22px);
-    width:200px;height:200px;pointer-events:none;
-  }
-  .btn{
-    position:absolute;pointer-events:auto;touch-action:none;
+    width:200px;height:200px;pointer-events:none;}
+  .btn{position:absolute;pointer-events:auto;touch-action:none;
     width:62px;height:62px;border-radius:50%;
     display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;
     background:
       radial-gradient(circle at 36% 28%, rgba(255,255,255,0.16), rgba(255,255,255,0.03) 52%, rgba(0,0,0,0.3)),
-      linear-gradient(160deg, rgba(40,44,48,0.55), rgba(14,16,18,0.7));
+      linear-gradient(160deg, rgba(40,44,48,0.55), rgba(14,16,18,0.72));
     border:1.5px solid rgba(255,255,255,0.16);
-    backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
     box-shadow:0 8px 22px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -3px 10px rgba(0,0,0,0.45);
     color:rgba(255,255,255,0.92);
-    transition:transform .08s ease, box-shadow .12s, background .12s;
-  }
+    transition:transform .08s ease, box-shadow .12s, background .12s;}
   .btn svg{width:24px;height:24px;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.7));}
   .btn small{font-size:7px;font-weight:800;letter-spacing:.8px;opacity:.65;margin-top:-1px;}
   .btn:active,.btn.press{transform:scale(.9);
     box-shadow:0 3px 10px rgba(0,0,0,0.7), inset 0 2px 8px rgba(0,0,0,0.6);
     background:linear-gradient(160deg, rgba(216,162,74,0.35), rgba(60,50,30,0.6));}
   #b-attack{right:0;bottom:70px;width:80px;height:80px;border-color:rgba(220,150,90,0.4);
-    background:
-      radial-gradient(circle at 36% 28%, rgba(255,200,140,0.22), rgba(255,255,255,0.03) 52%, rgba(0,0,0,0.3)),
-      linear-gradient(160deg, rgba(90,50,26,0.6), rgba(24,14,8,0.75));}
+    background:radial-gradient(circle at 36% 28%, rgba(255,200,140,0.22), rgba(255,255,255,0.03) 52%, rgba(0,0,0,0.3)),
+      linear-gradient(160deg, rgba(90,50,26,0.6), rgba(24,14,8,0.78));}
   #b-attack svg{width:30px;height:30px;}
   #b-use{right:80px;bottom:12px;}
   #b-jump{right:4px;bottom:-4px;}
@@ -238,20 +243,20 @@
   #b-eat svg{width:20px;height:20px;}
   #b-craft{right:150px;bottom:-4px;width:52px;height:52px;border-color:rgba(200,180,120,0.35);}
   #b-craft svg{width:20px;height:20px;}
+  #b-menu{right:0;bottom:170px;width:44px;height:44px;border-color:rgba(255,255,255,0.2);}
+  #b-menu svg{width:18px;height:18px;}
 
-  #dsk{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);
+  #dsk{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);
     font-size:10.5px;letter-spacing:1.4px;color:rgba(255,255,255,0.30);font-weight:600;
     text-align:center;line-height:1.7;pointer-events:none;white-space:nowrap;}
   body.touch #dsk{display:none;}
   body:not(.touch) #joy-base{display:none;}
 
-  /* ===== Death ===== */
   #death{position:fixed;inset:0;z-index:90;display:none;flex-direction:column;
     align-items:center;justify-content:center;gap:14px;
     background:radial-gradient(ellipse at 50% 50%, rgba(70,4,4,0.6) 0%, rgba(4,2,2,0.96) 75%);
     backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
   #death.on{display:flex;animation:fadeIn .8s ease;}
-  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
   #death h2{font-size:clamp(26px,7vw,44px);font-weight:200;letter-spacing:12px;color:#e8c4c4;
     text-shadow:0 0 40px rgba(220,60,60,0.6);padding-left:12px;}
   #death p{font-size:11px;letter-spacing:3px;color:rgba(255,255,255,0.5);}
@@ -259,21 +264,8 @@
     letter-spacing:3px;color:#e8e4dc;cursor:pointer;
     background:linear-gradient(160deg, rgba(60,50,36,0.7), rgba(18,16,12,0.85));
     border:1px solid rgba(216,162,74,0.4);
-    box-shadow:0 8px 30px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.12);
-    backdrop-filter:blur(12px);transition:transform .15s;}
+    box-shadow:0 8px 30px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.12);}
   #death button:active{transform:scale(.95);}
-
-  /* ===== Settings ===== */
-  #settings{position:fixed;inset:0;z-index:140;display:none;flex-direction:column;
-    align-items:center;justify-content:center;gap:14px;
-    background:rgba(5,7,10,0.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
-  #settings.on{display:flex;animation:fadeIn .4s;}
-  #settings h3{font-size:22px;font-weight:200;letter-spacing:10px;color:#e8e4dc;padding-left:10px;margin-bottom:10px;}
-  .setrow{display:flex;align-items:center;gap:14px;width:min(320px,80vw);
-    padding:10px 16px;border-radius:10px;background:var(--glass);border:1px solid var(--brd);}
-  .setrow label{font-size:11px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.7);flex:1;}
-  .setrow input[type=range]{flex:1.4;accent-color:var(--amber);}
-  .setrow .val{font-size:11px;font-weight:700;color:var(--amber);width:32px;text-align:right;font-variant-numeric:tabular-nums;}
 </style>
 </head>
 <body>
@@ -288,7 +280,7 @@
 <div id="frost"></div>
 <div id="blood"></div>
 <div id="flash"></div>
-<div id="breath"></div>
+<div id="wet"></div>
 
 <div id="menu">
   <div class="brand">
@@ -298,24 +290,34 @@
   </div>
   <div class="btns">
     <div class="mbtn primary" id="btn-play">НАЧАТЬ ВЫЖИВАНИЕ</div>
-    <div class="mbtn" id="btn-continue" style="display:none">ПРОДОЛЖИТЬ</div>
     <div class="mbtn" id="btn-settings">НАСТРОЙКИ</div>
   </div>
-  <div class="foot">v1.0 · ПРОЦЕДУРНЫЙ МИР · THREE.JS</div>
+  <div class="foot">v2.0 · ПРОЦЕДУРНЫЙ МИР · THREE.JS</div>
 </div>
 
 <div id="settings">
-  <h3>НАСТРОЙКИ</h3>
-  <div class="setrow"><label>ГРАФИКА</label>
-    <input type="range" id="s-quality" min="1" max="4" step="1" value="3">
-    <div class="val" id="s-quality-v">3</div></div>
-  <div class="setrow"><label>ЗВУК</label>
-    <input type="range" id="s-volume" min="0" max="100" step="5" value="55">
-    <div class="val" id="s-volume-v">55</div></div>
-  <div class="setrow"><label>ЧУВСТВ.</label>
-    <input type="range" id="s-sens" min="1" max="10" step="1" value="5">
-    <div class="val" id="s-sens-v">5</div></div>
-  <div class="mbtn" id="btn-back" style="margin-top:8px;width:min(320px,80vw)">НАЗАД</div>
+  <div class="spanel">
+    <h3>НАСТРОЙКИ</h3>
+    <div class="srow">
+      <div class="head"><label>ЧУВСТВИТЕЛЬНОСТЬ</label><span class="val" id="v-sens">1.00</span></div>
+      <input type="range" id="s-sens" min="30" max="200" step="5" value="100">
+    </div>
+    <div class="srow">
+      <div class="head"><label>ГРОМКОСТЬ</label><span class="val" id="v-vol">60</span></div>
+      <input type="range" id="s-vol" min="0" max="100" step="5" value="60">
+    </div>
+    <div class="srow">
+      <div class="head"><label>ГРАФИКА</label></div>
+      <div class="quality-picker" id="quality-picker">
+        <div data-q="0">НИЗКАЯ</div>
+        <div data-q="1">СРЕДНЯЯ</div>
+        <div data-q="2">УЛЬТРА</div>
+      </div>
+    </div>
+    <div class="row-end">
+      <div class="mbtn ghost" id="btn-settings-close">НАЗАД</div>
+    </div>
+  </div>
 </div>
 
 <div id="loader">
@@ -332,25 +334,16 @@
     <div class="stat s-water"><span class="lbl">WATER</span><div class="fill" id="f-water"></div></div>
     <div class="stat s-temp"><span class="lbl">WARMTH</span><div class="fill" id="f-temp"></div></div>
     <div class="stat s-stam"><span class="lbl">STAMINA</span><div class="fill" id="f-stam"></div></div>
+    <div class="stat s-air" style="display:none" id="air-bar"><span class="lbl">AIR</span><div class="fill" id="f-air"></div></div>
   </div>
 
   <div id="inv">
-    <div class="slot">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#c8a45c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M4 20l7-7M9 4l3 3-6 6-3-3z"/><path d="M14 9l3-3 3 3-3 3z"/></svg>
-      <span id="c-wood">0</span>
-    </div>
-    <div class="slot">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#9aa4ae" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 3l7 5-2 10-5 3-5-3-2-10z"/></svg>
-      <span id="c-stone">0</span>
-    </div>
-    <div class="slot">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#c96a4a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M5 9c0-3 3-5 7-5s7 2 7 5-2 4-2 7-2 4-5 4-5-1-5-4-2-4-2-7z"/>
-        <circle cx="12" cy="12" r="2"/></svg>
-      <span id="c-meat">0</span>
-    </div>
+    <div class="slot"><svg viewBox="0 0 24 24" fill="none" stroke="#c8a45c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 20l7-7M9 4l3 3-6 6-3-3z"/><path d="M14 9l3-3 3 3-3 3z"/></svg><span id="c-wood">0</span></div>
+    <div class="slot"><svg viewBox="0 0 24 24" fill="none" stroke="#9aa4ae" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3l7 5-2 10-5 3-5-3-2-10z"/></svg><span id="c-stone">0</span></div>
+    <div class="slot"><svg viewBox="0 0 24 24" fill="none" stroke="#c96a4a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 9c0-3 3-5 7-5s7 2 7 5-2 4-2 7-2 4-5 4-5-1-5-4-2-4-2-7z"/><circle cx="12" cy="12" r="2"/></svg><span id="c-meat">0</span></div>
   </div>
 
   <div id="clock"><span class="dot"></span><span id="clock-t">06:00</span></div>
@@ -362,10 +355,13 @@
 <div id="controls">
   <div id="joy-base"><div id="joy-knob"></div></div>
   <div id="actions">
+    <div class="btn" id="b-menu" data-act="menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </div>
     <div class="btn" id="b-eat" data-act="eat">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M5 9c0-3 3-5 7-5s7 2 7 5-2 4-2 7-2 4-5 4-5-1-5-4-2-4-2-7z"/>
-        <circle cx="12" cy="12" r="2"/></svg><small>EAT</small>
+        <path d="M5 9c0-3 3-5 7-5s7 2 7 5-2 4-2 7-2 4-5 4-5-1-5-4-2-4-2-7z"/><circle cx="12" cy="12" r="2"/></svg><small>EAT</small>
     </div>
     <div class="btn" id="b-craft" data-act="craft">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
@@ -373,8 +369,7 @@
     </div>
     <div class="btn" id="b-use" data-act="use">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M9 11V5a2 2 0 014 0v6"/><path d="M13 11V8a2 2 0 014 0v6a6 6 0 01-6 6H9a6 6 0 01-6-6v-1a2 2 0 014 0"/></svg>
-      <small>USE</small>
+        <path d="M9 11V5a2 2 0 014 0v6"/><path d="M13 11V8a2 2 0 014 0v6a6 6 0 01-6 6H9a6 6 0 01-6-6v-1a2 2 0 014 0"/></svg><small>USE</small>
     </div>
     <div class="btn" id="b-jump" data-act="jump">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
@@ -382,11 +377,10 @@
     </div>
     <div class="btn" id="b-attack" data-act="attack">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M14 3l7 7-3 1-2 2-6-6 2-2z"/><path d="M10 9L3 16l2 2 7-7"/><path d="M6 18l-2 3 3-2"/></svg>
-      <small>STRIKE</small>
+        <path d="M14 3l7 7-3 1-2 2-6-6 2-2z"/><path d="M10 9L3 16l2 2 7-7"/><path d="M6 18l-2 3 3-2"/></svg><small>STRIKE</small>
     </div>
   </div>
-  <div id="dsk">WASD — ДВИЖЕНИЕ · МЫШЬ — ОБЗОР · ЛКМ — УДАР · SHIFT — БЕГ<br>SPACE — ПРЫЖОК · E — ВЗАИМОДЕЙСТВИЕ · F — ЕСТЬ · Q — КОСТЁР</div>
+  <div id="dsk">WASD — ДВИЖЕНИЕ · МЫШЬ — ОБЗОР · ЛКМ — УДАР · SHIFT — БЕГ<br>SPACE — ПРЫЖОК · E — ВЗАИМОДЕЙСТВИЕ · F — ЕСТЬ · Q — КОСТЁР · ESC — ПАУЗА</div>
 </div>
 
 <div id="death">
@@ -410,21 +404,21 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 /* ============================================================================
-   0. УТИЛИТЫ / ШУМ
+   0. UTILS
    ========================================================================== */
 const $ = s => document.querySelector(s);
 const clamp = (v,a,b) => v<a?a:(v>b?b:v);
-const lerp  = (a,b,t) => a+(b-a)*t;
-const rnd   = (a,b) => a + Math.random()*(b-a);
+const lerp = (a,b,t) => a+(b-a)*t;
+const rnd = (a,b) => a + Math.random()*(b-a);
 const IS_TOUCH = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 if (IS_TOUCH) document.body.classList.add('touch');
 
 class Perlin {
-  constructor(seed = 1) {
+  constructor(seed=1){
     this.p = new Uint8Array(512);
-    const perm = Array.from({length:256}, (_,i)=>i);
+    const perm = Array.from({length:256},(_,i)=>i);
     let s = seed|0 || 1;
-    const rand = () => { s = (s * 1664525 + 1013904223)|0; return ((s>>>0)/4294967296); };
+    const rand = () => { s = (s*1664525+1013904223)|0; return ((s>>>0)/4294967296); };
     for (let i=255;i>0;i--){ const j=(rand()*(i+1))|0; const t=perm[i]; perm[i]=perm[j]; perm[j]=t; }
     for (let i=0;i<512;i++) this.p[i]=perm[i&255];
   }
@@ -451,21 +445,24 @@ const PERLIN  = new Perlin(20240711);
 const PERLIN2 = new Perlin(99001);
 
 /* ============================================================================
-   1. SETTINGS (persisted)
+   1. SETTINGS
    ========================================================================== */
 const settings = Object.assign(
-  { quality: 3, volume: 55, sensitivity: 5 },
-  JSON.parse(localStorage.getItem('wild_settings') || '{}')
+  { sensitivity: 1.0, volume: 60, quality: 2 },
+  JSON.parse(localStorage.getItem('wild2_settings') || '{}')
 );
-const saveSettings = () => localStorage.setItem('wild_settings', JSON.stringify(settings));
+const saveSettings = () => localStorage.setItem('wild2_settings', JSON.stringify(settings));
 
 /* ============================================================================
-   2. RENDERER / SCENE / CAMERA
+   2. RENDERER / SCENE
    ========================================================================== */
-const renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:'high-performance', stencil:false });
+const renderer = new THREE.WebGLRenderer({
+  antialias: settings.quality > 0,
+  powerPreference:'high-performance', stencil:false
+});
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, IS_TOUCH ? 1.5 : 2));
 renderer.setSize(innerWidth, innerHeight);
-renderer.shadowMap.enabled = true;
+renderer.shadowMap.enabled = settings.quality > 0;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.06;
@@ -473,14 +470,15 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x6d7f8c, 0.017);
+scene.fog = new THREE.FogExp2(0x6d7f8c, 0.015);
 
-const camera = new THREE.PerspectiveCamera(76, innerWidth/innerHeight, 0.08, 900);
+const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.08, 900);
 camera.rotation.order = 'YXZ';
 
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
-const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.42, 0.75, 0.85);
+const bloomStrength = settings.quality >= 2 ? 0.55 : (settings.quality >= 1 ? 0.42 : 0.28);
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), bloomStrength, 0.75, 0.85);
 composer.addPass(bloom);
 composer.addPass(new OutputPass());
 
@@ -495,7 +493,7 @@ addEventListener('resize', onResize);
 addEventListener('orientationchange', () => setTimeout(onResize, 200));
 
 /* ============================================================================
-   3. ORIENTATION LOCK (landscape)
+   3. ORIENTATION LOCK
    ========================================================================== */
 const rotateEl = $('#rotate');
 function checkOrientation(){
@@ -505,7 +503,6 @@ function checkOrientation(){
 checkOrientation();
 addEventListener('resize', checkOrientation);
 addEventListener('orientationchange', () => setTimeout(checkOrientation, 200));
-
 function tryLockLandscape(){
   if (!IS_TOUCH) return;
   if (screen.orientation && screen.orientation.lock) {
@@ -536,8 +533,8 @@ const skyMat = new THREE.ShaderMaterial({
       vec3 col=mix(uBot,uMid,smoothstep(-0.10,0.30,h));
       col=mix(col,uTop,smoothstep(0.18,0.85,h));
       float sd=max(dot(d,normalize(uSunDir)),0.0);
-      col+=vec3(1.0,0.82,0.55)*pow(sd,22.0)*1.4;
-      col+=vec3(1.0,0.72,0.42)*pow(sd,5.0)*0.22;
+      col+=vec3(1.0,0.84,0.58)*pow(sd,22.0)*2.2;
+      col+=vec3(1.0,0.75,0.45)*pow(sd,5.0)*0.34;
       vec3 moonDir=normalize(-uSunDir);
       float md=max(dot(d,moonDir),0.0);
       col+=vec3(0.68,0.78,1.0)*pow(md,340.0)*2.2*uNight;
@@ -556,23 +553,32 @@ skyDome.frustumCulled = false;
 scene.add(skyDome);
 
 /* ============================================================================
-   5. LIGHTS
+   5. LIGHTS — bright sun
    ========================================================================== */
-const sun = new THREE.DirectionalLight(0xfff0d4, 2.4);
-sun.castShadow = true;
-const shadowSize = settings.quality >= 3 ? 2048 : (settings.quality >= 2 ? 1024 : 512);
+const sun = new THREE.DirectionalLight(0xfff2d8, 4.2);
+sun.castShadow = settings.quality > 0;
+const shadowSize = settings.quality >= 2 ? 2048 : (settings.quality >= 1 ? 1024 : 512);
 sun.shadow.mapSize.set(shadowSize, shadowSize);
 sun.shadow.camera.near = 1;
-sun.shadow.camera.far = 190;
-sun.shadow.camera.left = -55; sun.shadow.camera.right = 55;
-sun.shadow.camera.top = 55; sun.shadow.camera.bottom = -55;
-sun.shadow.bias = -0.0007;
-sun.shadow.normalBias = 0.035;
+sun.shadow.camera.far = 200;
+sun.shadow.camera.left = -60; sun.shadow.camera.right = 60;
+sun.shadow.camera.top = 60; sun.shadow.camera.bottom = -60;
+sun.shadow.bias = -0.0008;
+sun.shadow.normalBias = 0.04;
 scene.add(sun, sun.target);
 
-const hemi = new THREE.HemisphereLight(0x9fb8d0, 0x2c2a22, 0.85);
+// Sun disk visual (for lens-flare-like effect via bloom)
+const sunDiskGeo = new THREE.PlaneGeometry(30, 30);
+const sunDiskMat = new THREE.MeshBasicMaterial({
+  color:0xfff2c0, transparent:true, opacity:0.9, depthWrite:false,
+  blending:THREE.AdditiveBlending, fog:false,
+});
+const sunDisk = new THREE.Mesh(sunDiskGeo, sunDiskMat);
+scene.add(sunDisk);
+
+const hemi = new THREE.HemisphereLight(0x9fb8d0, 0x2c2a22, 1.0);
 scene.add(hemi);
-const ambient = new THREE.AmbientLight(0x404a55, 0.42);
+const ambient = new THREE.AmbientLight(0x404a55, 0.46);
 scene.add(ambient);
 
 /* ============================================================================
@@ -616,11 +622,11 @@ function tubeFromCurve(curve, radiusFn, segs=20, radial=12, noiseAmp=0, noiseFre
     }
   }
   for (let i=0;i<segs;i++) for (let j=0;j<radial;j++){
-    const a=i*radial+j, b=i*radial+(j+1)%radial, c=(i+1)*radial+(j+1)%radial, d=(i+1)*radial+j;
-    indices.push(a,b,d, b,c,d);
+    const a=i*radial+j,b=i*radial+(j+1)%radial,c=(i+1)*radial+(j+1)%radial,d=(i+1)*radial+j;
+    indices.push(a,b,d,b,c,d);
   }
   const g = new THREE.BufferGeometry();
-  g.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  g.setAttribute('position', new THREE.Float32BufferAttribute(positions,3));
   g.setIndex(indices);
   g.computeVertexNormals();
   return g;
@@ -630,16 +636,21 @@ function tubeFromCurve(curve, radiusFn, segs=20, radial=12, noiseAmp=0, noiseFre
    7. TERRAIN + WATER
    ========================================================================== */
 const WORLD_SIZE = 220;
-const WATER_LEVEL = 0.35;
+const WATER_LEVEL = 0.8; // Higher = more water
 
 function terrainHeight(x,z){
   let h = 0;
-  h += PERLIN.fbm(x*0.0072, 0, z*0.0072, 5)*24;
-  h += PERLIN2.fbm(x*0.028, 0, z*0.028, 3)*5.5;
-  h += PERLIN.fbm(x*0.11, 0, z*0.11, 2)*1.15;
+  h += PERLIN.fbm(x*0.0075, 0, z*0.0075, 5) * 22;
+  h += PERLIN2.fbm(x*0.026, 0, z*0.026, 3) * 5;
+  h += PERLIN.fbm(x*0.12, 0, z*0.12, 2) * 1.0;
+  // Spawn plateau
   const d = Math.hypot(x,z);
-  const flat = clamp((d-7)/15, 0, 1);
-  return h*flat;
+  const flat = clamp((d-8)/18, 0, 1);
+  // Gentle ocean basin at edges (below water)
+  const edge = clamp((d - 90) / 25, 0, 1);
+  h = h*flat;
+  h = h * (1 - edge*0.6) - edge*2.5;
+  return h;
 }
 function terrainNormal(x,z){
   const e=0.6;
@@ -648,10 +659,17 @@ function terrainNormal(x,z){
     terrainHeight(x,z-e)-terrainHeight(x,z+e)
   ).normalize();
 }
+function isLand(x,z){
+  return terrainHeight(x,z) > WATER_LEVEL + 0.15;
+}
+function isSandyBeach(x,z){
+  const h = terrainHeight(x,z);
+  return h > WATER_LEVEL + 0.05 && h < WATER_LEVEL + 0.7;
+}
 
 let terrainMesh = null;
 function buildTerrain(){
-  const SEG = settings.quality>=3 ? 190 : (settings.quality>=2 ? 150 : 100);
+  const SEG = settings.quality >= 2 ? 200 : (settings.quality >= 1 ? 160 : 110);
   const geo = new THREE.PlaneGeometry(WORLD_SIZE, WORLD_SIZE, SEG, SEG);
   geo.rotateX(-Math.PI/2);
   const pos = geo.attributes.position;
@@ -662,54 +680,70 @@ function buildTerrain(){
   geo.computeVertexNormals();
   const nrm = geo.attributes.normal;
   const colors = new Float32Array(pos.count*3);
-  const cGrassA=new THREE.Color(0x33501f), cGrassB=new THREE.Color(0x4a6b2a);
-  const cDirt=new THREE.Color(0x4a3a26), cRock=new THREE.Color(0x5b5b5e);
-  const cSnow=new THREE.Color(0xdfe6ea), cSand=new THREE.Color(0x8f7f5c);
+  const cGrassA=new THREE.Color(0x2c4a1c), cGrassB=new THREE.Color(0x4a6b2a);
+  const cGrassC=new THREE.Color(0x5e8330);
+  const cDirt=new THREE.Color(0x4a3a26), cRock=new THREE.Color(0x54545a);
+  const cSnow=new THREE.Color(0xdfe6ea), cSand=new THREE.Color(0xc2ab7c);
+  const cWetSand=new THREE.Color(0x8f7f5c);
   const tmp = new THREE.Color();
   for (let i=0;i<pos.count;i++){
     const x = pos.getX(i), z = pos.getZ(i), y = pos.getY(i);
     const slope = 1 - nrm.getY(i);
     const v = PERLIN.fbm(x*0.4, y*0.4, z*0.4, 3)*0.5 + 0.5;
+    // Base grass
     tmp.copy(cGrassA).lerp(cGrassB, v);
-    if (y < WATER_LEVEL+0.9) tmp.lerp(cSand, clamp((WATER_LEVEL+0.9-y)/1.2, 0, 1));
-    tmp.lerp(cRock, clamp((slope-0.28)*3.4, 0, 1));
+    tmp.lerp(cGrassC, PERLIN2.fbm(x*0.6, 0, z*0.6, 2)*0.4+0.4);
+    // Beach
+    if (y < WATER_LEVEL + 1.3){
+      const t = clamp((WATER_LEVEL + 1.3 - y) / 1.3, 0, 1);
+      tmp.lerp(cSand, t*t);
+      if (y < WATER_LEVEL + 0.35) tmp.lerp(cWetSand, clamp((WATER_LEVEL+0.35-y)/0.4,0,1)*0.7);
+    }
+    // Rock on slopes
+    tmp.lerp(cRock, clamp((slope-0.32)*3.6, 0, 1));
+    // Snow
     if (y > 15.5) tmp.lerp(cSnow, clamp((y-15.5)/5, 0, 1));
-    tmp.lerp(cDirt, clamp((y-12)*0.06, 0, 0.35)*(1-clamp((slope-0.3)*2,0,1)));
+    // Dirt patches
+    tmp.lerp(cDirt, clamp((y-13)*0.05, 0, 0.30)*(1-clamp((slope-0.3)*2,0,1)));
     colors[i*3]=tmp.r; colors[i*3+1]=tmp.g; colors[i*3+2]=tmp.b;
   }
   geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-  const mat = new THREE.MeshStandardMaterial({ vertexColors:true, roughness:0.96, metalness:0, dithering:true });
+  const mat = new THREE.MeshStandardMaterial({ vertexColors:true, roughness:0.96, metalness:0 });
   terrainMesh = new THREE.Mesh(geo, mat);
   terrainMesh.receiveShadow = true;
   scene.add(terrainMesh);
 }
 
-let waterMesh = null, waterBasePos = null;
+/* --- WATER with shader --- */
+let waterMesh = null;
+const waterUniforms = { uTime:{value:0} };
 function buildWater(){
-  const geo = new THREE.PlaneGeometry(WORLD_SIZE*1.4, WORLD_SIZE*1.4, 60, 60);
+  const geo = new THREE.PlaneGeometry(WORLD_SIZE*1.6, WORLD_SIZE*1.6, 90, 90);
   geo.rotateX(-Math.PI/2);
-  waterBasePos = geo.attributes.position.array.slice();
   const mat = new THREE.MeshStandardMaterial({
-    color:0x16323f, roughness:0.08, metalness:0.72,
-    transparent:true, opacity:0.86, envMapIntensity:1.6,
+    color:0x1a4a5e, roughness:0.05, metalness:0.82,
+    transparent:true, opacity:0.78, envMapIntensity:1.8,
   });
+  // Add wave deformation via shader
+  mat.onBeforeCompile = (shader) => {
+    shader.uniforms.uTime = waterUniforms.uTime;
+    shader.vertexShader = 'uniform float uTime;\n' + shader.vertexShader;
+    shader.vertexShader = shader.vertexShader.replace(
+      '#include <begin_vertex>',
+      `#include <begin_vertex>
+       float w = sin(position.x*0.35 + uTime*1.1)*0.12
+               + sin(position.z*0.28 - uTime*0.9)*0.10
+               + sin((position.x+position.z)*0.55 + uTime*1.9)*0.045;
+       transformed.y += w;
+      `);
+  };
   waterMesh = new THREE.Mesh(geo, mat);
   waterMesh.position.y = WATER_LEVEL;
+  waterMesh.renderOrder = 1;
   scene.add(waterMesh);
 }
 function updateWater(t){
-  if (!waterMesh) return;
-  const pos = waterMesh.geometry.attributes.position;
-  const arr = pos.array;
-  for (let i=0;i<pos.count;i++){
-    const ix = i*3;
-    const x = waterBasePos[ix], z = waterBasePos[ix+2];
-    arr[ix+1] = Math.sin(x*0.28+t*1.05)*0.075
-              + Math.sin(z*0.19-t*0.82)*0.065
-              + Math.sin((x+z)*0.44+t*1.7)*0.028;
-  }
-  pos.needsUpdate = true;
-  waterMesh.geometry.computeVertexNormals();
+  waterUniforms.uTime.value = t;
 }
 
 /* ============================================================================
@@ -736,13 +770,50 @@ function makeLeafTexture(){
   t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
   return t;
 }
+function makeGrassBladeTexture(){
+  const c = document.createElement('canvas'); c.width=32; c.height=64;
+  const g = c.getContext('2d');
+  const grad = g.createLinearGradient(0,0,0,64);
+  grad.addColorStop(0,'#88c04a'); grad.addColorStop(0.7,'#4a7520'); grad.addColorStop(1,'#2a4410');
+  g.fillStyle = grad;
+  g.beginPath();
+  g.moveTo(16, 2);
+  g.lineTo(28, 60);
+  g.lineTo(4, 60);
+  g.closePath();
+  g.fill();
+  g.strokeStyle = 'rgba(20,40,10,0.4)'; g.lineWidth = 0.8;
+  g.beginPath(); g.moveTo(16,4); g.lineTo(16,60); g.stroke();
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+  return t;
+}
+function makeFernTexture(){
+  const c = document.createElement('canvas'); c.width=64; c.height=64;
+  const g = c.getContext('2d');
+  const grad = g.createLinearGradient(0,0,0,64);
+  grad.addColorStop(0,'#5c8a3a'); grad.addColorStop(1,'#2a4a18');
+  g.fillStyle = grad;
+  g.beginPath(); g.moveTo(32,2); g.bezierCurveTo(60,20,60,50,32,62);
+  g.bezierCurveTo(4,50,4,20,32,2); g.fill();
+  g.strokeStyle = 'rgba(20,40,12,0.7)'; g.lineWidth = 1.4;
+  g.beginPath(); g.moveTo(32,4); g.lineTo(32,58); g.stroke();
+  for (let i=1;i<=6;i++){
+    const y = 6 + i*8;
+    g.beginPath(); g.moveTo(32,y); g.lineTo(10,y+4); g.stroke();
+    g.beginPath(); g.moveTo(32,y); g.lineTo(54,y+4); g.stroke();
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
 function makeBarkTexture(){
   const c = document.createElement('canvas'); c.width=128; c.height=256;
   const g = c.getContext('2d');
   g.fillStyle = '#4a3626'; g.fillRect(0,0,128,256);
   for (let i=0;i<800;i++){
-    const x = Math.random()*128, y = Math.random()*256;
-    const h = 6+Math.random()*40, w = 1+Math.random()*3;
+    const x=Math.random()*128, y=Math.random()*256;
+    const h=6+Math.random()*40, w=1+Math.random()*3;
     const v = Math.random();
     g.fillStyle = v>0.55 ? `rgba(92,70,50,${0.15+Math.random()*0.35})`
                         : `rgba(30,20,12,${0.15+Math.random()*0.45})`;
@@ -755,6 +826,8 @@ function makeBarkTexture(){
   return t;
 }
 const LEAF_TEX = makeLeafTexture();
+const GRASS_TEX = makeGrassBladeTexture();
+const FERN_TEX = makeFernTexture();
 const BARK_TEX = makeBarkTexture();
 
 const barkMat = new THREE.MeshStandardMaterial({ color:0x6b5238, map:BARK_TEX, roughness:0.95 });
@@ -788,10 +861,11 @@ function applyWind(material, strength=0.08, speed=1.6){
 }
 
 /* ============================================================================
-   9. TREES
+   9. TREES (with stored positions for canopy checks)
    ========================================================================== */
 const leafInstances = [];
 const harvestables = [];
+const treeCanopies = []; // { x, z, r, h } for rain occlusion
 
 const _m4 = new THREE.Matrix4();
 const _q  = new THREE.Quaternion();
@@ -811,12 +885,12 @@ function addLeaf(x,y,z,scale,tilt){
 function buildTree(px,pz){
   const group = new THREE.Group();
   const baseY = terrainHeight(px,pz);
-  group.position.set(px,baseY,pz);
+  group.position.set(px, baseY, pz);
   group.rotation.y = rnd(0,Math.PI*2);
 
-  const H = rnd(6.5,11.5);
-  const rBase = rnd(0.26,0.44);
-  const bendX = rnd(-0.7,0.7), bendZ = rnd(-0.7,0.7);
+  const H = rnd(7,12.5);
+  const rBase = rnd(0.28,0.48);
+  const bendX = rnd(-0.8,0.8), bendZ = rnd(-0.8,0.8);
 
   const spine = new THREE.CatmullRomCurve3([
     new THREE.Vector3(0,0,0),
@@ -831,12 +905,12 @@ function buildTree(px,pz){
   group.add(trunk);
 
   const branchTips = [];
-  const nB = 7 + (Math.random()*5|0);
+  const nB = 8 + (Math.random()*5|0);
   for (let i=0;i<nB;i++){
     const t0 = 0.36 + (i/nB)*0.58;
     const p0 = spine.getPointAt(clamp(t0,0,1));
     const ang = rnd(0,Math.PI*2);
-    const len = rnd(1.6,3.4)*(1-t0*0.35);
+    const len = rnd(1.8,3.6)*(1-t0*0.35);
     const up = rnd(0.35,1.15);
     const dir = new THREE.Vector3(Math.cos(ang),up,Math.sin(ang)).normalize();
     const bSpine = new THREE.CatmullRomCurve3([
@@ -844,7 +918,7 @@ function buildTree(px,pz){
       p0.clone().addScaledVector(dir, len*0.42).add(new THREE.Vector3(rnd(-.25,.25),rnd(0,.3),rnd(-.25,.25))),
       p0.clone().addScaledVector(dir, len).add(new THREE.Vector3(rnd(-.4,.4),rnd(-.1,.4),rnd(-.4,.4))),
     ]);
-    const bGeo = tubeFromCurve(bSpine, t=>(0.085*(1-t*0.72))*(1-t0*0.4), 10, 7, 0.008, 7);
+    const bGeo = tubeFromCurve(bSpine, t=>(0.09*(1-t*0.72))*(1-t0*0.4), 10, 7, 0.008, 7);
     const bMesh = new THREE.Mesh(bGeo, barkMat);
     bMesh.castShadow = true; bMesh.receiveShadow = true;
     group.add(bMesh);
@@ -854,9 +928,10 @@ function buildTree(px,pz){
   group.updateMatrixWorld(true);
   const tips = branchTips.map(v=>v.clone().applyMatrix4(group.matrixWorld));
   const crownCenter = new THREE.Vector3(px, baseY + H*0.86, pz);
+  const leafCount = settings.quality >= 2 ? 240 : (settings.quality >= 1 ? 160 : 100);
   for (const tip of tips){
-    const count = 30 + (Math.random()*20|0);
-    const R = rnd(0.85,1.5);
+    const count = (leafCount*0.65|0);
+    const R = rnd(0.9,1.6);
     for (let i=0;i<count;i++){
       const r = R*Math.cbrt(Math.random());
       const th = Math.random()*Math.PI*2;
@@ -865,22 +940,26 @@ function buildTree(px,pz){
         tip.x + r*Math.sin(ph)*Math.cos(th),
         tip.y + r*Math.cos(ph)*0.75,
         tip.z + r*Math.sin(ph)*Math.sin(th),
-        rnd(0.42,0.68), rnd(-0.7,0.7));
+        rnd(0.45,0.72), rnd(-0.7,0.7));
     }
   }
-  for (let i=0;i<110;i++){
-    const r = rnd(0, H*0.34);
+  const extra = (leafCount*0.35|0);
+  for (let i=0;i<extra;i++){
+    const r = rnd(0, H*0.36);
     const th = Math.random()*Math.PI*2;
     const ph = Math.acos(rnd(-1,1));
     addLeaf(
       crownCenter.x + r*Math.sin(ph)*Math.cos(th),
-      crownCenter.y + r*Math.cos(ph)*0.7,
+      crownCenter.y + r*Math.cos(ph)*0.72,
       crownCenter.z + r*Math.sin(ph)*Math.sin(th),
-      rnd(0.36,0.62), rnd(-0.8,0.8));
+      rnd(0.40,0.66), rnd(-0.8,0.8));
   }
 
   scene.add(group);
   harvestables.push({ object:trunk, root:group, type:'tree', hp:5, maxHp:5 });
+
+  // Store canopy for rain occlusion
+  treeCanopies.push({ x:px, z:pz, r: Math.max(2.5, H*0.35), y: baseY });
 }
 
 /* ============================================================================
@@ -911,50 +990,62 @@ function buildRock(px,pz,scale){
 }
 
 /* ============================================================================
-   11. GRASS
+   11. GRASS + FERNS (dense)
    ========================================================================== */
 let grassMesh = null;
+let fernMesh = null;
+
 function buildGrass(){
+  // Grass blade — curved quad
   const bladeGeo = new THREE.BufferGeometry();
-  const verts = [], idx = [];
-  const SEG = 5;
+  const verts = [], uvs = [], idx = [];
+  const SEG = 6;
   for (let i=0;i<=SEG;i++){
     const t = i/SEG;
-    const w = (1-t)*0.055;
-    const y = t*0.62;
-    const bend = t*t*0.16;
-    verts.push(-w,y,bend, w,y,bend);
+    const w = (1-t*0.85)*0.06;
+    const y = t*0.75;
+    const bend = t*t*0.20;
+    verts.push(-w, y, bend,  w, y, bend);
+    uvs.push(0, t, 1, t);
   }
   for (let i=0;i<SEG;i++){
     const a=i*2,b=i*2+1,c=i*2+2,d=i*2+3;
     idx.push(a,b,c, b,d,c);
   }
   bladeGeo.setAttribute('position', new THREE.Float32BufferAttribute(verts,3));
+  bladeGeo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs,2));
   bladeGeo.setIndex(idx);
   bladeGeo.computeVertexNormals();
-  const mat = new THREE.MeshStandardMaterial({ color:0x5d8a34, roughness:1, side:THREE.DoubleSide });
-  applyWind(mat, 0.075, 1.9);
 
-  const COUNT = settings.quality>=3 ? 3200 : (settings.quality>=2 ? 2000 : 1000);
-  grassMesh = new THREE.InstancedMesh(bladeGeo, mat, COUNT);
+  const gMat = new THREE.MeshStandardMaterial({
+    map:GRASS_TEX, color:0xffffff, roughness:1, side:THREE.DoubleSide,
+    transparent:true, alphaTest:0.35,
+  });
+  applyWind(gMat, 0.09, 1.9);
+
+  const COUNT = settings.quality >= 2 ? 9000 : (settings.quality >= 1 ? 5000 : 2200);
+  grassMesh = new THREE.InstancedMesh(bladeGeo, gMat, COUNT);
   grassMesh.receiveShadow = true;
+
   const m=new THREE.Matrix4(), q=new THREE.Quaternion(), e=new THREE.Euler();
   const p=new THREE.Vector3(), s=new THREE.Vector3();
   let placed=0, tries=0;
-  while (placed<COUNT && tries<COUNT*8){
+  while (placed<COUNT && tries<COUNT*10){
     tries++;
     const a = Math.random()*Math.PI*2;
-    const r = Math.sqrt(Math.random())*58;
+    const r = Math.sqrt(Math.random())*70;
     const x = Math.cos(a)*r, z = Math.sin(a)*r;
     const y = terrainHeight(x,z);
-    if (y < WATER_LEVEL+0.6 || y > 16) continue;
+    // Grass only on land, not sand, not steep
+    if (y < WATER_LEVEL + 0.7 || y > 17) continue;
+    if (isSandyBeach(x,z)) continue;
     const n = terrainNormal(x,z);
-    if (n.y < 0.78) continue;
-    e.set(rnd(-0.18,0.18), rnd(0,Math.PI*2), rnd(-0.18,0.18));
+    if (n.y < 0.72) continue;
+    e.set(rnd(-0.2,0.2), rnd(0,Math.PI*2), rnd(-0.2,0.2));
     q.setFromEuler(e);
     p.set(x,y,z);
     const sc = rnd(0.7,1.9);
-    s.set(sc, sc*rnd(0.8,1.5), sc);
+    s.set(sc, sc*rnd(0.8,1.6), sc);
     m.compose(p,q,s);
     grassMesh.setMatrixAt(placed, m);
     placed++;
@@ -962,10 +1053,44 @@ function buildGrass(){
   grassMesh.count = placed;
   grassMesh.instanceMatrix.needsUpdate = true;
   scene.add(grassMesh);
+
+  // Ferns — larger plants
+  const fernGeo = new THREE.PlaneGeometry(1.1, 1.1);
+  const fernMat = new THREE.MeshStandardMaterial({
+    map:FERN_TEX, transparent:true, alphaTest:0.4, side:THREE.DoubleSide,
+    roughness:0.9, color:0x8fbf60,
+  });
+  applyWind(fernMat, 0.13, 1.4);
+
+  const FCOUNT = settings.quality >= 2 ? 900 : (settings.quality >= 1 ? 500 : 200);
+  fernMesh = new THREE.InstancedMesh(fernGeo, fernMat, FCOUNT);
+  fernMesh.receiveShadow = true;
+  placed = 0; tries = 0;
+  while (placed<FCOUNT && tries<FCOUNT*10){
+    tries++;
+    const a = Math.random()*Math.PI*2;
+    const r = 4 + Math.sqrt(Math.random())*65;
+    const x = Math.cos(a)*r, z = Math.sin(a)*r;
+    const y = terrainHeight(x,z);
+    if (y < WATER_LEVEL + 0.9 || y > 16) continue;
+    const n = terrainNormal(x,z);
+    if (n.y < 0.75) continue;
+    e.set(0, rnd(0,Math.PI*2), rnd(-0.15,0.15));
+    q.setFromEuler(e);
+    p.set(x, y + 0.45, z);
+    const sc = rnd(0.7,1.4);
+    s.set(sc, sc*1.1, sc);
+    m.compose(p,q,s);
+    fernMesh.setMatrixAt(placed, m);
+    placed++;
+  }
+  fernMesh.count = placed;
+  fernMesh.instanceMatrix.needsUpdate = true;
+  scene.add(fernMesh);
 }
 
 /* ============================================================================
-   12. CAMPFIRE
+   12. CAMPFIRE — with land-only spawning
    ========================================================================== */
 class Campfire {
   constructor(x,z){
@@ -1000,7 +1125,7 @@ class Campfire {
     this.embers.position.y = 0.06;
     this.group.add(this.embers);
 
-    this.light = new THREE.PointLight(0xff8c30, 5.5, 22, 2);
+    this.light = new THREE.PointLight(0xff8c30, 6.5, 26, 2);
     this.light.position.set(0,1.0,0);
     this.light.castShadow = true;
     this.light.shadow.mapSize.set(512,512);
@@ -1008,7 +1133,7 @@ class Campfire {
     this.group.add(this.light);
 
     // Sparks
-    this.sparkCount = 220;
+    this.sparkCount = 240;
     this.sparkPos = new Float32Array(this.sparkCount*3);
     this.sparkVel = new Float32Array(this.sparkCount*3);
     this.sparkLife = new Float32Array(this.sparkCount);
@@ -1033,8 +1158,7 @@ class Campfire {
     this.sparks.frustumCulled = false;
     this.group.add(this.sparks);
 
-    // Smoke
-    this.smokeCount = 90;
+    this.smokeCount = 100;
     this.smokePos = new Float32Array(this.smokeCount*3);
     this.smokeVel = new Float32Array(this.smokeCount*3);
     this.smokeLife = new Float32Array(this.smokeCount);
@@ -1052,7 +1176,7 @@ class Campfire {
         gl_PointSize=aSize*uPR*300.0/max(-mv.z,0.001);}`,
       fragmentShader:`varying float vL;
         void main(){vec2 uv=gl_PointCoord-0.5;float d=length(uv);if(d>0.5)discard;
-        float a=smoothstep(0.5,0.05,d)*vL*0.32;gl_FragColor=vec4(vec3(0.24,0.23,0.22),a);}`
+        float a=smoothstep(0.5,0.05,d)*vL*0.35;gl_FragColor=vec4(vec3(0.22,0.21,0.20),a);}`
     });
     this.smoke = new THREE.Points(smGeo, this.smokeMat);
     this.smoke.frustumCulled = false;
@@ -1086,7 +1210,7 @@ class Campfire {
   update(dt, t){
     this.time += dt;
     const f = 0.78 + Math.sin(t*11.3)*0.09 + Math.sin(t*23.7)*0.06 + Math.sin(t*3.1)*0.07;
-    this.light.intensity = 5.2*f;
+    this.light.intensity = 6.2*f;
     this.light.color.setHSL(0.075+Math.sin(t*4.1)*0.012, 0.95, 0.52+f*0.06);
     this.emberMat.opacity = 0.55 + f*0.35;
     this.embers.scale.setScalar(0.92 + f*0.12);
@@ -1120,9 +1244,11 @@ class Campfire {
 
 let campfire = null;
 function placeCampfire(x,z){
+  // CRITICAL FIX: refuse if not on land
+  if (!isLand(x,z)) return false;
   if (campfire) scene.remove(campfire.group);
   campfire = new Campfire(x,z);
-  return campfire;
+  return true;
 }
 
 /* ============================================================================
@@ -1180,8 +1306,8 @@ function buildHand(mirror=1){
   palm.castShadow = true;
   hand.add(palm);
 
-  const fx = [-0.031, -0.010, 0.011, 0.032];
-  const fl = [0.082, 0.092, 0.086, 0.070];
+  const fx = [-0.031,-0.010,0.011,0.032];
+  const fl = [0.082,0.092,0.086,0.070];
   for (let i=0;i<4;i++){
     const f = buildFinger(fl[i], 0.0108, 1.35, skinMat);
     f.position.set(fx[i]*mirror, -0.014, -0.052);
@@ -1195,7 +1321,6 @@ function buildHand(mirror=1){
   palm.add(thumb);
   return hand;
 }
-
 function buildAxe(){
   const axe = new THREE.Group();
   const shaftGeo = new THREE.CylinderGeometry(0.017, 0.021, 0.72, 12, 8);
@@ -1257,7 +1382,6 @@ function buildAxe(){
   axe.add(butt);
   return axe;
 }
-
 function buildMeat(){
   const g = new THREE.Group();
   const geo = new THREE.IcosahedronGeometry(0.075, 3);
@@ -1318,13 +1442,12 @@ rightHandGroup.rotation.copy(RIGHT_ROT);
 leftHandGroup.position.copy(LEFT_BASE);
 leftHandGroup.rotation.copy(LEFT_ROT);
 
-const handState = {
-  swayX:0, swayY:0, targetSwayX:0, targetSwayY:0,
-  swing:0, swingActive:false, swingT:0, usePulse:0,
-};
+const handState = { swayX:0, swayY:0, targetSwayX:0, targetSwayY:0,
+  swingActive:false, swingT:0, usePulse:0, swimStroke:0 };
 
 /* ============================================================================
-   14. WOLVES
+   14. WOLF — FIXED ORIENTATION
+   Forward = local +Z. Root sits at ground level, body at legHeight.
    ========================================================================== */
 const wolfFurMat  = new THREE.MeshStandardMaterial({ color:0x4a4a52, roughness:0.94 });
 const wolfFurDark = new THREE.MeshStandardMaterial({ color:0x2a2a30, roughness:0.96 });
@@ -1333,16 +1456,17 @@ const wolfEyeMat  = new THREE.MeshStandardMaterial({ color:0xffb020, emissive:0x
 const wolfNoseMat = new THREE.MeshStandardMaterial({ color:0x141416, roughness:0.35, metalness:0.1 });
 const wolfTeethMat= new THREE.MeshStandardMaterial({ color:0xe8e2d0, roughness:0.35 });
 
+// Body along +Z, Y is up. Curve from back(-Z) to shoulder(+Z), all at Y≈0.
 function buildWolfBody(){
   const spine = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(0, 0.02, -0.56),
-    new THREE.Vector3(0, 0.05, -0.30),
-    new THREE.Vector3(0, 0.07,  0.00),
-    new THREE.Vector3(0, 0.09,  0.30),
-    new THREE.Vector3(0, 0.13,  0.56),
-    new THREE.Vector3(0, 0.17,  0.72),
+    new THREE.Vector3(0, -0.02, -0.60),
+    new THREE.Vector3(0,  0.01, -0.30),
+    new THREE.Vector3(0,  0.03,  0.00),
+    new THREE.Vector3(0,  0.05,  0.32),
+    new THREE.Vector3(0,  0.08,  0.58),
+    new THREE.Vector3(0,  0.11,  0.72),
   ]);
-  const N=30, M=16;
+  const N = 30, M = 16;
   const positions=[], indices=[];
   for (let i=0;i<=N;i++){
     const t = i/N;
@@ -1353,18 +1477,18 @@ function buildWolfBody(){
       const a = (j/M)*Math.PI*2;
       const cx = Math.cos(a), cy = Math.sin(a);
       let px = p.x + cx*r;
-      let py = p.y + cy*r*0.92;
+      let py = p.y + cy*r*0.88;
       let pz = p.z;
       const n = PERLIN.fbm(px*7, py*7, pz*7, 2)*0.012;
       px += cx*n; py += cy*n;
       py += Math.exp(-Math.pow((t-0.70)*7,2))*0.028*Math.max(0,cy);
       py += Math.exp(-Math.pow((t-0.22)*6.5,2))*0.024*Math.max(0,cy);
-      positions.push(px, py, pz);
+      positions.push(px,py,pz);
     }
   }
   for (let i=0;i<N;i++) for (let j=0;j<M;j++){
-    const a=i*M+j, b=i*M+(j+1)%M, c=(i+1)*M+(j+1)%M, d=(i+1)*M+j;
-    indices.push(a,b,d, b,c,d);
+    const a=i*M+j,b=i*M+(j+1)%M,c=(i+1)*M+(j+1)%M,d=(i+1)*M+j;
+    indices.push(a,b,d,b,c,d);
   }
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute(positions,3));
@@ -1372,64 +1496,79 @@ function buildWolfBody(){
   g.computeVertexNormals();
   return g;
 }
+
+// Head group — forward is +Z, up is +Y
 function buildWolfHead(){
   const head = new THREE.Group();
-  const skull = erodeGeometry(new THREE.IcosahedronGeometry(0.115,3), 0.16, 9, 3);
-  skull.scale(1, 0.88, 1.12);
+  // Skull — slightly elongated along Z
+  const skull = erodeGeometry(new THREE.IcosahedronGeometry(0.11,3), 0.15, 9, 3);
+  skull.scale(1.0, 0.90, 1.15);
   const skullMesh = new THREE.Mesh(skull, wolfFurMat);
   skullMesh.castShadow = true;
   head.add(skullMesh);
 
+  // Snout — goes forward (+Z) and slightly down
   const snoutSpine = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(0, -0.018, 0.06),
-    new THREE.Vector3(0, -0.040, 0.15),
-    new THREE.Vector3(0, -0.052, 0.24),
+    new THREE.Vector3(0, -0.010, 0.06),
+    new THREE.Vector3(0, -0.030, 0.14),
+    new THREE.Vector3(0, -0.045, 0.23),
   ]);
   const snoutGeo = tubeFromCurve(snoutSpine, t=>0.058*(1-t*0.42), 10, 10, 0.004, 8);
   const snout = new THREE.Mesh(snoutGeo, wolfFurLight);
   snout.castShadow = true;
   head.add(snout);
 
-  const nose = new THREE.Mesh(new THREE.IcosahedronGeometry(0.030,2), wolfNoseMat);
-  nose.position.set(0, -0.052, 0.245);
-  nose.scale.set(1, 0.82, 0.9);
+  const nose = new THREE.Mesh(new THREE.IcosahedronGeometry(0.028,2), wolfNoseMat);
+  nose.position.set(0, -0.048, 0.235);
+  nose.scale.set(1, 0.85, 0.9);
   head.add(nose);
 
+  // Eyes on top of skull, forward
   for (const sx of [-1,1]){
-    const socket = new THREE.Mesh(new THREE.SphereGeometry(0.026,10,8), wolfFurDark);
-    socket.position.set(sx*0.055, 0.018, 0.082);
+    const socket = new THREE.Mesh(new THREE.SphereGeometry(0.024,10,8), wolfFurDark);
+    socket.position.set(sx*0.052, 0.020, 0.075);
     head.add(socket);
-    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.017,10,8), wolfEyeMat);
-    eye.position.set(sx*0.058, 0.020, 0.096);
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.016,10,8), wolfEyeMat);
+    eye.position.set(sx*0.055, 0.022, 0.088);
     head.add(eye);
     const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.007,8,6), wolfNoseMat);
-    pupil.position.set(sx*0.060, 0.020, 0.110);
+    pupil.position.set(sx*0.057, 0.022, 0.100);
     head.add(pupil);
-    const earGeo = new THREE.ConeGeometry(0.042, 0.115, 6, 1);
+  }
+
+  // Ears — pointing UP (+Y) and slightly back
+  for (const sx of [-1,1]){
+    const earGeo = new THREE.ConeGeometry(0.040, 0.115, 6, 1);
     const ear = new THREE.Mesh(earGeo, wolfFurDark);
-    ear.position.set(sx*0.062, 0.115, 0.005);
-    ear.rotation.set(-0.30, 0, sx*0.28);
+    ear.position.set(sx*0.060, 0.100, -0.010);
+    ear.rotation.set(0.20, 0, sx*0.28);
     ear.castShadow = true;
     head.add(ear);
-    const inner = new THREE.Mesh(new THREE.ConeGeometry(0.026, 0.078, 6, 1), wolfFurLight);
-    inner.position.set(sx*0.062, 0.118, 0.020);
-    inner.rotation.set(-0.30, 0, sx*0.28);
+    const inner = new THREE.Mesh(new THREE.ConeGeometry(0.024, 0.075, 6, 1), wolfFurLight);
+    inner.position.set(sx*0.060, 0.105, 0.005);
+    inner.rotation.set(0.20, 0, sx*0.28);
     head.add(inner);
+  }
+
+  // Fangs pointing DOWN, in front
+  for (const sx of [-1,1]){
     for (let i=0;i<3;i++){
-      const fang = new THREE.Mesh(new THREE.ConeGeometry(0.006,0.020,5), wolfTeethMat);
-      fang.position.set(sx*(0.016+i*0.011), -0.062, 0.19+i*0.014);
+      const fang = new THREE.Mesh(new THREE.ConeGeometry(0.006,0.018,5), wolfTeethMat);
+      fang.position.set(sx*(0.014+i*0.011), -0.058, 0.18+i*0.014);
       fang.rotation.x = Math.PI;
       head.add(fang);
     }
   }
   return head;
 }
+
+// Leg — hangs down (-Y) from attachment point
 function buildWolfLeg(front){
   const root = new THREE.Group();
-  const ul = front ? 0.27 : 0.29;
-  const ll = front ? 0.26 : 0.28;
-  const ru = front ? 0.055 : 0.062;
-  const rl = front ? 0.036 : 0.040;
+  const ul = front ? 0.26 : 0.28;
+  const ll = front ? 0.24 : 0.26;
+  const ru = front ? 0.052 : 0.058;
+  const rl = front ? 0.034 : 0.038;
 
   const upperGeo = new THREE.CylinderGeometry(ru*0.72, ru, ul, 9, 3);
   const upper = new THREE.Mesh(upperGeo, wolfFurMat);
@@ -1450,11 +1589,20 @@ function buildWolfLeg(front){
   ankle.position.y = -ll;
   knee.add(ankle);
 
-  const pawGeo = new THREE.BoxGeometry(0.075, 0.045, 0.115, 3, 2, 4);
+  // Paw — flat, elongated forward (+Z)
+  const pawGeo = new THREE.BoxGeometry(0.070, 0.042, 0.105, 3, 2, 4);
   const paw = new THREE.Mesh(pawGeo, wolfFurDark);
-  paw.position.set(0, -0.023, 0.028);
+  paw.position.set(0, -0.020, 0.022);
   paw.castShadow = true;
   ankle.add(paw);
+
+  // Claws
+  for (let i=-1;i<=1;i++){
+    const claw = new THREE.Mesh(new THREE.ConeGeometry(0.005,0.020,5), wolfTeethMat);
+    claw.position.set(i*0.018, -0.030, 0.072);
+    claw.rotation.x = Math.PI/2 + 0.25;
+    ankle.add(claw);
+  }
 
   return { root, knee, ankle };
 }
@@ -1462,55 +1610,65 @@ function buildWolfLeg(front){
 class Wolf {
   constructor(x,z){
     this.root = new THREE.Group();
-    const y = terrainHeight(x,z);
-    this.root.position.set(x,y,z);
+    // Root at ground level, body elevated
+    const groundY = terrainHeight(x,z);
+    this.root.position.set(x, groundY, z);
 
+    this.LEG_HEIGHT = 0.50;
+    this.bodyGroup = new THREE.Group();
+    this.bodyGroup.position.y = this.LEG_HEIGHT;
+    this.root.add(this.bodyGroup);
+
+    // Body along +Z
     const body = new THREE.Mesh(buildWolfBody(), wolfFurMat);
     body.castShadow = true; body.receiveShadow = true;
     this.body = body;
-    this.root.add(body);
+    this.bodyGroup.add(body);
 
+    // Neck at front of body (+Z)
     this.neck = new THREE.Group();
-    this.neck.position.set(0, 0.16, 0.66);
-    this.root.add(this.neck);
+    this.neck.position.set(0, 0.05, 0.62);
+    this.bodyGroup.add(this.neck);
     this.head = buildWolfHead();
-    this.head.position.set(0, 0.05, 0.10);
+    this.head.position.set(0, 0.03, 0.10);
     this.neck.add(this.head);
 
-    const LY = 0.62;
-    const pos = [
-      { x:-0.115, z: 0.36, front:true  },
-      { x: 0.115, z: 0.36, front:true  },
-      { x:-0.130, z:-0.34, front:false },
-      { x: 0.130, z:-0.34, front:false },
+    // Legs — 4 attach points in body space
+    const legPositions = [
+      { x:-0.105, z: 0.36, front:true  }, // FL
+      { x: 0.105, z: 0.36, front:true  }, // FR
+      { x:-0.120, z:-0.34, front:false }, // BL
+      { x: 0.120, z:-0.34, front:false }, // BR
     ];
     this.legs = [];
-    for (const p of pos){
+    for (const p of legPositions){
       const leg = buildWolfLeg(p.front);
-      leg.root.position.set(p.x, LY, p.z);
-      this.root.add(leg.root);
+      // Attach leg to bottom of body
+      leg.root.position.set(p.x, -0.06, p.z);
+      this.bodyGroup.add(leg.root);
       this.legs.push(leg);
     }
 
+    // Tail — hangs back (-Z) and down
     this.tail = new THREE.Group();
     this.tail.position.set(0, 0.06, -0.58);
-    this.root.add(this.tail);
+    this.bodyGroup.add(this.tail);
     let parent = this.tail;
     this.tailSegs = [];
     for (let i=0;i<5;i++){
       const seg = new THREE.Group();
-      seg.position.y = i===0 ? 0 : -0.11;
-      const g = new THREE.CylinderGeometry(0.034-i*0.004, 0.040-i*0.004, 0.11, 7);
+      seg.position.z = i===0 ? 0 : -0.10;
+      const g = new THREE.CylinderGeometry(0.030-i*0.004, 0.036-i*0.004, 0.10, 7);
       g.rotateX(Math.PI/2);
       const m = new THREE.Mesh(g, i>2 ? wolfFurDark : wolfFurMat);
-      m.position.z = -0.055;
+      m.position.z = -0.05;
       m.castShadow = true;
       seg.add(m);
       parent.add(seg);
       parent = seg;
       this.tailSegs.push(seg);
     }
-    this.tail.rotation.x = -0.55;
+    this.tail.rotation.x = 0.35; // droop down
 
     this.hp = 100; this.maxHp = 100;
     this.state = 'wander';
@@ -1521,30 +1679,46 @@ class Wolf {
     this.dead = false;
     this.deathT = 0;
     this.hitFlash = 0;
+    this.howlCd = rnd(8, 20);
     scene.add(this.root);
   }
   update(dt, playerPos, t){
     if (this.dead){
       this.deathT += dt;
       this.root.rotation.z = Math.min(Math.PI/2*0.9, this.deathT*2.2);
-      this.root.position.y = lerp(this.root.position.y,
-        terrainHeight(this.root.position.x, this.root.position.z)+0.12, dt*3);
+      // Keep on ground
+      const gy = terrainHeight(this.root.position.x, this.root.position.z);
+      this.root.position.y = lerp(this.root.position.y, gy, dt*3);
+      this.bodyGroup.position.y = lerp(this.bodyGroup.position.y, 0.15, dt*2);
       return;
     }
     if (this.hitFlash > 0){
       this.hitFlash -= dt*4;
       const f = Math.max(0, this.hitFlash);
-      this.body.material = wolfFurMat.clone();
-      this.body.material.color.setRGB(0.29+f*0.7, 0.29, 0.32);
+      if (!this._flashMat) this._flashMat = wolfFurMat.clone();
+      this._flashMat.color.setRGB(0.29+f*0.7, 0.29, 0.32);
+      this.body.material = this._flashMat;
+    } else if (this._flashMat) {
+      this.body.material = wolfFurMat;
+      this._flashMat = null;
     }
 
     const toPlayer = new THREE.Vector3().subVectors(playerPos, this.root.position);
     toPlayer.y = 0;
     const dist = toPlayer.length();
 
-    if (dist < 18 && dist > 1.9) this.state = 'chase';
-    else if (dist <= 1.9) this.state = 'attack';
-    else if (dist >= 22) this.state = 'wander';
+    // Howl at night
+    this.howlCd -= dt;
+    if (this.howlCd <= 0 && dayLight < 0.3 && dist > 15){
+      this.howlCd = rnd(15, 35);
+      playWolfHowl(this.root.position.distanceTo(camera.position));
+    } else if (this.howlCd <= 0) {
+      this.howlCd = rnd(12, 25);
+    }
+
+    if (dist < 20 && dist > 2.0) this.state = 'chase';
+    else if (dist <= 2.0) this.state = 'attack';
+    else if (dist >= 24) this.state = 'wander';
 
     let moveDir = new THREE.Vector3();
     let targetSpeed = 0;
@@ -1564,7 +1738,7 @@ class Wolf {
       this.wanderAngle += rnd(-1.6,1.6)*dt;
       moveDir.set(Math.cos(this.wanderAngle), 0, Math.sin(this.wanderAngle));
       targetSpeed = 1.1;
-      if (dist < 10) moveDir.negate();
+      if (dist < 12) moveDir.negate();
     }
 
     this.speed = lerp(this.speed, targetSpeed, dt*3.2);
@@ -1577,9 +1751,12 @@ class Wolf {
       this.root.position.z = nz;
     } else this.wanderAngle += Math.PI;
 
+    // Stick to ground
     const gh = terrainHeight(this.root.position.x, this.root.position.z);
-    this.root.position.y = lerp(this.root.position.y, Math.max(gh, WATER_LEVEL-0.1), dt*8);
+    const targetY = Math.max(gh, WATER_LEVEL - 0.1);
+    this.root.position.y = lerp(this.root.position.y, targetY, dt*10);
 
+    // Face movement direction — local +Z points to (dx, dz)
     if (this.speed > 0.2){
       const targetYaw = Math.atan2(moveDir.x, moveDir.z);
       let d = targetYaw - this.root.rotation.y;
@@ -1588,10 +1765,12 @@ class Wolf {
       this.root.rotation.y += d*Math.min(1, dt*5.5);
     }
 
+    // Walk animation
     const stride = this.speed*2.6;
     this.phase += dt*stride*3.4;
     const s = Math.sin(this.phase);
     const amp = clamp(this.speed/3.5, 0, 1)*0.85 + 0.06;
+    // FL and BR sync; FR and BL opposite
     this.legs[0].root.rotation.x =  s*amp;
     this.legs[1].root.rotation.x = -s*amp;
     this.legs[2].root.rotation.x = -s*amp*0.95;
@@ -1608,25 +1787,28 @@ class Wolf {
     this.legs[2].ankle.rotation.x = -this.legs[2].knee.rotation.x*0.55;
     this.legs[3].ankle.rotation.x = -this.legs[3].knee.rotation.x*0.55;
 
-    this.body.position.y = Math.sin(this.phase*2)*0.014*kA;
-    this.body.rotation.z = Math.sin(this.phase)*0.045*kA;
-    this.body.rotation.x = Math.sin(this.phase*2+1)*0.02*kA - kA*0.03;
+    // Body bob
+    this.bodyGroup.position.y = this.LEG_HEIGHT + Math.sin(this.phase*2)*0.012*kA;
+    this.bodyGroup.rotation.z = Math.sin(this.phase)*0.035*kA;
+    this.bodyGroup.rotation.x = Math.sin(this.phase*2+1)*0.02*kA - kA*0.02;
 
-    this.neck.rotation.x = -0.18 + Math.sin(this.phase*2)*0.05*kA;
+    // Neck / head
+    this.neck.rotation.x = -0.05 + Math.sin(this.phase*2)*0.05*kA;
     this.neck.rotation.y = Math.sin(t*0.9)*0.10;
     if (this.state === 'chase' || this.state === 'attack'){
-      this.head.rotation.x = -0.10 - clamp(1.9-dist, 0, 1)*0.18;
+      this.head.rotation.x = -0.08;
       this.head.rotation.z = Math.sin(this.phase)*0.05;
     } else {
       this.head.rotation.x = Math.sin(t*0.7)*0.08;
       this.head.rotation.z = Math.sin(t*0.5)*0.06;
     }
 
+    // Tail
     for (let i=0;i<this.tailSegs.length;i++){
       this.tailSegs[i].rotation.y = Math.sin(t*3.4 + i*0.55)*0.20;
-      this.tailSegs[i].rotation.x = Math.sin(t*2.1 + i*0.4)*0.08;
+      this.tailSegs[i].rotation.x = Math.sin(t*2.1 + i*0.4)*0.06;
     }
-    this.tail.rotation.x = -0.55 - this.speed*0.06;
+    this.tail.rotation.x = 0.35 - this.speed*0.08;
 
     wolfEyeMat.emissiveIntensity = 1.2 + (1-dayLight)*2.6;
   }
@@ -1636,7 +1818,7 @@ class Wolf {
     this.hitFlash = 1.0;
     spawnBloodBurst(
       this.root.position.x+rnd(-0.2,0.2),
-      this.root.position.y+0.7,
+      this.root.position.y + this.LEG_HEIGHT + 0.2,
       this.root.position.z+rnd(-0.2,0.2));
     if (this.hp <= 0){
       this.dead = true; this.deathT = 0;
@@ -1688,8 +1870,7 @@ function spawnParticle(x,y,z,vx,vy,vz,r,g,b,size){
 }
 function spawnBloodBurst(x,y,z,n=18){
   for (let i=0;i<n;i++) spawnParticle(x,y,z,
-    rnd(-2.2,2.2), rnd(1.0,3.6), rnd(-2.2,2.2),
-    0.55,0.05,0.05, rnd(0.10,0.26));
+    rnd(-2.2,2.2), rnd(1.0,3.6), rnd(-2.2,2.2), 0.55,0.05,0.05, rnd(0.10,0.26));
 }
 function spawnWoodChips(x,y,z,n=16){
   for (let i=0;i<n;i++) spawnParticle(x,y,z,
@@ -1700,6 +1881,11 @@ function spawnStoneChips(x,y,z,n=16){
   for (let i=0;i<n;i++) spawnParticle(x,y,z,
     rnd(-2.8,2.8), rnd(1.2,4.0), rnd(-2.8,2.8),
     rnd(0.42,0.62), rnd(0.42,0.62), rnd(0.44,0.66), rnd(0.06,0.14));
+}
+function spawnSplash(x,y,z,n=26){
+  for (let i=0;i<n;i++) spawnParticle(x, y, z,
+    rnd(-3.2,3.2), rnd(2.5,5.5), rnd(-3.2,3.2),
+    0.75,0.88,0.95, rnd(0.10,0.28));
 }
 function updateParticles(dt){
   for (let i=0;i<PART_MAX;i++){
@@ -1721,20 +1907,150 @@ function updateParticles(dt){
 }
 
 /* ============================================================================
-   16. AUDIO (Web Audio API)
+   16. RAIN
    ========================================================================== */
-let audioCtx = null, ambientGain = null, windFilter = null;
+const RAIN_MAX = 800;
+const rainGeo = new THREE.BufferGeometry();
+const rainPos = new Float32Array(RAIN_MAX*3);
+const rainVel = new Float32Array(RAIN_MAX);
+const rainLen = new Float32Array(RAIN_MAX);
+for (let i=0;i<RAIN_MAX;i++) rainLen[i] = rnd(0.20, 0.38);
+rainGeo.setAttribute('position', new THREE.BufferAttribute(rainPos, 3));
+
+const rainMat = new THREE.ShaderMaterial({
+  transparent:true, depthWrite:false, fog:false,
+  uniforms:{ uOpacity:{value:0.0} },
+  vertexShader:`
+    varying float vL;
+    attribute float aLen;
+    uniform float uOpacity;
+    void main(){
+      vec4 mv = modelViewMatrix * vec4(position, 1.0);
+      // Elongate vertically in screen space by drawing point scaled
+      gl_Position = projectionMatrix * mv;
+      gl_PointSize = 2.0;
+    }`,
+  fragmentShader:`
+    uniform float uOpacity;
+    void main(){
+      if (uOpacity < 0.01) discard;
+      vec2 uv = gl_PointCoord - 0.5;
+      float a = smoothstep(0.5, 0.0, length(uv)) * uOpacity;
+      gl_FragColor = vec4(vec3(0.75,0.82,0.92), a*0.35);
+    }`
+});
+// Use LineSegments instead for streaks
+const rainSegGeo = new THREE.BufferGeometry();
+const rainSegPos = new Float32Array(RAIN_MAX * 6);
+const rainSegAlpha = new Float32Array(RAIN_MAX * 2);
+rainSegGeo.setAttribute('position', new THREE.BufferAttribute(rainSegPos, 3));
+rainSegGeo.setAttribute('aAlpha', new THREE.BufferAttribute(rainSegAlpha, 1));
+
+const rainSegMat = new THREE.ShaderMaterial({
+  transparent:true, depthWrite:false, fog:false,
+  uniforms:{ uOpacity:{value:0.0} },
+  vertexShader:`
+    attribute float aAlpha;
+    varying float vA;
+    uniform float uOpacity;
+    void main(){
+      vA = aAlpha * uOpacity;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }`,
+  fragmentShader:`
+    varying float vA;
+    void main(){
+      gl_FragColor = vec4(vec3(0.75,0.82,0.92), vA*0.42);
+    }`
+});
+const rainLines = new THREE.LineSegments(rainSegGeo, rainSegMat);
+rainLines.frustumCulled = false;
+scene.add(rainLines);
+
+let rainIntensity = 0;
+let rainTarget = 0;
+let rainTimer = 0;
+
+function updateRain(dt){
+  rainTimer -= dt;
+  if (rainTimer <= 0){
+    rainTimer = rnd(18, 60);
+    rainTarget = Math.random() < 0.45 ? rnd(0.5, 1.0) : 0;
+  }
+  rainIntensity = lerp(rainIntensity, rainTarget, dt*0.4);
+
+  // Shelter detection
+  let sheltered = false;
+  if (player.pos.y < WATER_LEVEL + 0.1) sheltered = true;
+  for (const c of treeCanopies){
+    const dx = player.pos.x - c.x, dz = player.pos.z - c.z;
+    if (dx*dx + dz*dz < c.r*c.r) { sheltered = true; break; }
+  }
+  const effectiveRain = sheltered ? rainIntensity * 0.15 : rainIntensity;
+  rainSegMat.uniforms.uOpacity.value = effectiveRain;
+
+  if (effectiveRain < 0.02) return;
+
+  const camPos = camera.position;
+  const windX = Math.sin(performance.now()*0.0003) * 3.5;
+  const windZ = Math.cos(performance.now()*0.0004) * 2.5;
+
+  for (let i=0;i<RAIN_MAX;i++){
+    if (i / RAIN_MAX > rainIntensity) {
+      // Hide
+      rainSegPos[i*6+0]=0; rainSegPos[i*6+1]=-1000; rainSegPos[i*6+2]=0;
+      rainSegPos[i*6+3]=0; rainSegPos[i*6+4]=-1000; rainSegPos[i*6+5]=0;
+      rainSegAlpha[i*2]=0; rainSegAlpha[i*2+1]=0;
+      continue;
+    }
+    if (rainVel[i] === 0 || rainSegPos[i*6+1] < camPos.y - 20 || Math.abs(rainSegPos[i*6] - camPos.x) > 30){
+      // Respawn
+      rainPos[i*3]   = camPos.x + rnd(-28, 28);
+      rainPos[i*3+1] = camPos.y + rnd(8, 18);
+      rainPos[i*3+2] = camPos.z + rnd(-28, 28);
+      rainVel[i] = rnd(14, 20);
+    }
+    rainPos[i*3+1] -= rainVel[i] * dt;
+    rainPos[i*3]   += windX * dt;
+    rainPos[i*3+2] += windZ * dt;
+
+    const L = rainLen[i] * (1 + rainVel[i]*0.02);
+    rainSegPos[i*6+0] = rainPos[i*3];
+    rainSegPos[i*6+1] = rainPos[i*3+1];
+    rainSegPos[i*6+2] = rainPos[i*3+2];
+    rainSegPos[i*6+3] = rainPos[i*3] - windX*0.02;
+    rainSegPos[i*6+4] = rainPos[i*3+1] - L;
+    rainSegPos[i*6+5] = rainPos[i*3+2] - windZ*0.02;
+    rainSegAlpha[i*2] = 1.0;
+    rainSegAlpha[i*2+1] = 0.0;
+  }
+  rainSegGeo.attributes.position.needsUpdate = true;
+  rainSegGeo.attributes.aAlpha.needsUpdate = true;
+
+  // Wet vignette when rained
+  const wetAmt = sheltered ? 0 : effectiveRain * 0.35;
+  $('#wet').style.opacity = String(wetAmt);
+}
+
+/* ============================================================================
+   17. AUDIO — ambience, splash, howl, fire crackle
+   ========================================================================== */
+let audioCtx = null, masterGain = null, ambientGain = null, windFilter = null;
+
 function initAudio(){
   if (audioCtx) return;
-  try {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  } catch(e){ return; }
+  try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+  catch(e){ return; }
+
+  masterGain = audioCtx.createGain();
+  masterGain.gain.value = settings.volume / 100;
+  masterGain.connect(audioCtx.destination);
 
   ambientGain = audioCtx.createGain();
-  ambientGain.gain.value = settings.volume / 100 * 0.35;
-  ambientGain.connect(audioCtx.destination);
+  ambientGain.gain.value = 0.4;
+  ambientGain.connect(masterGain);
 
-  // Ветер — шум через фильтр
+  // Wind loop
   const bufSize = 2 * audioCtx.sampleRate;
   const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
   const data = buf.getChannelData(0);
@@ -1745,12 +2061,11 @@ function initAudio(){
     data[i] = last * 3.5;
   }
   const src = audioCtx.createBufferSource();
-  src.buffer = buf;
-  src.loop = true;
+  src.buffer = buf; src.loop = true;
 
   windFilter = audioCtx.createBiquadFilter();
   windFilter.type = 'lowpass';
-  windFilter.frequency.value = 420;
+  windFilter.frequency.value = 400;
 
   const windGain = audioCtx.createGain();
   windGain.gain.value = 0.55;
@@ -1758,7 +2073,6 @@ function initAudio(){
   src.connect(windFilter).connect(windGain).connect(ambientGain);
   src.start();
 
-  // Медленная модуляция порывов
   const lfo = audioCtx.createOscillator();
   lfo.frequency.value = 0.08;
   const lfoGain = audioCtx.createGain();
@@ -1766,6 +2080,7 @@ function initAudio(){
   lfo.connect(lfoGain).connect(windFilter.frequency);
   lfo.start();
 }
+
 function playHit(){
   if (!audioCtx) return;
   const osc = audioCtx.createOscillator();
@@ -1775,7 +2090,7 @@ function playHit(){
   osc.frequency.exponentialRampToValueAtTime(60, audioCtx.currentTime+0.15);
   g.gain.setValueAtTime(0.25, audioCtx.currentTime);
   g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+0.2);
-  osc.connect(g).connect(audioCtx.destination);
+  osc.connect(g).connect(masterGain);
   osc.start(); osc.stop(audioCtx.currentTime+0.2);
 }
 function playSwing(){
@@ -1787,38 +2102,102 @@ function playSwing(){
   osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime+0.12);
   g.gain.setValueAtTime(0.10, audioCtx.currentTime);
   g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+0.15);
-  osc.connect(g).connect(audioCtx.destination);
+  osc.connect(g).connect(masterGain);
   osc.start(); osc.stop(audioCtx.currentTime+0.15);
+}
+function playSplash(){
+  if (!audioCtx) return;
+  // Noise burst through bandpass for splash
+  const bufSize = audioCtx.sampleRate * 0.4;
+  const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i=0;i<bufSize;i++){
+    const t = i/bufSize;
+    data[i] = (Math.random()*2-1) * Math.pow(1-t, 2.2);
+  }
+  const src = audioCtx.createBufferSource();
+  src.buffer = buf;
+  const flt = audioCtx.createBiquadFilter();
+  flt.type = 'bandpass'; flt.frequency.value = 1400; flt.Q.value = 1.2;
+  const g = audioCtx.createGain();
+  g.gain.value = 0.45;
+  src.connect(flt).connect(g).connect(masterGain);
+  src.start();
+}
+function playWolfHowl(distance){
+  if (!audioCtx) return;
+  const vol = clamp(1.0 - distance/60, 0.15, 1.0) * 0.6;
+  const osc = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  osc.type = 'sine';
+  const base = 220 + rnd(-20, 20);
+  const now = audioCtx.currentTime;
+  osc.frequency.setValueAtTime(base, now);
+  osc.frequency.linearRampToValueAtTime(base*1.25, now+0.35);
+  osc.frequency.linearRampToValueAtTime(base*0.92, now+1.4);
+  g.gain.setValueAtTime(0.001, now);
+  g.gain.linearRampToValueAtTime(vol*0.35, now+0.25);
+  g.gain.setValueAtTime(vol*0.35, now+1.0);
+  g.gain.exponentialRampToValueAtTime(0.001, now+1.9);
+  osc.connect(g).connect(masterGain);
+  osc.start(); osc.stop(now+2.0);
+}
+let fireCrackleCd = 0;
+function updateFireCrackle(dt){
+  if (!audioCtx || !campfire) return;
+  fireCrackleCd -= dt;
+  if (fireCrackleCd <= 0){
+    const d = campfire.group.position.distanceTo(camera.position);
+    if (d < 22){
+      fireCrackleCd = rnd(0.1, 0.5);
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      osc.type = 'square';
+      osc.frequency.value = rnd(200, 800);
+      const now = audioCtx.currentTime;
+      const vol = clamp(1 - d/22, 0, 1) * 0.10;
+      g.gain.setValueAtTime(vol, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now+0.04);
+      osc.connect(g).connect(masterGain);
+      osc.start(now); osc.stop(now+0.05);
+    } else fireCrackleCd = 1.0;
+  }
 }
 
 /* ============================================================================
-   17. PLAYER
+   18. PLAYER
    ========================================================================== */
 const player = {
-  pos: new THREE.Vector3(0,0,0),
+  pos: new THREE.Vector3(0, 0, 0),
   vel: new THREE.Vector3(),
   yaw: 0, pitch: 0,
   onGround: true,
+  inWater: false,
+  submerged: false,
   height: 1.68,
   speed: 3.4,
   sprintSpeed: 6.2,
-  stamina: 100, health: 100, food: 100, water: 100, warmth: 100,
+  stamina: 100, health: 100, food: 100, water: 100, warmth: 100, air: 100,
   alive: true,
   walkPhase: 0, bobAmount: 0,
   breath: 0,
+  wasInWater: false,
 };
 const inventory = { wood:0, stone:0, meat:0 };
 
 /* ============================================================================
-   18. INPUT — раздельные зоны
+   19. INPUT — clean, correct, sensitivity-aware
    ========================================================================== */
 const keys = Object.create(null);
-const moveInput = { x:0, y:0 };
+const moveInput = { x:0, y:0 }; // x: -1..1, y: -1..1 (up is -1)
 let attackRequested = false;
 let useRequested = false;
 let jumpRequested = false;
 let eatRequested = false;
 let craftRequested = false;
+let menuRequested = false;
+let gameActive = false;
+let paused = false;
 
 addEventListener('keydown', (e) => {
   keys[e.code] = true;
@@ -1826,47 +2205,44 @@ addEventListener('keydown', (e) => {
   if (e.code === 'KeyE') useRequested = true;
   if (e.code === 'KeyF') eatRequested = true;
   if (e.code === 'KeyQ') craftRequested = true;
+  if (e.code === 'Escape' && gameActive) menuRequested = true;
 });
 addEventListener('keyup', (e) => { keys[e.code] = false; });
 
-/* --- ПК --- */
+/* --- PC mouse --- */
 let pointerLocked = false;
-renderer.domElement.addEventListener('click', (e) => {
-  if (!IS_TOUCH && !pointerLocked && gameActive) renderer.domElement.requestPointerLock();
+renderer.domElement.addEventListener('click', () => {
+  if (!IS_TOUCH && !pointerLocked && gameActive && !paused) renderer.domElement.requestPointerLock();
 });
 document.addEventListener('pointerlockchange', () => {
   pointerLocked = document.pointerLockElement === renderer.domElement;
 });
 document.addEventListener('mousemove', (e) => {
   if (!pointerLocked) return;
-  const sens = settings.sensitivity * 0.0006;
+  const sens = 0.0018 * settings.sensitivity;
   player.yaw   -= e.movementX * sens;
   player.pitch -= e.movementY * sens;
   player.pitch = clamp(player.pitch, -1.45, 1.45);
-  handState.targetSwayX = clamp(handState.targetSwayX - e.movementX*0.0016, -0.05, 0.05);
-  handState.targetSwayY = clamp(handState.targetSwayY + e.movementY*0.0016, -0.05, 0.05);
+  handState.targetSwayX = clamp(handState.targetSwayX - e.movementX*0.0012, -0.04, 0.04);
+  handState.targetSwayY = clamp(handState.targetSwayY + e.movementY*0.0012, -0.04, 0.04);
 });
 document.addEventListener('mousedown', (e) => {
-  if (e.button === 0 && pointerLocked && gameActive) attackRequested = true;
+  if (e.button === 0 && pointerLocked && gameActive && !paused) attackRequested = true;
 });
 
-/* --- Мобильные тач-зоны ---
-   Левая половина (нижняя левая) = джойстик.
-   Правая половина = вращение камеры.
-*/
-const touches = new Map(); // id -> {type:'move'|'look', x, y}
+/* --- Touch --- */
+const touches = new Map();
 let moveTouchId = null;
 let lookTouchId = null;
 let lookLastX = 0, lookLastY = 0;
 
-// Делаем зоны через canvas listener (не перекрываем кнопки)
 const canvasEl = renderer.domElement;
 
 canvasEl.addEventListener('touchstart', (e) => {
-  if (!gameActive) return;
+  if (!gameActive || paused) return;
   for (const t of e.changedTouches){
     const X = t.clientX;
-    const isLeft = X < innerWidth * 0.45;
+    const isLeft = X < innerWidth * 0.42;
     if (isLeft && moveTouchId === null){
       moveTouchId = t.identifier;
       joyActivate(X, t.clientY);
@@ -1890,12 +2266,14 @@ canvasEl.addEventListener('touchmove', (e) => {
       const dx = t.clientX - lookLastX;
       const dy = t.clientY - lookLastY;
       lookLastX = t.clientX; lookLastY = t.clientY;
-      const sens = settings.sensitivity * 0.0008;
-      player.yaw   -= dx * sens * 6;
-      player.pitch -= dy * sens * 6;
+      // FIX: reduced sensitivity, normalized by screen diagonal
+      const baseSens = 0.0032;
+      const sens = baseSens * settings.sensitivity;
+      player.yaw   -= dx * sens;
+      player.pitch -= dy * sens;
       player.pitch = clamp(player.pitch, -1.45, 1.45);
-      handState.targetSwayX = clamp(handState.targetSwayX - dx*0.0022, -0.06, 0.06);
-      handState.targetSwayY = clamp(handState.targetSwayY + dy*0.0022, -0.06, 0.06);
+      handState.targetSwayX = clamp(handState.targetSwayX - dx*0.0015, -0.05, 0.05);
+      handState.targetSwayY = clamp(handState.targetSwayY + dy*0.0015, -0.05, 0.05);
     }
   }
   e.preventDefault();
@@ -1917,27 +2295,30 @@ const touchEnd = (e) => {
 canvasEl.addEventListener('touchend', touchEnd, { passive:true });
 canvasEl.addEventListener('touchcancel', touchEnd, { passive:true });
 
-/* --- Джойстик --- */
+/* --- Joystick --- */
 const joyBase = $('#joy-base');
 const joyKnob = $('#joy-knob');
 let joyCenter = { x:0, y:0 };
 let joyActive = false;
-const JOY_RADIUS = 48;
+let joyBaseHome = null;
+const JOY_RADIUS = 50;
 
 function joyActivate(cx, cy){
-  // Центр джойстика ставим в место касания, если оно в нижней части
-  const rect = joyBase.getBoundingClientRect();
-  const preferredX = rect.left + rect.width/2;
-  const preferredY = rect.top + rect.height/2;
-  // Если коснулись далеко — двигаем базу к пальцу
-  const dist = Math.hypot(cx - preferredX, cy - preferredY);
-  if (dist > 60){
-    joyBase.style.left = (cx - rect.width/2) + 'px';
+  if (!joyBaseHome){
+    const r = joyBase.getBoundingClientRect();
+    joyBaseHome = { left: joyBase.style.left, bottom: joyBase.style.bottom, top: joyBase.style.top };
+  }
+  const r = joyBase.getBoundingClientRect();
+  const prefX = r.left + r.width/2;
+  const prefY = r.top + r.height/2;
+  const dist = Math.hypot(cx - prefX, cy - prefY);
+  if (dist > 70){
+    joyBase.style.left = (cx - r.width/2) + 'px';
+    joyBase.style.top = (cy - r.height/2) + 'px';
     joyBase.style.bottom = 'auto';
-    joyBase.style.top = (cy - rect.height/2) + 'px';
     joyCenter.x = cx; joyCenter.y = cy;
   } else {
-    joyCenter.x = preferredX; joyCenter.y = preferredY;
+    joyCenter.x = prefX; joyCenter.y = prefY;
   }
   joyActive = true;
   joyBase.classList.add('active');
@@ -1949,41 +2330,44 @@ function joyMove(cx, cy){
   const d = Math.hypot(dx, dy);
   if (d > JOY_RADIUS){ dx = dx/d*JOY_RADIUS; dy = dy/d*JOY_RADIUS; }
   joyKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+  // Normalize to -1..1
   moveInput.x = dx / JOY_RADIUS;
-  moveInput.y = dy / JOY_RADIUS;
+  moveInput.y = dy / JOY_RADIUS; // up = negative
 }
 function joyReset(){
   joyActive = false;
   joyKnob.style.transform = 'translate(0,0)';
   moveInput.x = 0; moveInput.y = 0;
   joyBase.classList.remove('active');
-  // Возврат базы на место
-  joyBase.style.left = '';
-  joyBase.style.top = '';
-  joyBase.style.bottom = '';
+  if (joyBaseHome){
+    joyBase.style.left = joyBaseHome.left || '';
+    joyBase.style.bottom = joyBaseHome.bottom || '';
+    joyBase.style.top = joyBaseHome.top || '';
+  }
 }
 
-/* --- Кнопки --- */
+/* --- Action buttons --- */
 document.querySelectorAll('.btn[data-act]').forEach(btn => {
   const act = btn.dataset.act;
   const fire = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault(); e.stopPropagation();
+    if (paused && act !== 'menu') return;
     btn.classList.add('press');
     if (act === 'attack') attackRequested = true;
     if (act === 'use')    useRequested = true;
     if (act === 'jump')   jumpRequested = true;
     if (act === 'eat')    eatRequested = true;
     if (act === 'craft')  craftRequested = true;
+    if (act === 'menu')   menuRequested = true;
     setTimeout(() => btn.classList.remove('press'), 100);
   };
   btn.addEventListener('touchstart', fire, { passive:false });
-  btn.addEventListener('touchend', (e) => e.preventDefault(), { passive:false });
+  btn.addEventListener('touchend', e => e.preventDefault(), { passive:false });
   btn.addEventListener('mousedown', fire);
 });
 
 /* ============================================================================
-   19. INTERACTION / HARVEST
+   20. INTERACTION
    ========================================================================== */
 const raycaster = new THREE.Raycaster();
 raycaster.far = 5.0;
@@ -2013,9 +2397,7 @@ function performAttack(){
   handState.swingActive = true;
   handState.swingT = 0;
   playSwing();
-
   const target = findTarget();
-
   setTimeout(() => {
     if (!target) return;
     const p = target.point;
@@ -2028,9 +2410,7 @@ function performAttack(){
         target.ref.destroyed = true;
         inventory.wood += 6;
         addToast('+6 ДРЕВЕСИНЫ', 'good');
-      } else {
-        inventory.wood += 1;
-      }
+      } else inventory.wood += 1;
       updateInvUI();
     } else if (target.kind === 'rock'){
       target.ref.hp--;
@@ -2040,9 +2420,7 @@ function performAttack(){
         target.ref.destroyed = true;
         inventory.stone += 4;
         addToast('+4 КАМНЯ', 'good');
-      } else {
-        inventory.stone += 1;
-      }
+      } else inventory.stone += 1;
       updateInvUI();
     } else if (target.kind === 'wolf'){
       target.ref.takeDamage(34);
@@ -2054,24 +2432,16 @@ function performUse(){
   const target = findTarget();
   handState.usePulse = 1;
   if (!target){ addToast('НЕЧЕГО ИСПОЛЬЗОВАТЬ', 'warn'); return; }
-  if (target.kind === 'tree'){
-    inventory.wood += 1; spawnWoodChips(target.point.x, target.point.y, target.point.z, 6);
+  if (target.kind === 'tree'){ inventory.wood += 1; spawnWoodChips(target.point.x, target.point.y, target.point.z, 6); updateInvUI(); }
+  else if (target.kind === 'rock'){ inventory.stone += 1; spawnStoneChips(target.point.x, target.point.y, target.point.z, 6); updateInvUI(); }
+  else if (target.kind === 'fire'){ player.warmth = Math.min(100, player.warmth + 32); addToast('ТЕПЛО У КОСТРА', 'good'); }
+  else if (target.kind === 'wolf' && target.ref.dead){
+    inventory.meat += 2;
+    addToast('+2 МЯСА', 'good');
+    scene.remove(target.ref.root);
+    const i = wolves.indexOf(target.ref);
+    if (i >= 0) wolves.splice(i, 1);
     updateInvUI();
-  } else if (target.kind === 'rock'){
-    inventory.stone += 1; spawnStoneChips(target.point.x, target.point.y, target.point.z, 6);
-    updateInvUI();
-  } else if (target.kind === 'fire'){
-    player.warmth = Math.min(100, player.warmth + 32);
-    addToast('ТЕПЛО У КОСТРА', 'good');
-  } else if (target.kind === 'wolf'){
-    if (target.ref.dead){
-      inventory.meat += 2;
-      addToast('+2 МЯСА', 'good');
-      scene.remove(target.ref.root);
-      const i = wolves.indexOf(target.ref);
-      if (i >= 0) wolves.splice(i, 1);
-      updateInvUI();
-    }
   }
 }
 
@@ -2090,19 +2460,24 @@ function performCraft(){
     addToast('НУЖНО 5 ДРЕВЕСИНЫ И 3 КАМНЯ', 'warn');
     return;
   }
-  inventory.wood -= 5;
-  inventory.stone -= 3;
-  updateInvUI();
   const dir = new THREE.Vector3(0,0,-1).applyQuaternion(camera.quaternion);
   dir.y = 0; dir.normalize();
   const px = player.pos.x + dir.x*2.0;
   const pz = player.pos.z + dir.z*2.0;
+  // CRITICAL FIX: refuse in water
+  if (!isLand(px, pz)){
+    addToast('ЗДЕСЬ ВОДА — НУЖНА ЗЕМЛЯ', 'warn');
+    return;
+  }
+  inventory.wood -= 5;
+  inventory.stone -= 3;
+  updateInvUI();
   placeCampfire(px, pz);
   addToast('КОСТЁР РАЗОЖЖЁН', 'good');
 }
 
 /* ============================================================================
-   20. SURVIVAL
+   21. SURVIVAL + SWIMMING
    ========================================================================== */
 let dayLight = 1;
 let gameTime = 6*60;
@@ -2112,13 +2487,30 @@ function updateSurvival(dt){
   player.food  = Math.max(0, player.food  - dt*0.42);
   player.water = Math.max(0, player.water - dt*0.58);
 
-  let warmthDelta = -dt * (0.22 + (1-dayLight)*1.35);
+  // Thirst restored near water? No—only cooked meat.
+  // Warmth
+  let warmthDelta = -dt * (0.22 + (1-dayLight)*1.4);
   if (campfire){
     const d = Math.hypot(player.pos.x - campfire.group.position.x, player.pos.z - campfire.group.position.z);
-    if (d < 6) warmthDelta += dt * (1.9 - d*0.22);
+    if (d < 6) warmthDelta += dt * (2.0 - d*0.24);
   }
+  if (player.inWater) warmthDelta -= dt * 1.6;
   player.warmth = clamp(player.warmth + warmthDelta, 0, 100);
 
+  // Oxygen
+  if (player.submerged){
+    player.air = Math.max(0, player.air - dt * 12);
+    if (player.air <= 0) {
+      player.health -= dt * 8;
+      if (Math.random() < dt * 4) flashHit();
+    }
+    $('#air-bar').style.display = 'block';
+  } else {
+    player.air = Math.min(100, player.air + dt * 30);
+    if (player.air > 98) $('#air-bar').style.display = 'none';
+  }
+
+  // Damage from starvation / cold
   let dmg = 0;
   if (player.food <= 0) dmg += dt*1.6;
   if (player.water <= 0) dmg += dt*2.2;
@@ -2127,34 +2519,22 @@ function updateSurvival(dt){
     player.health -= dmg;
     if (Math.random() < dt*3) flashHit();
   }
-  if (player.food > 55 && player.water > 55 && player.health < 100){
+  if (player.food > 55 && player.water > 55 && player.health < 100 && !player.submerged){
     player.health = Math.min(100, player.health + dt*0.85);
   }
 
-  const sprinting = (keys['ShiftLeft'] || keys['ShiftRight']);
-  const moving = Math.abs(moveInput.x) > 0.1 || Math.abs(moveInput.y) > 0.1
-               || keys['KeyW'] || keys['KeyS'] || keys['KeyA'] || keys['KeyD'];
-  if (sprinting && moving){
-    player.stamina = Math.max(0, player.stamina - dt*16);
-  } else {
-    player.stamina = Math.min(100, player.stamina + dt*11);
-  }
-
+  // UI updates
   $('#f-hp').style.transform    = `scaleX(${player.health/100})`;
   $('#f-food').style.transform  = `scaleX(${player.food/100})`;
   $('#f-water').style.transform = `scaleX(${player.water/100})`;
   $('#f-temp').style.transform  = `scaleX(${player.warmth/100})`;
   $('#f-stam').style.transform  = `scaleX(${player.stamina/100})`;
+  $('#f-air').style.transform   = `scaleX(${player.air/100})`;
 
   const frostAmt = clamp((28 - player.warmth)/28, 0, 1);
-  $('#frost').style.opacity = frostAmt*0.9;
+  $('#frost').style.opacity = String(frostAmt*0.9);
   const bloodAmt = clamp((55 - player.health)/55, 0, 1);
-  $('#blood').style.opacity = player.alive ? bloodAmt*0.72 : 0;
-
-  // Одышка при беге
-  const breathAmt = (sprinting && moving && player.stamina < 60) ? (1 - player.stamina/60) : 0;
-  player.breath = lerp(player.breath, breathAmt, dt*3);
-  $('#breath').style.opacity = player.breath * 0.45;
+  $('#blood').style.opacity = player.alive ? String(bloodAmt*0.72) : '0';
 
   if (player.health <= 0 && player.alive){
     player.alive = false;
@@ -2169,10 +2549,12 @@ function flashHit(){
 }
 
 /* ============================================================================
-   21. PLAYER MOVEMENT
+   22. PLAYER MOVEMENT — clean, correct directions
    ========================================================================== */
 function updatePlayer(dt){
-  let ix = moveInput.x, iy = moveInput.y;
+  // Input
+  let ix = moveInput.x;
+  let iy = moveInput.y;
   if (keys['KeyW'] || keys['ArrowUp'])    iy -= 1;
   if (keys['KeyS'] || keys['ArrowDown'])  iy += 1;
   if (keys['KeyA'] || keys['ArrowLeft'])  ix -= 1;
@@ -2180,27 +2562,42 @@ function updatePlayer(dt){
   const mag = Math.hypot(ix, iy);
   if (mag > 1){ ix /= mag; iy /= mag; }
 
-  const sprinting = (keys['ShiftLeft'] || keys['ShiftRight']) && player.stamina > 5;
-  const speed = sprinting ? player.sprintSpeed : player.speed;
+  // Determine forward/right from camera yaw
+  // Camera forward (in world): (-sin(yaw), 0, -cos(yaw))
+  // Camera right (in world):   ( cos(yaw), 0, -sin(yaw))
+  const sy = Math.sin(player.yaw), cy = Math.cos(player.yaw);
+  // iy is -1 when W pressed (forward). We want W → forward vector.
+  const fwd = -iy; // W → iy=-1 → fwd=+1
+  const rgt = ix;  // D → ix=+1 → rgt=+1
+  let wx = fwd * (-sy) + rgt * (cy);
+  let wz = fwd * (-cy) + rgt * (-sy);
 
-  const sinY = Math.sin(player.yaw), cosY = Math.cos(player.yaw);
-  const wx = ix*cosY - iy*sinY;
-  const wz = ix*sinY + iy*cosY;
+  const sprinting = (keys['ShiftLeft'] || keys['ShiftRight']) && player.stamina > 5 && !player.inWater;
+  const baseSpeed = player.inWater ? 2.0 : (sprinting ? player.sprintSpeed : player.speed);
 
-  if (jumpRequested && player.onGround){
-    player.vel.y = 5.4; player.onGround = false;
+  // Jump / swim up
+  if (jumpRequested){
+    if (player.inWater){
+      // Swim upward
+      player.vel.y = Math.max(player.vel.y, 3.0);
+    } else if (player.onGround){
+      player.vel.y = 5.4;
+      player.onGround = false;
+    }
   }
   jumpRequested = false;
-  player.vel.y -= 16.5*dt;
 
-  const accel = player.onGround ? 14 : 4.5;
-  player.vel.x = lerp(player.vel.x, wx*speed, Math.min(1, dt*accel));
-  player.vel.z = lerp(player.vel.z, wz*speed, Math.min(1, dt*accel));
+  if (!player.inWater) player.vel.y -= 16.5*dt;
+
+  const accel = player.onGround ? 14 : (player.inWater ? 6 : 4.5);
+  player.vel.x = lerp(player.vel.x, wx*baseSpeed, Math.min(1, dt*accel));
+  player.vel.z = lerp(player.vel.z, wz*baseSpeed, Math.min(1, dt*accel));
 
   player.pos.x += player.vel.x * dt;
   player.pos.z += player.vel.z * dt;
   player.pos.y += player.vel.y * dt;
 
+  // World bounds
   const R = 108;
   const rad = Math.hypot(player.pos.x, player.pos.z);
   if (rad > R){
@@ -2208,32 +2605,73 @@ function updatePlayer(dt){
     player.pos.z = player.pos.z/rad*R;
   }
 
+  // Ground
   const gh = terrainHeight(player.pos.x, player.pos.z);
-  const gy = Math.max(gh, WATER_LEVEL-0.25);
-  if (player.pos.y <= gy){ player.pos.y = gy; player.vel.y = 0; player.onGround = true; }
-  else player.onGround = false;
 
+  // WATER PHYSICS
+  const wasInWater = player.inWater;
+  player.inWater = player.pos.y < WATER_LEVEL + 0.05;
+  if (player.inWater){
+    // Buoyancy — float at WATER_LEVEL - 0.6 (feet), so head is above
+    const targetY = WATER_LEVEL - 0.55;
+    const depth = targetY - player.pos.y;
+    player.vel.y += depth * 22 * dt;
+    player.vel.y *= Math.pow(0.05, dt); // water drag
+    // Extra resistance to horizontal
+    player.vel.x *= Math.pow(0.6, dt);
+    player.vel.z *= Math.pow(0.6, dt);
+    // Lose stamina in water
+    player.stamina = Math.max(0, player.stamina - dt*3.5);
+  }
+
+  // Submerged check
+  const eyeY = player.pos.y + player.height;
+  player.submerged = eyeY < WATER_LEVEL - 0.15;
+
+  // Splash on entry
+  if (player.inWater && !wasInWater){
+    playSplash();
+    spawnSplash(player.pos.x, WATER_LEVEL + 0.05, player.pos.z, 30);
+  }
+  if (!player.inWater && wasInWater){
+    spawnSplash(player.pos.x, WATER_LEVEL + 0.05, player.pos.z, 20);
+  }
+
+  // Land collision
+  if (!player.inWater && player.pos.y <= gh){
+    player.pos.y = gh;
+    player.vel.y = 0;
+    player.onGround = true;
+  } else if (!player.inWater){
+    player.onGround = false;
+  } else {
+    player.onGround = false;
+  }
+
+  // Bob amount
   const hSpeed = Math.hypot(player.vel.x, player.vel.z);
-  if (player.onGround && hSpeed > 0.3){
+  if ((player.onGround || player.inWater) && hSpeed > 0.3){
     player.walkPhase += dt * hSpeed * 2.35;
     player.bobAmount = lerp(player.bobAmount, clamp(hSpeed/player.sprintSpeed, 0, 1), dt*6);
   } else {
     player.bobAmount = lerp(player.bobAmount, 0, dt*6);
   }
 
+  // Camera
   const bobY = Math.sin(player.walkPhase*2) * 0.042 * player.bobAmount;
   const bobX = Math.cos(player.walkPhase) * 0.030 * player.bobAmount;
   const breathe = Math.sin(performance.now()*0.0012) * 0.006;
-  // Одышка покачивает камеру
-  const breathShake = player.breath * 0.012;
+  // Wave bobbing when in water
+  const waveBob = player.inWater ? Math.sin(elapsed*2.2)*0.08 : 0;
 
   camera.position.set(
     player.pos.x + bobX*Math.cos(player.yaw),
-    player.pos.y + player.height + bobY + breathe + Math.sin(performance.now()*0.008)*breathShake,
+    player.pos.y + player.height + bobY + breathe + waveBob,
     player.pos.z - bobX*Math.sin(player.yaw)
   );
 
-  const roll = Math.cos(player.walkPhase) * 0.012 * player.bobAmount;
+  const roll = Math.cos(player.walkPhase) * 0.012 * player.bobAmount
+             + (player.inWater ? Math.sin(elapsed*1.8)*0.02 : 0);
   const pitchBob = Math.sin(player.walkPhase*2) * 0.008 * player.bobAmount;
 
   camera.rotation.set(0,0,0);
@@ -2242,11 +2680,17 @@ function updatePlayer(dt){
   camera.rotation.x = player.pitch + pitchBob;
   camera.rotation.z = roll;
 
+  // Hunger / thirst also increase when sprinting
+  if (sprinting && hSpeed > 4){
+    player.food = Math.max(0, player.food - dt*0.4);
+    player.water = Math.max(0, player.water - dt*0.5);
+  }
+
   sun.target.position.copy(player.pos);
 }
 
 /* ============================================================================
-   22. HAND ANIMATION
+   23. HAND ANIMATION
    ========================================================================== */
 function updateHands(dt, t){
   handState.targetSwayX = lerp(handState.targetSwayX, 0, dt*3.5);
@@ -2258,6 +2702,13 @@ function updateHands(dt, t){
   const bobY = Math.sin(player.walkPhase*2) * 0.026 * player.bobAmount;
   const idleY = Math.sin(t*1.35) * 0.005;
   const idleX = Math.cos(t*1.05) * 0.004;
+
+  // Swim stroke animation
+  let swimPhase = 0;
+  if (player.inWater && Math.hypot(player.vel.x, player.vel.z) > 0.3){
+    handState.swimStroke += dt * 3.2;
+    swimPhase = Math.sin(handState.swimStroke);
+  }
 
   let swingRotX = 0, swingRotZ = 0, swingPosY = 0, swingPosZ = 0;
   if (handState.swingActive){
@@ -2282,11 +2733,11 @@ function updateHands(dt, t){
 
   rightHandGroup.position.set(
     RIGHT_BASE.x + bobX + handState.swayX + idleX - useP*0.035,
-    RIGHT_BASE.y + bobY + handState.swayY + idleY - useP*0.02 + swingPosY,
-    RIGHT_BASE.z + swingPosZ
+    RIGHT_BASE.y + bobY + handState.swayY + idleY - useP*0.02 + swingPosY - swimPhase*0.06,
+    RIGHT_BASE.z + swingPosZ - swimPhase*0.15
   );
   rightHandGroup.rotation.set(
-    RIGHT_ROT.x + handState.swayY*4 + swingRotX - useP*0.35,
+    RIGHT_ROT.x + handState.swayY*4 + swingRotX - useP*0.35 - swimPhase*0.7,
     RIGHT_ROT.y + handState.swayX*3,
     RIGHT_ROT.z + handState.swayX*3 + swingRotZ
   );
@@ -2294,11 +2745,11 @@ function updateHands(dt, t){
   meatInHand.visible = inventory.meat > 0;
   leftHandGroup.position.set(
     LEFT_BASE.x + bobX*0.85 + handState.swayX*0.9 + idleX*1.2,
-    LEFT_BASE.y + bobY*0.85 + handState.swayY*0.9 + idleY*1.2 - useP*0.09,
-    LEFT_BASE.z + useP*0.05
+    LEFT_BASE.y + bobY*0.85 + handState.swayY*0.9 + idleY*1.2 - useP*0.09 + swimPhase*0.06,
+    LEFT_BASE.z + useP*0.05 - swimPhase*0.15
   );
   leftHandGroup.rotation.set(
-    LEFT_ROT.x + handState.swayY*4 - useP*0.9,
+    LEFT_ROT.x + handState.swayY*4 - useP*0.9 + swimPhase*0.7,
     LEFT_ROT.y + handState.swayX*3,
     LEFT_ROT.z + handState.swayX*3 + useP*0.4
   );
@@ -2306,9 +2757,9 @@ function updateHands(dt, t){
 }
 
 /* ============================================================================
-   23. SKY / DAY-NIGHT
+   24. SKY / DAY-NIGHT
    ========================================================================== */
-const DAY_LENGTH = 240;
+const DAY_LENGTH = 280;
 function updateSky(dt){
   gameTime += dt * (1440/DAY_LENGTH);
   if (gameTime >= 1440) gameTime -= 1440;
@@ -2319,19 +2770,25 @@ function updateSky(dt){
   const sunX = Math.cos(sunAngle);
 
   sun.position.copy(player.pos).add(new THREE.Vector3(
-    sunX * 70, Math.max(sunY, -0.2) * 90, sunX * 22 + 30));
+    sunX * 80, Math.max(sunY, -0.2) * 100, sunX * 26 + 40));
   sun.target.position.copy(player.pos);
+
+  // Sun disk — far away in sun direction
+  sunDisk.position.copy(camera.position).add(new THREE.Vector3(
+    sunX * 400, Math.max(sunY, 0.01) * 400, sunX*0.3*400 + 100));
+  sunDisk.lookAt(camera.position);
+  sunDiskMat.opacity = clamp(sunY * 2, 0, 0.85);
 
   dayLight = clamp((sunY + 0.12)/0.45, 0, 1);
   dayLight = dayLight*dayLight*(3 - 2*dayLight);
 
-  sun.intensity = 0.06 + dayLight*2.7;
-  sun.color.setRGB(1.0, 0.86 + dayLight*0.10, 0.62 + dayLight*0.32);
+  sun.intensity = 0.05 + dayLight*4.0;
+  sun.color.setRGB(1.0, 0.90 + dayLight*0.06, 0.72 + dayLight*0.26);
 
-  hemi.intensity = 0.13 + dayLight*0.82;
+  hemi.intensity = 0.12 + dayLight*1.0;
   hemi.color.setHex(dayLight > 0.4 ? 0x9fb8d0 : 0x2a3550);
   hemi.groundColor.setHex(dayLight > 0.4 ? 0x2c2a22 : 0x0a0c10);
-  ambient.intensity = 0.10 + dayLight*0.36;
+  ambient.intensity = 0.10 + dayLight*0.4;
   ambient.color.setHex(dayLight > 0.4 ? 0x404a55 : 0x1a2233);
 
   const night = 1 - dayLight;
@@ -2343,16 +2800,16 @@ function updateSky(dt){
   skyU.uMid.value.setRGB(lerp(0.06,0.62,dayLight), lerp(0.08,0.71,dayLight), lerp(0.14,0.78,dayLight));
   const hWarm = Math.exp(-Math.pow(sunY*3.2, 2));
   skyU.uBot.value.setRGB(
-    lerp(0.07,0.79,dayLight) + hWarm*0.20*dayLight,
+    lerp(0.07,0.79,dayLight) + hWarm*0.22*dayLight,
     lerp(0.09,0.70,dayLight) + hWarm*0.05*dayLight,
-    lerp(0.16,0.62,dayLight) - hWarm*0.18*dayLight);
+    lerp(0.16,0.62,dayLight) - hWarm*0.20*dayLight);
 
   const fogColor = new THREE.Color().setRGB(
     lerp(0.04,0.52,dayLight) + hWarm*0.14,
     lerp(0.05,0.60,dayLight) + hWarm*0.03,
     lerp(0.10,0.68,dayLight) - hWarm*0.10);
   scene.fog.color.copy(fogColor);
-  scene.fog.density = lerp(0.030, 0.014, dayLight);
+  scene.fog.density = lerp(0.030, 0.013, dayLight);
 
   renderer.toneMappingExposure = lerp(0.72, 1.06, dayLight);
 
@@ -2364,7 +2821,7 @@ function updateSky(dt){
 }
 
 /* ============================================================================
-   24. UI HELPERS
+   25. UI
    ========================================================================== */
 function updateInvUI(){
   $('#c-wood').textContent = inventory.wood;
@@ -2381,8 +2838,7 @@ function addToast(text, type=''){
     setTimeout(() => el.remove(), 420);
   }, 1500);
 }
-
-function updateHint(dt){
+function updateHint(){
   const target = findTarget();
   const hint = $('#hint');
   const cross = $('#cross');
@@ -2400,7 +2856,6 @@ function updateHint(dt){
     cross.classList.remove('hot');
   }
 }
-
 function processActions(){
   if (attackRequested){ attackRequested = false; if (player.alive) performAttack(); }
   if (useRequested){    useRequested = false;    if (player.alive) performUse(); }
@@ -2409,41 +2864,45 @@ function processActions(){
 }
 
 /* ============================================================================
-   25. WORLD SPAWN
+   26. WORLD SPAWN
    ========================================================================== */
 function spawnWorld(){
-  const nTrees = settings.quality>=3 ? 44 : (settings.quality>=2 ? 32 : 20);
+  const nTrees = settings.quality >= 2 ? 46 : (settings.quality >= 1 ? 34 : 22);
   let placed = 0, tries = 0;
-  while (placed < nTrees && tries < 900){
+  while (placed < nTrees && tries < 1200){
     tries++;
     const a = Math.random()*Math.PI*2;
-    const r = 8 + Math.sqrt(Math.random())*80;
+    const r = 9 + Math.sqrt(Math.random())*80;
     const x = Math.cos(a)*r, z = Math.sin(a)*r;
     const y = terrainHeight(x,z);
-    if (y < WATER_LEVEL+0.9 || y > 17) continue;
-    if (terrainNormal(x,z).y < 0.82) continue;
+    if (y < WATER_LEVEL + 1.0 || y > 17) continue;
+    if (terrainNormal(x,z).y < 0.80) continue;
+    if (isSandyBeach(x,z)) continue;
     buildTree(x,z);
     placed++;
   }
 
-  const nRocks = settings.quality>=3 ? 32 : (settings.quality>=2 ? 22 : 14);
+  const nRocks = settings.quality >= 2 ? 40 : (settings.quality >= 1 ? 26 : 16);
   for (let i=0;i<nRocks;i++){
     const a = Math.random()*Math.PI*2;
-    const r = 6 + Math.sqrt(Math.random())*76;
+    const r = 6 + Math.sqrt(Math.random())*78;
     const x = Math.cos(a)*r, z = Math.sin(a)*r;
     const y = terrainHeight(x,z);
-    if (y < WATER_LEVEL+0.4) continue;
+    if (y < WATER_LEVEL + 0.4) continue;
     buildRock(x,z, rnd(0.35, 1.25));
   }
 
   for (let i=0;i<3;i++){
     const a = Math.random()*Math.PI*2;
-    const r = 34 + Math.random()*26;
+    const r = 40 + Math.random()*30;
     const x = Math.cos(a)*r, z = Math.sin(a)*r;
+    if (!isLand(x,z)) continue;
     wolves.push(new Wolf(x,z));
   }
 
+  // Place campfire near spawn — guaranteed on land
   placeCampfire(3.2, -2.6);
+
   inventory.wood = 5;
   inventory.stone = 3;
   updateInvUI();
@@ -2457,7 +2916,9 @@ function buildLeafInstancedMesh(){
   });
   applyWind(mat, 0.10, 1.55);
   const mesh = new THREE.InstancedMesh(leafGeo, mat, leafInstances.length);
-  mesh.castShadow = true; mesh.receiveShadow = true;
+  // Don't cast shadows from leaves — too expensive, and looks better
+  mesh.castShadow = false;
+  mesh.receiveShadow = true;
   for (let i=0;i<leafInstances.length;i++) mesh.setMatrixAt(i, leafInstances[i]);
   mesh.instanceMatrix.needsUpdate = true;
   mesh.frustumCulled = false;
@@ -2465,24 +2926,25 @@ function buildLeafInstancedMesh(){
 }
 
 /* ============================================================================
-   26. MAIN LOOP
+   27. MAIN LOOP
    ========================================================================== */
 const clock = new THREE.Clock();
 let elapsed = 0;
-let gameActive = false;
 
 function animate(){
   requestAnimationFrame(animate);
   const dt = Math.min(clock.getDelta(), 0.05);
   elapsed += dt;
 
-  if (gameActive){
+  if (gameActive && !paused){
     processActions();
     updateSky(dt);
     if (player.alive) updatePlayer(dt);
     updateHands(dt, elapsed);
     updateSurvival(dt);
-    updateHint(dt);
+    updateHint();
+    updateFireCrackle(dt);
+    updateRain(dt);
   }
   updateWater(elapsed);
   updateParticles(dt);
@@ -2500,7 +2962,7 @@ function animate(){
 function onWolfAttack(wolf){
   if (!player.alive) return;
   const d = Math.hypot(player.pos.x - wolf.root.position.x, player.pos.z - wolf.root.position.z);
-  if (d > 2.6) return;
+  if (d > 2.8) return;
   player.health -= 9;
   player.warmth -= 3;
   flashHit();
@@ -2508,10 +2970,10 @@ function onWolfAttack(wolf){
   handState.targetSwayX = rnd(-0.09, 0.09);
   handState.targetSwayY = rnd(-0.09, 0.09);
 }
-function onWolfKilled(wolf){ addToast('ВОЛК ПОВЕРЖЕН', 'good'); }
+function onWolfKilled(){ addToast('ВОЛК ПОВЕРЖЕН', 'good'); }
 
 /* ============================================================================
-   27. BOOT
+   28. BOOT
    ========================================================================== */
 const loaderBar = $('#bar i');
 const loaderTxt = $('#ltxt');
@@ -2522,16 +2984,15 @@ function setProgress(p, txt){
 
 async function boot(){
   await new Promise(r => setTimeout(r, 60));
-
-  setProgress(0.08, 'ФОРМИРОВАНИЕ ЛАНДШАФТА...');
+  setProgress(0.10, 'ФОРМИРОВАНИЕ ЛАНДШАФТА...');
   buildTerrain();
   await new Promise(r => setTimeout(r, 30));
 
-  setProgress(0.26, 'НАПОЛНЕНИЕ ВОДОЁМОВ...');
+  setProgress(0.28, 'НАПОЛНЕНИЕ ВОДОЁМОВ...');
   buildWater();
   await new Promise(r => setTimeout(r, 30));
 
-  setProgress(0.44, 'ВЫРАЩИВАНИЕ ЛЕСА...');
+  setProgress(0.46, 'ВЫРАЩИВАНИЕ ЛЕСА...');
   spawnWorld();
   await new Promise(r => setTimeout(r, 30));
 
@@ -2544,64 +3005,112 @@ async function boot(){
   await new Promise(r => setTimeout(r, 30));
 
   setProgress(0.94, 'ПРОБУЖДЕНИЕ ХИЩНИКОВ...');
-  player.pos.set(0, terrainHeight(0,0), 0);
-  camera.position.set(0, player.pos.y + player.height, 0);
+  // Player spawn — find land
+  let sx = 0, sz = 0;
+  for (let i=0;i<50;i++){
+    const a = Math.random()*Math.PI*2;
+    const r = Math.random()*6;
+    const x = Math.cos(a)*r, z = Math.sin(a)*r;
+    if (isLand(x,z)){ sx = x; sz = z; break; }
+  }
+  player.pos.set(sx, terrainHeight(sx,sz)+0.05, sz);
+  camera.position.set(player.pos.x, player.pos.y + player.height, player.pos.z);
   await new Promise(r => setTimeout(r, 60));
 
   setProgress(1.0, 'ГОТОВО');
-  await new Promise(r => setTimeout(r, 300));
-
+  await new Promise(r => setTimeout(r, 280));
   $('#loader').classList.add('gone');
   animate();
 }
 
 /* ============================================================================
-   28. MENU LOGIC
+   29. MENU + SETTINGS
    ========================================================================== */
 function startGame(){
   tryLockLandscape();
   initAudio();
   if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-
   $('#menu').classList.add('gone');
   setTimeout(() => {
     $('#hud').classList.add('on');
     $('#controls').classList.add('on');
     gameActive = true;
+    paused = false;
     clock.getDelta();
     addToast('ВЫ ОЧНУЛИСЬ В ЛЕСУ', '');
     setTimeout(() => addToast('НАЙДИТЕ ДРЕВЕСИНУ И КАМЕНЬ', ''), 1900);
-    setTimeout(() => addToast('ПОСТРОЙТЕ КОСТЁР ДО НОЧИ (FIRE)', 'warn'), 3800);
+    setTimeout(() => addToast('ПОСТРОЙТЕ КОСТЁР (FIRE)', 'warn'), 3800);
   }, 500);
 }
 
 $('#btn-play').addEventListener('click', startGame);
 $('#btn-settings').addEventListener('click', () => $('#settings').classList.add('on'));
-$('#btn-back').addEventListener('click', () => $('#settings').classList.remove('on'));
+$('#btn-settings-close').addEventListener('click', () => {
+  $('#settings').classList.remove('on');
+  // Resume if was playing
+  if (gameActive && paused){
+    paused = false;
+    clock.getDelta();
+  }
+});
 
-/* Settings UI */
-const qEl = $('#s-quality'), qV = $('#s-quality-v');
-qEl.value = settings.quality; qV.textContent = settings.quality;
-qEl.addEventListener('input', () => { qV.textContent = qEl.value; });
-
-const vEl = $('#s-volume'), vV = $('#s-volume-v');
-vEl.value = settings.volume; vV.textContent = settings.volume;
-vEl.addEventListener('input', () => { vV.textContent = vEl.value; });
-
-const sEl = $('#s-sens'), sV = $('#s-sens-v');
-sEl.value = settings.sensitivity; sV.textContent = settings.sensitivity;
-sEl.addEventListener('input', () => { sV.textContent = sEl.value; });
-
-// Сохраняем на изменение
-[qEl, vEl, sEl].forEach(el => el.addEventListener('change', () => {
-  settings.quality = +qEl.value;
-  settings.volume = +vEl.value;
-  settings.sensitivity = +sEl.value;
-  if (ambientGain) ambientGain.gain.value = settings.volume/100 * 0.35;
+/* Settings wiring */
+const sensEl = $('#s-sens'), sensVal = $('#v-sens');
+sensEl.value = Math.round(settings.sensitivity * 100);
+sensVal.textContent = settings.sensitivity.toFixed(2);
+function updateSensSlider(){
+  const v = (+sensEl.value) / 100;
+  const pct = ((+sensEl.value - 30) / (200 - 30)) * 100;
+  sensEl.style.background = `linear-gradient(90deg, var(--amber) 0%, var(--amber) ${pct}%, rgba(255,255,255,0.08) ${pct}%)`;
+}
+sensEl.addEventListener('input', () => {
+  settings.sensitivity = (+sensEl.value) / 100;
+  sensVal.textContent = settings.sensitivity.toFixed(2);
+  updateSensSlider();
   saveSettings();
-}));
+});
+updateSensSlider();
 
-/* Respawn */
+const volEl = $('#s-vol'), volVal = $('#v-vol');
+volEl.value = settings.volume;
+volVal.textContent = settings.volume;
+function updateVolSlider(){
+  const pct = (+volEl.value);
+  volEl.style.background = `linear-gradient(90deg, var(--amber) 0%, var(--amber) ${pct}%, rgba(255,255,255,0.08) ${pct}%)`;
+}
+volEl.addEventListener('input', () => {
+  settings.volume = +volEl.value;
+  volVal.textContent = settings.volume;
+  updateVolSlider();
+  if (masterGain) masterGain.gain.value = settings.volume / 100;
+  saveSettings();
+});
+updateVolSlider();
+
+/* Quality picker */
+const qp = $('#quality-picker');
+function applyQualitySelection(){
+  qp.querySelectorAll('div').forEach(el => {
+    el.classList.toggle('on', +el.dataset.q === settings.quality);
+  });
+}
+qp.querySelectorAll('div').forEach(el => {
+  el.addEventListener('click', () => {
+    settings.quality = +el.dataset.q;
+    saveSettings();
+    applyQualitySelection();
+    addToast('ПЕРЕЗАПУСТИТЕ ДЛЯ ПРИМЕНЕНИЯ', 'warn');
+  });
+});
+applyQualitySelection();
+
+/* Menu (in-game) */
+function openPauseMenu(){
+  paused = true;
+  $('#settings').classList.add('on');
+  if (document.pointerLockElement) document.exitPointerLock();
+}
+
 $('#respawn').addEventListener('click', () => {
   $('#death').classList.remove('on');
   player.health = 100;
@@ -2609,16 +3118,25 @@ $('#respawn').addEventListener('click', () => {
   player.water = 70;
   player.warmth = 80;
   player.stamina = 100;
+  player.air = 100;
   player.alive = true;
-  player.pos.set(0, terrainHeight(0,0), 0);
+  player.pos.set(0, terrainHeight(0,0)+0.05, 0);
   player.vel.set(0,0,0);
   inventory.wood = 0; inventory.stone = 0; inventory.meat = 0;
   updateInvUI();
   addToast('НОВАЯ ПОПЫТКА', '');
 });
 
+/* Handle menu request */
+setInterval(() => {
+  if (menuRequested){
+    menuRequested = false;
+    if (gameActive) openPauseMenu();
+  }
+}, 100);
+
 /* ============================================================================
-   29. PWA MANIFEST
+   30. PWA MANIFEST
    ========================================================================== */
 (function setupPWA(){
   try {
@@ -2637,17 +3155,15 @@ $('#respawn').addEventListener('click', () => {
     g.textAlign = 'center'; g.textBaseline = 'middle';
     g.fillText('W', 256, 262);
     const iconUrl = ic.toDataURL('image/png');
-
     const manifest = {
-      name: 'WILDERNESS — Hardcore Survival',
-      short_name: 'WILDERNESS',
-      description: 'Процедурная 3D-игра на выживание',
-      start_url: '.',
-      display: 'fullscreen',
-      orientation: 'landscape',
-      background_color: '#05070a',
-      theme_color: '#0b0d0c',
-      icons: [{ src:iconUrl, sizes:'512x512', type:'image/png', purpose:'any maskable' }],
+      name:'WILDERNESS — Hardcore Survival',
+      short_name:'WILDERNESS',
+      start_url:'.',
+      display:'fullscreen',
+      orientation:'landscape',
+      background_color:'#05070a',
+      theme_color:'#0b0d0c',
+      icons:[{ src:iconUrl, sizes:'512x512', type:'image/png', purpose:'any maskable' }],
     };
     const blob = new Blob([JSON.stringify(manifest)], { type:'application/manifest+json' });
     const link = document.createElement('link');
@@ -2658,7 +3174,7 @@ $('#respawn').addEventListener('click', () => {
 })();
 
 /* ============================================================================
-   30. START
+   31. START
    ========================================================================== */
 boot();
 
@@ -2667,7 +3183,6 @@ renderer.domElement.addEventListener('webglcontextlost', (e) => {
   addToast('ПОТЕРЯ ГРАФИЧЕСКОГО КОНТЕКСТА', 'warn');
 });
 
-/* Автопауза при уходе со страницы */
 document.addEventListener('visibilitychange', () => {
   if (document.hidden && audioCtx) audioCtx.suspend();
   else if (!document.hidden && audioCtx && gameActive) audioCtx.resume();
