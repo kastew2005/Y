@@ -1,0 +1,5 @@
+export function configureRenderer(THREE,canvas){const renderer=new THREE.WebGLRenderer({canvas,antialias:devicePixelRatio<2,alpha:false,powerPreference:'high-performance'});renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;const maxDpr=Math.min(devicePixelRatio||1,1.6);renderer.setPixelRatio(maxDpr);return renderer;}
+export function makeGroundMaterial(THREE){return new THREE.MeshStandardMaterial({color:0x60754a,roughness:0.96,metalness:0});}
+export function makeMetalMaterial(THREE,color=0x6b7475){return new THREE.MeshStandardMaterial({color,metalness:.88,roughness:.24,envMapIntensity:1.25});}
+export function makeBarkMaterial(THREE){return new THREE.MeshStandardMaterial({color:0x55402b,roughness:.94});}
+export function makeRuneMaterial(THREE){return new THREE.MeshStandardMaterial({color:0x7ee9cb,emissive:0x147c6a,emissiveIntensity:1.8,roughness:.25,metalness:.3});}
