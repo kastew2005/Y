@@ -5,15 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Apex">
 <meta name="theme-color" content="#0a0612">
-<meta name="description" content="Apex — Rifters of Aethelgard">
-<link rel="manifest" href='data:application/manifest+json,{"name":"Apex","short_name":"Apex","start_url":"./","display":"fullscreen","orientation":"landscape-primary","background_color":"%230a0612","theme_color":"%230a0612","icons":[{"src":"data:image/svg%2Bxml;utf8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27192%27 height=%27192%27%3E%3Crect width=%27192%27 height=%27192%27 rx=%2738%27 fill=%27%230a0612%27/%3E%3Ctext x=%2796%27 y=%27128%27 font-size=%27120%27 text-anchor=%27middle%27 fill=%27%23ffd897%27%3E%E2%9A%94%3C/text%3E%3C/svg%3E","sizes":"192x192","type":"image/svg+xml"}]}'>
 <title>APEX — Rifters of Aethelgard</title>
 <style>
 /* ============================================================================
-   APEX — стабильный PWA-клиент с отказоустойчивой инициализацией
+   APEX — Полностью переработанный интерфейс с исправлениями
    ============================================================================ */
 *,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
@@ -22,8 +18,7 @@
   --sa-left:env(safe-area-inset-left,0px);
   --sa-right:env(safe-area-inset-right,0px);
   --gold:#ffd897; --gold-deep:#a06b20; --gold-light:#fff1ce;
-  --neon:#7cd9ff; --neon-strong:#3d7cff;
-  --blood:#ff4d5e; --magic:#b85aff;
+  --neon:#7cd9ff; --blood:#ff4d5e; --magic:#b85aff;
   --bg-0:#05030a;
 }
 html,body{
@@ -31,12 +26,11 @@ html,body{
   background:var(--bg-0);color:#e8dfd0;
   font-family:-apple-system,BlinkMacSystemFont,"Cinzel","Segoe UI",Roboto,system-ui,sans-serif;
   user-select:none;-webkit-user-select:none;touch-action:none;overscroll-behavior:none;
-  -webkit-font-smoothing:antialiased;
 }
 canvas{display:block;outline:none}
-button{font-family:inherit}
+button{font-family:inherit;cursor:pointer}
 
-#app{position:fixed;inset:0;overflow:hidden;background:var(--bg-0)}
+#app{position:fixed;inset:0;overflow:hidden}
 canvas.layer{position:absolute;inset:0;width:100%;height:100%}
 
 .vignette{
@@ -47,14 +41,13 @@ canvas.layer{position:absolute;inset:0;width:100%;height:100%}
 }
 
 /* ============================================================================
-   LOADER — прогресс с процентами и кнопкой Старт
+   LOADER
    ============================================================================ */
 #loader{
   position:absolute;inset:0;z-index:100;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   background:radial-gradient(ellipse at center,#150820 0%,#05030a 70%);
-  transition:opacity .6s ease;
-  padding:24px;
+  transition:opacity .6s ease;padding:24px;
 }
 #loader.hide{opacity:0;pointer-events:none}
 .loader-rune{
@@ -70,15 +63,14 @@ canvas.layer{position:absolute;inset:0;width:100%;height:100%}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loader-title{
   font-family:"Cinzel",Georgia,serif;font-size:34px;letter-spacing:.4em;
-  color:#ffe7b0;margin:0 0 22px;
+  color:#ffe7b0;margin:0 0 22px;font-weight:900;
   text-shadow:0 0 20px rgba(255,180,80,.8),0 0 50px rgba(255,120,40,.4);
-  font-weight:900;
 }
 .loader-bar{
   width:min(420px,80vw);height:6px;border-radius:3px;
   background:rgba(255,255,255,.08);overflow:hidden;
   border:1px solid rgba(180,140,80,.35);
-  box-shadow:inset 0 0 12px rgba(0,0,0,.9),0 0 18px rgba(255,180,80,.15);
+  box-shadow:inset 0 0 12px rgba(0,0,0,.9);
 }
 .loader-bar-fill{
   height:100%;width:0%;
@@ -103,20 +95,14 @@ canvas.layer{position:absolute;inset:0;width:100%;height:100%}
   margin-top:28px;padding:16px 48px;
   font-family:"Cinzel",Georgia,serif;font-size:15px;letter-spacing:.35em;
   text-transform:uppercase;font-weight:700;color:#1a0d04;
-  border:none;border-radius:4px;cursor:pointer;
+  border:none;border-radius:4px;
   background:linear-gradient(180deg,#ffe4a0 0%,#e0a94e 45%,#a06b20 55%,#52330c 100%);
-  box-shadow:
-    0 0 0 1px rgba(255,220,150,.9) inset,
-    0 0 0 3px rgba(40,20,8,.9) inset,
-    0 0 40px rgba(255,180,80,.7),
-    0 0 80px rgba(255,120,40,.4),
-    0 12px 30px rgba(0,0,0,.85);
-  transition:all .25s cubic-bezier(.2,.9,.3,1.4);
-  opacity:.35;pointer-events:none;
+  box-shadow:0 0 0 1px rgba(255,220,150,.9) inset,0 0 0 3px rgba(40,20,8,.9) inset,
+    0 0 40px rgba(255,180,80,.7),0 0 80px rgba(255,120,40,.4),0 12px 30px rgba(0,0,0,.85);
+  opacity:.35;pointer-events:none;transition:all .25s cubic-bezier(.2,.9,.3,1.4);
 }
 .loader-start.ready{opacity:1;pointer-events:auto}
-.loader-start.ready:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 0 60px rgba(255,200,120,.9),0 0 120px rgba(255,120,40,.5),0 12px 30px rgba(0,0,0,.9),0 0 0 1px rgba(255,220,150,.9) inset}
-.loader-start.ready:active{transform:scale(.97)}
+.loader-start.ready:hover{transform:translateY(-2px) scale(1.03)}
 .loader-retry{
   margin-top:20px;padding:10px 22px;background:rgba(80,20,20,.8);
   border:1px solid rgba(255,100,100,.7);color:#ffb0b0;
@@ -125,42 +111,41 @@ canvas.layer{position:absolute;inset:0;width:100%;height:100%}
 }
 
 /* ============================================================================
-   КИНЕМАТОГРАФИЧНЫЙ FADER — шторка между сценами
+   FADER
    ============================================================================ */
 #fader{
   position:absolute;inset:0;background:#000;z-index:90;
-  opacity:0;pointer-events:none;
-  transition:opacity .7s cubic-bezier(.4,0,.2,1);
+  opacity:0;pointer-events:none;transition:opacity .7s cubic-bezier(.4,0,.2,1);
 }
 #fader.active{opacity:1;pointer-events:auto}
 
 /* ============================================================================
    МЕНЮ
    ============================================================================ */
-#menu{position:absolute;inset:0;z-index:10;transition:opacity .6s ease}
-#menu.hide{opacity:0;pointer-events:none;display:none}
+#menu{position:absolute;inset:0;z-index:10;display:none}
+#menu.hide{display:none}
 
 #logo{
-  position:absolute;top:calc(3% + var(--sa-top));left:50%;transform:translateX(-50%);
+  position:absolute;top:calc(2% + var(--sa-top));left:50%;transform:translateX(-50%);
   text-align:center;z-index:12;pointer-events:none;
 }
 #logo h1{
   margin:0;font-family:"Cinzel",Georgia,serif;
-  font-size:clamp(38px,7vw,90px);letter-spacing:.35em;font-weight:900;
+  font-size:clamp(36px,6.5vw,82px);letter-spacing:.35em;font-weight:900;
   background:linear-gradient(180deg,#fff1ce 0%,#e8c88c 40%,#b8823a 70%,#6b4520 100%);
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
-  text-shadow:0 0 12px rgba(255,210,140,.9),0 0 40px rgba(255,160,60,.55),0 0 90px rgba(255,90,40,.35);
   filter:drop-shadow(0 0 18px rgba(255,190,110,.7));
 }
 #logo .sub{
-  margin-top:4px;font-size:clamp(9px,1.2vw,13px);letter-spacing:.7em;
+  margin-top:2px;font-size:clamp(9px,1.1vw,12px);letter-spacing:.7em;
   color:#d8c7a0;opacity:.85;text-transform:uppercase;font-weight:600;
 }
 #logo .sub span{color:#ff9c4a;text-shadow:0 0 8px rgba(255,140,60,.9)}
 
+/* Панель выбора расы (левая) */
 .race-panel{
-  position:absolute;top:calc(22% + var(--sa-top));left:calc(3% + var(--sa-left));
-  width:clamp(230px,25vw,340px);padding:20px 18px 22px;z-index:12;
+  position:absolute;top:calc(22% + var(--sa-top));left:calc(2.5% + var(--sa-left));
+  width:clamp(220px,24vw,320px);padding:18px 16px 20px;z-index:12;
   background:linear-gradient(135deg,rgba(30,20,50,.65),rgba(10,6,20,.82));
   border:1px solid rgba(180,140,80,.55);border-radius:14px;
   box-shadow:0 0 40px rgba(120,60,20,.35),0 0 0 1px rgba(255,200,120,.15) inset,
@@ -169,13 +154,13 @@ canvas.layer{position:absolute;inset:0;width:100%;height:100%}
   -webkit-backdrop-filter:blur(18px) saturate(140%);
 }
 .race-panel h2{
-  margin:0 0 12px;font-family:"Cinzel",Georgia,serif;font-size:14px;
+  margin:0 0 12px;font-family:"Cinzel",Georgia,serif;font-size:13px;
   letter-spacing:.28em;color:var(--gold);text-transform:uppercase;text-align:center;
   text-shadow:0 0 12px rgba(255,180,80,.7);
 }
-.race-list{display:flex;flex-direction:column;gap:9px}
+.race-list{display:flex;flex-direction:column;gap:8px}
 .race-card{
-  position:relative;padding:11px 13px;border-radius:10px;cursor:pointer;
+  position:relative;padding:10px 12px;border-radius:10px;cursor:pointer;
   background:linear-gradient(135deg,rgba(50,35,80,.55),rgba(15,10,25,.75));
   border:1px solid rgba(140,110,70,.45);
   transition:all .3s cubic-bezier(.2,.9,.3,1.2);overflow:hidden;
@@ -185,48 +170,114 @@ canvas.layer{position:absolute;inset:0;width:100%;height:100%}
   background:linear-gradient(120deg,transparent 30%,rgba(255,210,140,.25) 50%,transparent 70%);
   transform:translateX(-120%);transition:transform .7s ease;pointer-events:none;
 }
-.race-card:hover{transform:translateX(6px);border-color:rgba(255,200,120,.8)}
+.race-card:hover{transform:translateX(5px);border-color:rgba(255,200,120,.8)}
 .race-card:hover::before{transform:translateX(120%)}
 .race-card.active{
   border-color:#ffc879;
   background:linear-gradient(135deg,rgba(90,60,30,.75),rgba(40,25,60,.9));
   box-shadow:0 0 24px rgba(255,180,80,.55),0 0 0 1px rgba(255,220,160,.5) inset,
     0 0 40px rgba(180,80,255,.25);
-  transform:translateX(10px);
+  transform:translateX(8px);
 }
-.rc-name{font-family:"Cinzel",Georgia,serif;font-size:12.5px;letter-spacing:.14em;
-  color:#f0dcb4;margin-bottom:4px;text-transform:uppercase}
+.rc-name{font-family:"Cinzel",Georgia,serif;font-size:12px;letter-spacing:.14em;
+  color:#f0dcb4;margin-bottom:3px;text-transform:uppercase}
 .race-card.active .rc-name{color:#ffe7b0;text-shadow:0 0 12px rgba(255,200,120,.9)}
-.rc-desc{font-size:10px;line-height:1.4;color:rgba(220,200,180,.7)}
-.rc-tag{display:inline-block;padding:2px 8px;margin-top:6px;font-size:8.5px;
+.rc-desc{font-size:9.5px;line-height:1.35;color:rgba(220,200,180,.7)}
+.rc-tag{display:inline-block;padding:2px 7px;margin-top:5px;font-size:8px;
   letter-spacing:.2em;border:1px solid rgba(255,180,80,.5);border-radius:4px;
   color:#ffbe72;text-transform:uppercase}
-.race-card.active .rc-tag{background:rgba(255,180,80,.15);border-color:rgba(255,220,150,.9);
-  box-shadow:0 0 14px rgba(255,180,80,.6)}
+.race-card.active .rc-tag{background:rgba(255,180,80,.15);
+  border-color:rgba(255,220,150,.9);box-shadow:0 0 14px rgba(255,180,80,.6)}
 
+/* Панель статистики (правая) */
 .stats-panel{
-  position:absolute;top:calc(22% + var(--sa-top));right:calc(3% + var(--sa-right));
-  width:clamp(210px,23vw,320px);padding:18px 16px;z-index:12;
+  position:absolute;top:calc(22% + var(--sa-top));right:calc(2.5% + var(--sa-right));
+  width:clamp(200px,22vw,300px);padding:16px 14px;z-index:12;
   background:linear-gradient(135deg,rgba(25,15,45,.7),rgba(8,4,16,.85));
   border:1px solid rgba(180,140,80,.5);border-radius:14px;
   box-shadow:0 0 40px rgba(120,60,20,.35),0 20px 60px rgba(0,0,0,.75),0 0 100px rgba(60,20,120,.3);
   backdrop-filter:blur(18px) saturate(140%);
   -webkit-backdrop-filter:blur(18px) saturate(140%);
 }
-.stats-panel h3{margin:0 0 10px;font-family:"Cinzel",Georgia,serif;font-size:12px;
+.stats-panel h3{margin:0 0 10px;font-family:"Cinzel",Georgia,serif;font-size:11.5px;
   letter-spacing:.3em;color:var(--gold);text-align:center;text-transform:uppercase;
   text-shadow:0 0 10px rgba(255,180,80,.6)}
-.stat-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:11px}
-.stat-row .lbl{color:rgba(220,200,180,.75);letter-spacing:.12em;text-transform:uppercase;font-size:9.5px}
-.stat-row .val{color:#ffe7b0;font-weight:700;font-size:13px;text-shadow:0 0 8px rgba(255,180,80,.7)}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:11px}
+.stat-row .lbl{color:rgba(220,200,180,.75);letter-spacing:.12em;text-transform:uppercase;font-size:9px}
+.stat-row .val{color:#ffe7b0;font-weight:700;font-size:12.5px;
+  text-shadow:0 0 8px rgba(255,180,80,.7)}
 .stat-bar{height:4px;border-radius:2px;margin-top:3px;background:rgba(0,0,0,.55);
   overflow:hidden;box-shadow:inset 0 0 6px rgba(0,0,0,.9)}
 .stat-bar i{display:block;height:100%;width:0%;
   background:linear-gradient(90deg,#ff8040,#ffd070);
   box-shadow:0 0 12px rgba(255,180,80,.9);transition:width .6s cubic-bezier(.3,.9,.3,1)}
 
+/* ============================================================================
+   КНОПКА «ИГРАТЬ» — крупная, внизу по центру
+   ============================================================================ */
+.btn-play{
+  position:absolute;
+  bottom:calc(5% + var(--sa-bottom));
+  left:50%;transform:translateX(-50%);
+  z-index:20;
+  padding:22px 78px;
+  font-family:"Cinzel",Georgia,serif;
+  font-size:clamp(16px,1.8vw,22px);
+  letter-spacing:.4em;
+  text-transform:uppercase;
+  font-weight:900;
+  color:#1a0d04;
+  border:none;
+  border-radius:6px;
+  background:linear-gradient(180deg,#fff0c4 0%,#ffd070 30%,#e0a94e 55%,#8a5a1c 100%);
+  box-shadow:
+    0 0 0 1px rgba(255,240,190,1) inset,
+    0 0 0 4px rgba(60,30,10,.95) inset,
+    0 0 60px rgba(255,200,120,.85),
+    0 0 140px rgba(255,140,50,.55),
+    0 18px 40px rgba(0,0,0,.9);
+  transition:all .3s cubic-bezier(.2,.9,.3,1.4);
+  cursor:pointer;
+  overflow:visible;
+  white-space:nowrap;
+  text-shadow:0 1px 0 rgba(255,240,200,.6);
+}
+.btn-play::before,
+.btn-play::after{
+  content:"";position:absolute;left:-18px;right:-18px;height:10px;
+  border:1px solid rgba(255,200,120,.7);
+  border-radius:5px;
+  pointer-events:none;
+}
+.btn-play::before{top:-11px;
+  background:linear-gradient(90deg,transparent,rgba(255,200,120,.6),transparent);
+  box-shadow:0 0 18px rgba(255,180,80,.6)}
+.btn-play::after{bottom:-11px;
+  background:linear-gradient(90deg,transparent,rgba(255,200,120,.6),transparent);
+  box-shadow:0 0 18px rgba(255,180,80,.6)}
+.btn-play:hover{
+  transform:translateX(-50%) translateY(-3px) scale(1.03);
+  box-shadow:
+    0 0 0 1px rgba(255,240,190,1) inset,
+    0 0 0 4px rgba(60,30,10,.95) inset,
+    0 0 90px rgba(255,220,140,1),
+    0 0 200px rgba(255,140,50,.7),
+    0 18px 40px rgba(0,0,0,.9);
+}
+.btn-play:active{transform:translateX(-50%) scale(.97)}
+.btn-play .play-glow{
+  position:absolute;inset:-40px;border-radius:8px;
+  background:radial-gradient(ellipse at center,rgba(255,180,80,.55),transparent 70%);
+  pointer-events:none;animation:pulseGlow 2.2s ease-in-out infinite;
+  z-index:-1;
+}
+@keyframes pulseGlow{0%,100%{opacity:.55}50%{opacity:1}}
+.btn-play.loading{pointer-events:none;opacity:.8}
+.btn-play .play-label{position:relative;z-index:1}
+
+/* Вспомогательные кнопки (настройки/наследие/фракция) */
 .top-menu-btns{
-  position:absolute;top:calc(16px + var(--sa-top));right:calc(16px + var(--sa-right));
+  position:absolute;top:calc(14px + var(--sa-top));right:calc(14px + var(--sa-right));
   z-index:12;display:flex;gap:8px;
 }
 .tm-btn{
@@ -235,7 +286,8 @@ canvas.layer{position:absolute;inset:0;width:100%;height:100%}
   letter-spacing:.25em;color:#e0cba0;text-transform:uppercase;cursor:pointer;
   transition:all .2s;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
 }
-.tm-btn:hover{border-color:rgba(255,200,120,.95);color:#ffe7b0;box-shadow:0 0 20px rgba(255,180,80,.5)}
+.tm-btn:hover{border-color:rgba(255,200,120,.95);color:#ffe7b0;
+  box-shadow:0 0 20px rgba(255,180,80,.5)}
 
 /* ============================================================================
    ИГРА
@@ -245,113 +297,93 @@ canvas.layer{position:absolute;inset:0;width:100%;height:100%}
 
 #topbar{
   position:absolute;top:calc(10px + var(--sa-top));left:50%;transform:translateX(-50%);
-  display:flex;gap:14px;align-items:center;padding:7px 20px;
+  display:flex;gap:12px;align-items:center;padding:7px 18px;
   background:linear-gradient(90deg,rgba(20,10,30,.75),rgba(40,20,60,.85),rgba(20,10,30,.75));
   border:1px solid rgba(180,140,80,.5);border-radius:999px;
-  font-size:11px;letter-spacing:.15em;color:#d8c7a0;text-transform:uppercase;
+  font-size:10.5px;letter-spacing:.15em;color:#d8c7a0;text-transform:uppercase;
   z-index:12;white-space:nowrap;
   box-shadow:0 0 25px rgba(120,60,20,.35),inset 0 0 20px rgba(255,180,80,.08);
   backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
 }
-#topbar .val{color:#ffe7b0;font-weight:700;text-shadow:0 0 8px rgba(255,180,80,.9);margin-left:6px}
+#topbar .val{color:#ffe7b0;font-weight:700;text-shadow:0 0 8px rgba(255,180,80,.9);margin-left:5px}
 #topbar .sep{color:rgba(180,140,80,.4)}
 #topbar .zone-wild{color:#ff9c6a}
 #topbar .zone-city{color:#7cffb0}
 
-.orbs{position:absolute;top:calc(58px + var(--sa-top));left:calc(18px + var(--sa-left));
-  display:flex;gap:14px;z-index:12}
-.orb{position:relative;width:82px;height:82px;border-radius:50%;
+.orbs{position:absolute;top:calc(56px + var(--sa-top));left:calc(16px + var(--sa-left));
+  display:flex;gap:12px;z-index:12}
+.orb{position:relative;width:78px;height:78px;border-radius:50%;
   background:
     radial-gradient(circle at 32% 28%,rgba(255,255,255,.35),transparent 45%),
     radial-gradient(circle at 50% 55%,rgba(0,0,0,.55),rgba(0,0,0,.95));
   border:2px solid rgba(255,200,120,.55);
-  box-shadow:inset 0 0 30px rgba(0,0,0,.9),0 0 30px rgba(255,140,40,.4),
-    0 0 60px rgba(255,140,40,.15);
+  box-shadow:inset 0 0 30px rgba(0,0,0,.9),0 0 30px rgba(255,140,40,.4);
   overflow:hidden;
 }
 .orb::before{content:"";position:absolute;left:0;right:0;bottom:0;height:var(--pct,100%);
   background:linear-gradient(180deg,rgba(255,220,120,.95),rgba(220,80,40,.85));
   transition:height .5s cubic-bezier(.3,.9,.3,1);
-  box-shadow:0 0 30px rgba(255,160,80,.9),inset 0 6px 20px rgba(255,220,150,.6)}
+  box-shadow:0 0 30px rgba(255,160,80,.9)}
 .orb.mana::before{background:linear-gradient(180deg,rgba(140,200,255,.95),rgba(50,90,220,.85));
-  box-shadow:0 0 30px rgba(120,180,255,.9),inset 0 6px 20px rgba(200,225,255,.6)}
+  box-shadow:0 0 30px rgba(120,180,255,.9)}
 .orb .orb-lbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  font-family:"Cinzel",Georgia,serif;font-size:13px;font-weight:700;
-  color:#fff4dd;text-shadow:0 0 8px #000,0 0 16px rgba(255,200,120,.9);z-index:2;letter-spacing:.06em}
-.orb .orb-ring{position:absolute;inset:-6px;border-radius:50%;
+  font-family:"Cinzel",Georgia,serif;font-size:12px;font-weight:700;
+  color:#fff4dd;text-shadow:0 0 8px #000,0 0 16px rgba(255,200,120,.9);z-index:2}
+.orb .orb-ring{position:absolute;inset:-5px;border-radius:50%;
   border:1px solid rgba(255,200,120,.35);
-  box-shadow:0 0 20px rgba(255,180,80,.4),inset 0 0 20px rgba(255,180,80,.15);pointer-events:none}
-.orb.mana{border-color:rgba(140,200,255,.6);
-  box-shadow:inset 0 0 30px rgba(0,0,0,.9),0 0 30px rgba(80,140,255,.5)}
+  box-shadow:0 0 20px rgba(255,180,80,.4);pointer-events:none}
+.orb.mana{border-color:rgba(140,200,255,.6)}
 
-#staminaWrap{position:absolute;top:calc(148px + var(--sa-top));left:calc(18px + var(--sa-left));
-  width:180px;height:8px;border-radius:4px;background:rgba(0,0,0,.6);
-  border:1px solid rgba(180,140,80,.5);box-shadow:inset 0 0 8px rgba(0,0,0,.9);
-  overflow:hidden;z-index:12}
-#staminaWrap i{display:block;height:100%;width:100%;
-  background:linear-gradient(90deg,#ffbe72,#ffe7b0);
-  box-shadow:0 0 12px rgba(255,200,120,.9);transition:width .2s linear}
-#staminaWrap .lbl{position:absolute;top:-13px;left:2px;font-size:8.5px;
-  letter-spacing:.3em;color:rgba(220,200,170,.6);text-transform:uppercase}
-
-#minimapWrap{position:absolute;top:calc(58px + var(--sa-top));right:calc(18px + var(--sa-right));
-  z-index:12;width:130px;height:130px;border-radius:50%;
+#minimapWrap{position:absolute;top:calc(56px + var(--sa-top));right:calc(16px + var(--sa-right));
+  z-index:12;width:120px;height:120px;border-radius:50%;
   background:radial-gradient(circle at center,rgba(10,15,35,.9),rgba(5,8,20,.95));
   border:1px solid rgba(120,200,255,.5);
   box-shadow:0 0 25px rgba(60,140,255,.5),inset 0 0 30px rgba(60,140,255,.2),
     0 0 0 4px rgba(20,30,60,.6);
   overflow:hidden}
-#minimapWrap::after{content:"";position:absolute;inset:-10px;border-radius:50%;
-  background:repeating-conic-gradient(from 0deg,rgba(120,200,255,.28) 0deg 1deg,transparent 1deg 12deg);
-  pointer-events:none;opacity:.65;animation:rotateMinimapRing 40s linear infinite}
-@keyframes rotateMinimapRing{to{transform:rotate(360deg)}}
 #minimap{width:100%;height:100%}
 
-#toasts{position:absolute;bottom:calc(180px + var(--sa-bottom));left:50%;transform:translateX(-50%);
+#toasts{position:absolute;bottom:calc(170px + var(--sa-bottom));left:50%;transform:translateX(-50%);
   z-index:12;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
-.toast{padding:7px 18px;border-radius:4px;
+.toast{padding:6px 16px;border-radius:4px;
   background:linear-gradient(135deg,rgba(40,20,60,.9),rgba(15,8,25,.95));
-  border:1px solid rgba(255,200,120,.7);font-size:11px;letter-spacing:.15em;
+  border:1px solid rgba(255,200,120,.7);font-size:10.5px;letter-spacing:.15em;
   text-transform:uppercase;color:#ffe7b0;text-shadow:0 0 8px rgba(255,180,80,.9);
   box-shadow:0 0 25px rgba(255,150,60,.5);
   animation:toastIn .4s cubic-bezier(.2,.9,.3,1.4);white-space:nowrap}
-.toast.magic{border-color:rgba(184,90,255,.8);color:#e0c8ff;box-shadow:0 0 25px rgba(180,80,255,.5)}
+.toast.magic{border-color:rgba(184,90,255,.8);color:#e0c8ff}
+.toast.legendary{border-color:rgba(255,200,80,1);color:#fff0c8;
+  box-shadow:0 0 40px rgba(255,180,40,.9)}
 @keyframes toastIn{from{opacity:0;transform:translateY(20px) scale(.9)}to{opacity:1;transform:none}}
 
-#actionBtns{position:absolute;bottom:calc(26px + var(--sa-bottom));right:calc(26px + var(--sa-right));
-  z-index:12;display:flex;flex-direction:column;gap:11px;align-items:flex-end}
-.action-btn{width:74px;height:74px;border-radius:50%;
+#actionBtns{position:absolute;bottom:calc(24px + var(--sa-bottom));right:calc(24px + var(--sa-right));
+  z-index:12;display:flex;flex-direction:column;gap:10px;align-items:flex-end}
+.action-btn{width:70px;height:70px;border-radius:50%;
   background:
     radial-gradient(circle at 32% 28%,rgba(255,220,150,.35),transparent 45%),
     radial-gradient(circle at 50% 60%,rgba(80,40,120,.7),rgba(15,8,25,.95));
   border:2px solid rgba(255,200,120,.65);
-  box-shadow:0 0 22px rgba(255,150,60,.5),inset 0 0 20px rgba(255,180,80,.15),
-    0 6px 14px rgba(0,0,0,.75);
+  box-shadow:0 0 22px rgba(255,150,60,.5),inset 0 0 20px rgba(255,180,80,.15);
   display:flex;align-items:center;justify-content:center;
-  font-family:"Cinzel",Georgia,serif;font-size:11px;letter-spacing:.1em;
+  font-family:"Cinzel",Georgia,serif;font-size:10.5px;letter-spacing:.1em;
   text-transform:uppercase;color:#ffe7b0;text-shadow:0 0 8px rgba(255,180,80,.9);
-  cursor:pointer;user-select:none;position:relative;
-  transition:transform .1s ease-out,box-shadow .2s;touch-action:none}
+  user-select:none;transition:transform .1s ease-out,box-shadow .2s;touch-action:none}
 .action-btn:active{transform:scale(.9);
   box-shadow:0 0 40px rgba(255,200,120,.9),inset 0 0 30px rgba(255,180,80,.3)}
-.action-btn.small{width:58px;height:58px;font-size:9.5px}
+.action-btn.small{width:54px;height:54px;font-size:9px}
 .action-btn.cast{
   background:
     radial-gradient(circle at 32% 28%,rgba(180,220,255,.4),transparent 45%),
     radial-gradient(circle at 50% 60%,rgba(40,60,140,.75),rgba(8,10,30,.95));
-  border-color:rgba(140,200,255,.7);
-  box-shadow:0 0 22px rgba(80,140,255,.6),inset 0 0 20px rgba(140,200,255,.2);
-  color:#d8ecff;text-shadow:0 0 8px rgba(140,200,255,.9)}
+  border-color:rgba(140,200,255,.7);color:#d8ecff}
 .action-btn.ult{
   background:
     radial-gradient(circle at 32% 28%,rgba(255,160,220,.4),transparent 45%),
     radial-gradient(circle at 50% 60%,rgba(140,40,180,.8),rgba(25,5,45,.95));
-  border-color:rgba(255,140,220,.7);
-  box-shadow:0 0 26px rgba(220,80,255,.6),inset 0 0 24px rgba(255,140,220,.2);
-  color:#ffe0f5;text-shadow:0 0 8px rgba(255,140,220,.9)}
+  border-color:rgba(255,140,220,.7);color:#ffe0f5}
 
-#hint{position:absolute;bottom:calc(8px + var(--sa-bottom));left:50%;transform:translateX(-50%);
-  font-size:10px;letter-spacing:.15em;text-transform:uppercase;
+#hint{position:absolute;bottom:calc(6px + var(--sa-bottom));left:50%;transform:translateX(-50%);
+  font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;
   color:rgba(220,200,170,.4);z-index:11;pointer-events:none;text-align:center;
   max-width:55vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
@@ -360,43 +392,133 @@ canvas.layer{position:absolute;inset:0;width:100%;height:100%}
   opacity:0;transition:opacity .15s}
 #dmgFlash.hit{opacity:1}
 
-#dialogue{
-  position:absolute;left:50%;bottom:calc(26px + var(--sa-bottom));
-  transform:translateX(-50%) translateY(120%);
-  width:min(540px,78vw);padding:20px;z-index:20;
-  background:linear-gradient(135deg,rgba(20,12,35,.96),rgba(8,4,16,.98));
-  border:1px solid rgba(180,140,80,.6);border-radius:14px;
-  box-shadow:0 0 60px rgba(120,60,20,.5),0 20px 60px rgba(0,0,0,.85),
-    inset 0 0 30px rgba(255,180,80,.08);
-  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  transition:transform .5s cubic-bezier(.2,.9,.3,1.2);
-  pointer-events:auto;
+/* ============================================================================
+   МОДАЛЬНЫЕ ОКНА: Диалог NPC, Наследие, Крафт, Фракции
+   ============================================================================ */
+.modal{
+  position:absolute;inset:0;z-index:25;display:none;
+  align-items:center;justify-content:center;
+  background:rgba(0,0,0,.7);backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);padding:20px;
 }
-#dialogue.open{transform:translateX(-50%) translateY(0)}
-#dialogue .dlg-portrait{
-  position:absolute;left:-26px;top:-26px;width:84px;height:84px;border-radius:50%;
+.modal.open{display:flex}
+.modal-card{
+  position:relative;max-width:min(720px,90vw);max-height:85vh;overflow-y:auto;
+  padding:24px;border-radius:16px;
+  background:linear-gradient(135deg,rgba(25,15,40,.98),rgba(8,4,16,.99));
+  border:1px solid rgba(180,140,80,.6);
+  box-shadow:0 0 80px rgba(120,60,20,.6),0 20px 60px rgba(0,0,0,.9);
+  color:#e8dfd0;font-family:system-ui,sans-serif;
+}
+.modal-card h3{
+  margin:0 0 16px;font-family:"Cinzel",Georgia,serif;font-size:16px;
+  letter-spacing:.3em;color:#ffd897;text-transform:uppercase;text-align:center;
+  text-shadow:0 0 12px rgba(255,180,80,.7);
+}
+.modal-close{
+  position:absolute;right:12px;top:12px;width:32px;height:32px;
+  border-radius:8px;background:rgba(40,20,60,.8);
+  border:1px solid rgba(180,140,80,.6);color:#e0cba0;
+  font-size:16px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+}
+.modal-close:hover{background:rgba(80,40,120,.9);color:#ffe7b0}
+.modal-text{margin:0 0 14px;font-size:13px;line-height:1.5;color:#d8c9b0;font-style:italic}
+
+.dlg-portrait{
+  position:absolute;left:-22px;top:-22px;width:76px;height:76px;border-radius:50%;
   background:radial-gradient(circle at 40% 30%,rgba(255,220,150,.5),rgba(60,30,80,.9));
   border:2px solid rgba(255,200,120,.9);
-  box-shadow:0 0 30px rgba(255,180,80,.6),inset 0 0 20px rgba(0,0,0,.6);
-  display:flex;align-items:center;justify-content:center;font-size:40px;
+  box-shadow:0 0 30px rgba(255,180,80,.6);display:flex;
+  align-items:center;justify-content:center;font-size:36px;
 }
-#dialogue .dlg-name{margin-left:56px;font-family:"Cinzel",Georgia,serif;
-  font-size:14px;letter-spacing:.2em;color:#ffe7b0;text-transform:uppercase;
-  text-shadow:0 0 10px rgba(255,200,120,.7)}
-#dialogue .dlg-text{margin:10px 0 14px;font-size:13px;line-height:1.5;
-  color:#d8c9b0;font-style:italic}
-#dialogue .dlg-actions{display:flex;gap:8px;flex-wrap:wrap}
-#dialogue .dlg-action{
-  padding:8px 15px;border-radius:6px;
+.dlg-name{margin-left:56px;font-family:"Cinzel",Georgia,serif;font-size:14px;
+  letter-spacing:.2em;color:#ffe7b0;text-transform:uppercase;
+  text-shadow:0 0 10px rgba(255,200,120,.7);margin-bottom:8px}
+.dlg-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.dlg-action{padding:9px 16px;border-radius:6px;
   background:linear-gradient(135deg,rgba(60,30,80,.8),rgba(20,10,35,.9));
   border:1px solid rgba(255,200,120,.6);color:#ffe7b0;font-size:11px;
-  letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:all .2s}
-#dialogue .dlg-action:hover{
-  background:linear-gradient(135deg,rgba(90,50,120,.9),rgba(40,20,60,.95));
+  letter-spacing:.15em;text-transform:uppercase;transition:all .2s}
+.dlg-action:hover{background:linear-gradient(135deg,rgba(90,50,120,.9),rgba(40,20,60,.95));
   box-shadow:0 0 20px rgba(255,180,80,.6)}
+.dlg-action.primary{background:linear-gradient(135deg,#ffb070,#d87830);color:#2a1508;
+  border-color:rgba(255,220,150,.9);font-weight:700}
 
-#rotate-lock{
-  position:fixed;inset:0;display:none;z-index:9999;
+/* ============================================================================
+   НАСЛЕДИЕ — Radial Tree (HTML5 Canvas внутри модала)
+   ============================================================================ */
+#legacyCanvas{
+  display:block;width:100%;height:min(56vh,460px);
+  border-radius:12px;background:radial-gradient(circle,rgba(20,30,60,.9),rgba(2,4,10,.98));
+  border:1px solid rgba(120,180,240,.4);touch-action:none;
+}
+
+/* ============================================================================
+   КРАФТ
+   ============================================================================ */
+.craft-grid{
+  display:grid;grid-template-columns:repeat(3,64px);
+  grid-template-rows:repeat(3,64px);gap:8px;
+  justify-content:center;margin:14px 0;
+}
+.craft-slot{
+  width:64px;height:64px;border-radius:10px;
+  background:linear-gradient(135deg,rgba(20,30,55,.9),rgba(10,15,30,.9));
+  border:1px solid rgba(120,180,240,.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;cursor:pointer;position:relative;transition:all .15s;
+}
+.craft-slot:hover{border-color:rgba(255,200,120,.9);
+  box-shadow:0 0 20px rgba(255,180,80,.5)}
+.craft-slot.filled{background:linear-gradient(135deg,rgba(60,30,80,.9),rgba(25,10,45,.95));
+  border-color:rgba(255,200,120,.8);box-shadow:0 0 15px rgba(255,180,80,.5)}
+.craft-slot .qty{position:absolute;right:4px;bottom:2px;font-size:10px;
+  color:#ffe7b0;font-weight:700;text-shadow:0 0 6px #000}
+.craft-result{
+  margin-top:14px;padding:14px;border-radius:10px;
+  background:rgba(0,0,0,.45);border:1px dashed rgba(180,140,80,.5);
+  text-align:center;font-size:13px;color:#d8c9b0;min-height:60px;
+  display:flex;align-items:center;justify-content:center;
+}
+.craft-result.success{border-color:rgba(120,255,160,.9);color:#c8ffd8;
+  background:linear-gradient(135deg,rgba(20,60,30,.6),rgba(10,30,15,.9));
+  box-shadow:0 0 30px rgba(80,255,140,.4)}
+.craft-result.fail{border-color:rgba(255,100,100,.9);color:#ffc8c8;
+  background:linear-gradient(135deg,rgba(60,20,20,.6),rgba(30,10,10,.9));
+  box-shadow:0 0 30px rgba(255,80,80,.4)}
+.craft-result.legendary{border-color:rgba(255,220,120,1);color:#fff4c8;
+  background:linear-gradient(135deg,rgba(80,60,20,.7),rgba(40,30,10,.95));
+  box-shadow:0 0 50px rgba(255,200,60,.7)}
+
+/* ============================================================================
+   ФРАКЦИИ
+   ============================================================================ */
+.faction-list{display:flex;flex-direction:column;gap:10px}
+.faction-card{
+  padding:14px 16px;border-radius:10px;cursor:pointer;
+  background:linear-gradient(135deg,rgba(30,20,50,.7),rgba(15,8,25,.85));
+  border:1px solid rgba(140,110,70,.5);transition:all .25s;
+  display:flex;align-items:center;gap:14px;
+}
+.faction-card:hover{border-color:rgba(255,200,120,.9);transform:translateX(4px)}
+.faction-card.active{
+  border-color:#ffc879;
+  background:linear-gradient(135deg,rgba(80,50,30,.8),rgba(40,25,60,.95));
+  box-shadow:0 0 24px rgba(255,180,80,.55);
+}
+.faction-icon{font-size:34px;flex-shrink:0;width:44px;text-align:center}
+.faction-info{flex:1;min-width:0}
+.faction-name{font-family:"Cinzel",Georgia,serif;font-size:13px;
+  letter-spacing:.18em;color:#ffe7b0;margin-bottom:4px;text-transform:uppercase}
+.faction-desc{font-size:10.5px;color:rgba(220,200,180,.7);line-height:1.35}
+.faction-bar{height:5px;border-radius:3px;background:rgba(0,0,0,.55);
+  margin-top:6px;overflow:hidden}
+.faction-bar i{display:block;height:100%;transition:width .6s ease;
+  box-shadow:0 0 10px currentColor}
+
+/* Портретный замок */
+#rotate-lock{position:fixed;inset:0;display:none;z-index:9999;
   align-items:center;justify-content:center;background:var(--bg-0);
   color:var(--gold);font-family:"Cinzel",Georgia,serif;letter-spacing:.35em;
   text-transform:uppercase;text-align:center;padding:40px;font-size:14px}
@@ -404,13 +526,13 @@ canvas.layer{position:absolute;inset:0;width:100%;height:100%}
 @media (orientation:portrait){#app{display:none !important}}
 
 @media (max-height:420px){
-  .race-panel{padding:14px}
-  .race-card{padding:9px 12px}
-  .race-card .rc-desc{display:none}
-  .orb{width:66px;height:66px}
-  #minimapWrap{width:108px;height:108px}
-  .action-btn{width:62px;height:62px;font-size:9.5px}
-  .action-btn.small{width:50px;height:50px}
+  .race-panel{padding:12px}
+  .race-card{padding:8px 10px}
+  .rc-desc{display:none}
+  .orb{width:62px;height:62px}
+  #minimapWrap{width:100px;height:100px}
+  .action-btn{width:58px;height:58px;font-size:9px}
+  .btn-play{padding:16px 54px;font-size:14px}
 }
 </style>
 </head>
@@ -423,8 +545,8 @@ canvas.layer{position:absolute;inset:0;width:100%;height:100%}
   <div class="vignette" id="vigMenu"></div>
   <div class="vignette" id="vigGame" style="display:none"></div>
 
-  <!-- ============ МЕНЮ ============ -->
-  <div id="menu" style="display:none">
+  <!-- ============================ МЕНЮ ============================ -->
+  <div id="menu">
     <div id="logo">
       <h1>APEX</h1>
       <div class="sub">Rifters of <span>Aethelgard</span></div>
@@ -448,11 +570,19 @@ canvas.layer{position:absolute;inset:0;width:100%;height:100%}
     </div>
 
     <div class="top-menu-btns">
-      <button class="tm-btn" id="btnSettings">Настройки</button>
+      <button class="tm-btn" id="btnLegacy">Наследие</button>
+      <button class="tm-btn" id="btnFaction">Фракция</button>
+      <button class="tm-btn" id="btnSettings">⚙</button>
     </div>
+
+    <!-- ГЛАВНАЯ КНОПКА ИГРЫ -->
+    <button class="btn-play" id="btnPlay">
+      <span class="play-glow"></span>
+      <span class="play-label" id="btnPlayLabel">ВОЙТИ В МИР</span>
+    </button>
   </div>
 
-  <!-- ============ ИГРА ============ -->
+  <!-- ============================ ИГРА ============================ -->
   <div id="game">
     <div id="topbar">
       <span>УР.<span class="val" id="uiLevel">1</span></span>
@@ -469,11 +599,6 @@ canvas.layer{position:absolute;inset:0;width:100%;height:100%}
       <div class="orb mana" id="orbMana"><div class="orb-ring"></div><div class="orb-lbl" id="orbManaLbl">80</div></div>
     </div>
 
-    <div id="staminaWrap">
-      <div class="lbl">СТАМИНА</div>
-      <i id="staminaBar"></i>
-    </div>
-
     <div id="minimapWrap">
       <canvas id="minimap" width="300" height="300"></canvas>
     </div>
@@ -481,40 +606,95 @@ canvas.layer{position:absolute;inset:0;width:100%;height:100%}
     <div id="actionBtns">
       <div class="action-btn ult" id="btnUlt">УЛЬТА</div>
       <div class="action-btn cast" id="btnCast">КАСТ</div>
+      <div class="action-btn small" id="btnCraft">🛠</div>
       <div class="action-btn" id="btnAttack">УДАР</div>
     </div>
 
     <div id="toasts"></div>
-    <div id="hint">Левый палец — движение • Кнопки справа — бой • Тап по NPC — диалог</div>
+    <div id="hint">Левый палец — движение • Кнопки справа — бой • 🛠 — крафт • Тап по NPC — диалог</div>
     <div id="dmgFlash"></div>
+  </div>
 
-    <div id="dialogue">
+  <!-- ============================ МОДАЛЫ ============================ -->
+  <!-- Диалог NPC -->
+  <div class="modal" id="modalDialogue">
+    <div class="modal-card" style="position:relative">
+      <button class="modal-close" data-close="modalDialogue">✕</button>
       <div class="dlg-portrait" id="dlgPortrait">🧙</div>
       <div class="dlg-name" id="dlgName">Торговец</div>
-      <div class="dlg-text" id="dlgText">Приветствую, странник.</div>
+      <div class="modal-text" id="dlgText">Приветствую, странник.</div>
       <div class="dlg-actions" id="dlgActions"></div>
     </div>
   </div>
 
-  <!-- ============ FADER ============ -->
-  <div id="fader"></div>
+  <!-- Наследие -->
+  <div class="modal" id="modalLegacy">
+    <div class="modal-card" style="width:min(720px,92vw)">
+      <button class="modal-close" data-close="modalLegacy">✕</button>
+      <h3>Наследие Рингов</h3>
+      <div style="text-align:center;margin-bottom:10px;font-size:12px;color:#d8c9b0">
+        Очки Наследия: <span id="legacyPoints" style="color:#ffe7b0;font-weight:700">0</span>
+        <span style="margin-left:12px;opacity:.7">Уровень: <span id="legacyLevel">0</span></span>
+      </div>
+      <canvas id="legacyCanvas" width="640" height="460"></canvas>
+      <div style="text-align:center;font-size:10.5px;color:rgba(220,200,180,.6);margin-top:8px">
+        Узлы дают перманентные бонусы всем будущим персонажам. Тапни узел чтобы разблокировать.
+      </div>
+    </div>
+  </div>
 
-  <!-- ============ LOADER ============ -->
+  <!-- Крафт -->
+  <div class="modal" id="modalCraft">
+    <div class="modal-card" style="width:min(560px,92vw)">
+      <button class="modal-close" data-close="modalCraft">✕</button>
+      <h3>Нестабильная Алхимия</h3>
+      <div class="modal-text">
+        Клади ингредиенты (собранные с врагов) в гнёзда. Успех не гарантирован —
+        редкие реагенты дают шанс на легендарный предмет со случайными свойствами.
+      </div>
+      <div class="craft-grid" id="craftGrid"></div>
+      <div style="display:flex;justify-content:center;gap:10px;margin-top:6px;flex-wrap:wrap">
+        <button class="dlg-action" id="craftClear">Очистить</button>
+        <button class="dlg-action primary" id="craftDo">Создать</button>
+      </div>
+      <div class="craft-result" id="craftResult">Положи ингредиенты, чтобы начать.</div>
+      <div style="margin-top:12px;font-size:11px;color:rgba(220,200,180,.7);text-align:center">
+        Инвентарь: <span id="invRunes">0</span> 🔮 · <span id="invCores">0</span> ⚡ · <span id="invShards">0</span> 💎
+      </div>
+    </div>
+  </div>
+
+  <!-- Фракции -->
+  <div class="modal" id="modalFaction">
+    <div class="modal-card" style="width:min(620px,92vw)">
+      <button class="modal-close" data-close="modalFaction">✕</button>
+      <h3>Фракции Aethelgard</h3>
+      <div class="modal-text">
+        Выбери сторону. Твои сражения влияют на контроль территорий в реальном времени.
+        Когда фракция удерживает 70%+ территории — открывается Рейдовый Разлом.
+      </div>
+      <div class="faction-list" id="factionList"></div>
+      <div style="text-align:center;margin-top:14px;font-size:12px;color:#d8c9b0">
+        Влияние за сессию: <span id="factionInfluence" style="color:#ffe7b0;font-weight:700">0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================ FADER + LOADER ============================ -->
+  <div id="fader"></div>
   <div id="loader">
     <div class="loader-rune"></div>
     <div class="loader-title">APEX</div>
-    <div class="loader-bar" id="loaderBar">
-      <div class="loader-bar-fill" id="loaderBarFill"></div>
-    </div>
+    <div class="loader-bar" id="loaderBar"><div class="loader-bar-fill" id="loaderBarFill"></div></div>
     <div class="loader-percent" id="loaderPercent">0%</div>
     <div class="loader-status" id="loaderStatus">Подготовка…</div>
-    <button class="loader-start" id="loaderStart">НАЧАТЬ</button>
+    <button class="loader-start" id="loaderStart">ПРОДОЛЖИТЬ</button>
     <button class="loader-retry" id="loaderRetry">Повторить</button>
   </div>
 </div>
 
 <script>
-// HTML-LEVEL WATCHDOG: если модуль не запустится за 15 сек, покажем ошибку
+// Watchdog
 window.__apexBooting = false;
 window.__apexFailed = false;
 setTimeout(function () {
@@ -522,7 +702,7 @@ setTimeout(function () {
     var st = document.getElementById('loaderStatus');
     var br = document.getElementById('loaderBar');
     var rt = document.getElementById('loaderRetry');
-    if (st) st.textContent = 'Ошибка загрузки модуля. Проверьте интернет.';
+    if (st) st.textContent = 'Ошибка загрузки модуля';
     if (br) br.classList.add('error');
     if (rt) rt.style.display = 'inline-block';
   }
@@ -530,15 +710,12 @@ setTimeout(function () {
 window.addEventListener('error', function (e) {
   console.error('[Apex] global error', e.error || e.message);
   window.__apexFailed = true;
-  var st = document.getElementById('loaderStatus');
-  if (st && !window.__apexBooting) st.textContent = 'Ошибка: ' + (e.message || 'неизвестно');
 });
-// PWA Service Worker — регистрируем мягко (если файла нет — молча игнорируем)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
     navigator.serviceWorker.register('./sw.js')
-      .then(function (reg) { console.log('[PWA] SW registered:', reg.scope); })
-      .catch(function () { console.log('[PWA] SW not available (offline cache disabled)'); });
+      .then(function (r) { console.log('[PWA]', r.scope); })
+      .catch(function () { console.log('[PWA] offline cache disabled'); });
   });
 }
 </script>
@@ -554,12 +731,19 @@ if ('serviceWorker' in navigator) {
 
 <script type="module">
 // ============================================================================
-// APEX — Bootstrap с отказоустойчивой инициализацией
+// APEX — Переработанный, с исправлениями отображения персонажа и кнопки Играть
 // ============================================================================
 window.__apexBooting = true;
 
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { Sky } from 'three/addons/objects/Sky.js';
+
 // ----------------------------------------------------------------------------
-// 0. УТИЛИТЫ
+// УТИЛИТЫ
 // ----------------------------------------------------------------------------
 const clamp = (v,a,b) => v<a?a:(v>b?b:v);
 const lerp = (a,b,t) => a+(b-a)*t;
@@ -567,147 +751,62 @@ const rand = (a,b) => a+Math.random()*(b-a);
 const randi = (a,b) => Math.floor(rand(a,b+1));
 const TAU = Math.PI*2;
 const dist = (ax,az,bx,bz) => Math.hypot(bx-ax,bz-az);
-const dist2 = (ax,az,bx,bz) => { const dx=bx-ax,dz=bz-az; return dx*dx+dz*dz; };
 const smoothstep = (a,b,x) => { const t=clamp((x-a)/(b-a),0,1); return t*t*(3-2*t); };
 const $ = id => document.getElementById(id);
-const nowMs = () => performance.now();
-
-function withTimeout(promise, ms, label) {
-  return new Promise((resolve, reject) => {
-    let done = false;
-    const timer = setTimeout(() => {
-      if (!done) { done = true; reject(new Error('Timeout: ' + label + ' (' + ms + 'ms)')); }
-    }, ms);
-    Promise.resolve(promise).then(
-      v => { if (!done) { done = true; clearTimeout(timer); resolve(v); } },
-      e => { if (!done) { done = true; clearTimeout(timer); reject(e); } }
-    );
-  });
-}
-function yieldFrames(n=1) {
-  return new Promise(resolve => {
-    let count = 0;
-    const step = () => {
-      count++;
-      if (count >= n) resolve();
-      else requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  });
-}
+const saveJSON = (k,v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} };
+const loadJSON = (k,d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch(e){ return d; } };
 
 // ----------------------------------------------------------------------------
-// 1. LOADER UI
+// LOADER / FADER
 // ----------------------------------------------------------------------------
 const Loader = {
-  bar: null, fill: null, status: null, percent: null, start: null, retry: null,
-  init() {
-    this.bar = $('loaderBar');
-    this.fill = $('loaderBarFill');
-    this.status = $('loaderStatus');
-    this.percent = $('loaderPercent');
-    this.start = $('loaderStart');
-    this.retry = $('loaderRetry');
-    if (this.retry) {
-      this.retry.addEventListener('click', () => location.reload());
-    }
-  },
   set(pct, text) {
     const p = clamp(Math.round(pct), 0, 100);
-    if (this.fill) this.fill.style.width = p + '%';
-    if (this.percent) this.percent.textContent = p + '%';
-    if (text && this.status) this.status.textContent = text;
+    const f = $('loaderBarFill'); if (f) f.style.width = p + '%';
+    const pe = $('loaderPercent'); if (pe) pe.textContent = p + '%';
+    if (text) { const s = $('loaderStatus'); if (s) s.textContent = text; }
   },
-  error(text) {
-    if (this.status) this.status.textContent = text;
-    if (this.bar) this.bar.classList.add('error');
-    if (this.retry) this.retry.style.display = 'inline-block';
-  },
-  ready() {
-    if (this.start) this.start.classList.add('ready');
-  },
-  hide() {
-    const el = $('loader');
-    if (el) el.classList.add('hide');
-  },
+  ready() { const b = $('loaderStart'); if (b) b.classList.add('ready'); },
+  hide() { const el = $('loader'); if (el) el.classList.add('hide'); },
+  error(t) {
+    const s = $('loaderStatus'); if (s) s.textContent = t;
+    const br = $('loaderBar'); if (br) br.classList.add('error');
+    const rt = $('loaderRetry'); if (rt) rt.style.display = 'inline-block';
+  }
 };
-
-// ----------------------------------------------------------------------------
-// 2. FADER — кинематографичная шторка между сценами
-// ----------------------------------------------------------------------------
 const Fader = {
-  el: null,
-  init() { this.el = $('fader'); },
-  fadeOut(duration=700) {
-    return new Promise(resolve => {
-      if (!this.el) return resolve();
-      this.el.style.transitionDuration = duration + 'ms';
-      this.el.classList.add('active');
-      setTimeout(resolve, duration);
-    });
-  },
-  fadeIn(duration=700) {
-    return new Promise(resolve => {
-      if (!this.el) return resolve();
-      this.el.style.transitionDuration = duration + 'ms';
-      this.el.classList.remove('active');
-      setTimeout(resolve, duration);
-    });
-  },
+  out(d=700) { return new Promise(r => {
+    const el = $('fader'); if (!el) return r();
+    el.style.transitionDuration = d+'ms'; el.classList.add('active');
+    setTimeout(r, d);
+  }); },
+  in(d=700) { return new Promise(r => {
+    const el = $('fader'); if (!el) return r();
+    el.style.transitionDuration = d+'ms'; el.classList.remove('active');
+    setTimeout(r, d);
+  }); }
 };
 
 // ----------------------------------------------------------------------------
-// 3. FPS GUARD — адаптивное снижение качества при перегреве/просадках
-// ----------------------------------------------------------------------------
-class FPSGuard {
-  constructor(onDowngrade) {
-    this.samples = [];
-    this.level = 3; // 3=ULTRA, 2=HIGH, 1=MEDIUM, 0=LOW
-    this.cooldown = 0;
-    this.onDowngrade = onDowngrade;
-    this.lastReport = 0;
-  }
-  tick(dt) {
-    this.samples.push(dt);
-    if (this.samples.length > 90) this.samples.shift();
-    if (this.cooldown > 0) { this.cooldown -= dt; return; }
-    if (this.samples.length < 60) return;
-    let sum = 0;
-    for (let i = 0; i < this.samples.length; i++) sum += this.samples[i];
-    const avg = sum / this.samples.length;
-    const fps = 1 / Math.max(avg, 1e-4);
-    this.lastReport = fps;
-    if (fps < 32 && this.level > 0) {
-      this.level--;
-      this.cooldown = 3;
-      console.warn('[FPS Guard] Downgrading to level', this.level, '(fps:', fps.toFixed(1) + ')');
-      try { this.onDowngrade(this.level); } catch(e) { console.error(e); }
-    }
-  }
-  getFps() { return this.lastReport; }
-}
-
-// ----------------------------------------------------------------------------
-// 4. ПРОЦЕДУРНЫЕ ТЕКСТУРЫ (без внешних ассетов → нет зависаний на загрузке)
+// ПРОЦЕДУРНЫЕ ТЕКСТУРЫ
 // ----------------------------------------------------------------------------
 const TexCache = new Map();
 function noiseTex(size, base, amp) {
-  const key = 'n_' + size + '_' + base.join('_') + '_' + amp;
+  const key = 'n_'+size+'_'+base.join('_')+'_'+amp;
   if (TexCache.has(key)) return TexCache.get(key);
   const c = document.createElement('canvas');
   c.width = c.height = size;
   const ctx = c.getContext('2d');
-  if (!ctx) throw new Error('2D context unavailable');
   const img = ctx.createImageData(size, size);
   for (let i = 0; i < size*size; i++) {
-    const x = i % size, y = (i/size)|0;
-    const n1 = Math.sin(x*0.1) * Math.cos(y*0.13) * 0.5 + 0.5;
-    const n2 = Math.sin(x*0.37 + y*0.21) * 0.5 + 0.5;
-    const n3 = Math.random() * 0.3;
-    const v = clamp(n1*0.5 + n2*0.3 + n3*0.2, 0, 1);
-    img.data[i*4+0] = clamp(base[0] + (v-0.5)*amp, 0, 255);
-    img.data[i*4+1] = clamp(base[1] + (v-0.5)*amp, 0, 255);
-    img.data[i*4+2] = clamp(base[2] + (v-0.5)*amp, 0, 255);
+    const x = i%size, y = (i/size)|0;
+    const n1 = Math.sin(x*0.1)*Math.cos(y*0.13)*0.5+0.5;
+    const n2 = Math.sin(x*0.37+y*0.21)*0.5+0.5;
+    const n3 = Math.random()*0.3;
+    const v = clamp(n1*0.5+n2*0.3+n3*0.2, 0, 1);
+    img.data[i*4+0] = clamp(base[0]+(v-0.5)*amp, 0, 255);
+    img.data[i*4+1] = clamp(base[1]+(v-0.5)*amp, 0, 255);
+    img.data[i*4+2] = clamp(base[2]+(v-0.5)*amp, 0, 255);
     img.data[i*4+3] = 255;
   }
   ctx.putImageData(img, 0, 0);
@@ -719,36 +818,29 @@ function noiseTex(size, base, amp) {
   return t;
 }
 function normalTex(size, strength) {
-  const key = 'nm_' + size + '_' + strength;
+  const key = 'nm_'+size+'_'+strength;
   if (TexCache.has(key)) return TexCache.get(key);
   const c = document.createElement('canvas');
   c.width = c.height = size;
   const ctx = c.getContext('2d');
-  if (!ctx) throw new Error('2D context unavailable');
   const H = new Float32Array(size*size);
   for (let i = 0; i < size*size; i++) {
-    const x = i % size, y = (i/size)|0;
-    H[i] = (Math.sin(x*0.21) * Math.cos(y*0.27) * 0.4 +
-            Math.sin(x*0.6 + y*0.4) * 0.3 +
-            (Math.random()-0.5) * 0.4) * 0.5 + 0.5;
+    const x = i%size, y = (i/size)|0;
+    H[i] = (Math.sin(x*0.21)*Math.cos(y*0.27)*0.4 + Math.sin(x*0.6+y*0.4)*0.3 + (Math.random()-0.5)*0.4)*0.5+0.5;
   }
   const img = ctx.createImageData(size, size);
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      const i = y*size + x;
-      const xl = H[y*size + ((x-1+size)%size)];
-      const xr = H[y*size + ((x+1)%size)];
-      const yu = H[((y-1+size)%size)*size + x];
-      const yd = H[((y+1)%size)*size + x];
-      const dx = (xl-xr)*strength;
-      const dy = (yu-yd)*strength;
-      const dz = 1;
-      const len = Math.hypot(dx, dy, dz);
-      img.data[i*4+0] = ((dx/len)*0.5+0.5)*255;
-      img.data[i*4+1] = ((dy/len)*0.5+0.5)*255;
-      img.data[i*4+2] = ((dz/len)*0.5+0.5)*255;
-      img.data[i*4+3] = 255;
-    }
+  for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+    const i = y*size+x;
+    const xl = H[y*size+((x-1+size)%size)];
+    const xr = H[y*size+((x+1)%size)];
+    const yu = H[((y-1+size)%size)*size+x];
+    const yd = H[((y+1)%size)*size+x];
+    const dx = (xl-xr)*strength, dy = (yu-yd)*strength, dz = 1;
+    const len = Math.hypot(dx, dy, dz);
+    img.data[i*4+0] = ((dx/len)*0.5+0.5)*255;
+    img.data[i*4+1] = ((dy/len)*0.5+0.5)*255;
+    img.data[i*4+2] = ((dz/len)*0.5+0.5)*255;
+    img.data[i*4+3] = 255;
   }
   ctx.putImageData(img, 0, 0);
   const t = new THREE.CanvasTexture(c);
@@ -761,7 +853,6 @@ function glowTex() {
   const c = document.createElement('canvas');
   c.width = c.height = 64;
   const ctx = c.getContext('2d');
-  if (!ctx) throw new Error('2D context unavailable');
   const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
   g.addColorStop(0, 'rgba(255,255,255,1)');
   g.addColorStop(0.4, 'rgba(255,240,200,0.6)');
@@ -775,28 +866,31 @@ function glowTex() {
 }
 
 // ----------------------------------------------------------------------------
-// 5. ДАННЫЕ РАС
+// РАСЫ
 // ----------------------------------------------------------------------------
 const RACES = [
   { id:'ash_elf', name:'Пепельный Эльф',
-    desc:'Дитя сожжённых лесов. Быстр, точен, повелевает пеплом и тенью.',
+    desc:'Дитя сожжённых лесов. Быстр, точен, повелевает пеплом.',
     tag:'Стрелок • Тень',
     stats:{str:6,agi:14,int:10,eth:8},
-    color:0x4a9eff, accent:0x99ddff, skin:0xdbc8b0, cloth:0x2a3a55, cape:0x162238 },
+    color:0x4a9eff, accent:0x99ddff, skin:0xdbc8b0,
+    cloth:0x2a3a55, cape:0x162238, metal:0x9aa8b8 },
   { id:'iron_orc', name:'Железный Орк',
     desc:'Кузнец войны. Каждый удар — молот, каждое слово — приговор.',
     tag:'Танк • Берсерк',
     stats:{str:15,agi:5,int:6,eth:4},
-    color:0xff6b35, accent:0xffb07a, skin:0x5a7a3a, cloth:0x8a2a1a, cape:0x3a1a10 },
+    color:0xff6b35, accent:0xffb07a, skin:0x5a7a3a,
+    cloth:0x8a2a1a, cape:0x3a1a10, metal:0x8a7050 },
   { id:'cyber_monk', name:'Кибер-Монах',
-    desc:'Синтез плоти и света. Управляет эфиром, лечит союзников, карает демонов.',
+    desc:'Синтез плоти и света. Управляет эфиром, лечит союзников.',
     tag:'Маг • Поддержка',
     stats:{str:5,agi:8,int:14,eth:15},
-    color:0xb85aff, accent:0xf0c0ff, skin:0xe6d8ff, cloth:0x1a1030, cape:0x4a1a70 },
+    color:0xb85aff, accent:0xf0c0ff, skin:0xe6d8ff,
+    cloth:0x1a1030, cape:0x4a1a70, metal:0xd0c0e0 },
 ];
 
 // ----------------------------------------------------------------------------
-// 6. ПОСТРОИТЕЛЬ ПЕРСОНАЖЕЙ
+// ПОСТРОИТЕЛЬ ПЕРСОНАЖЕЙ — детализированная версия
 // ----------------------------------------------------------------------------
 class CharacterBuilder {
   static build(raceId) {
@@ -804,374 +898,845 @@ class CharacterBuilder {
     const g = new THREE.Group();
     g.userData.raceId = raceId;
 
-    const skinMat = new THREE.MeshStandardMaterial({ color: race.skin, roughness: 0.55, metalness: 0.05 });
-    const clothMat = new THREE.MeshStandardMaterial({ color: race.cloth, roughness: 0.75, metalness: 0.15 });
+    const skinMat = new THREE.MeshStandardMaterial({
+      color: race.skin, roughness: 0.55, metalness: 0.05,
+    });
+    const clothMat = new THREE.MeshStandardMaterial({
+      color: race.cloth, roughness: 0.75, metalness: 0.15,
+      normalMap: normalTex(128, 1.0),
+    });
     const accentMat = new THREE.MeshStandardMaterial({
-      color: race.color, roughness: 0.3, metalness: 0.85,
-      emissive: new THREE.Color(race.color).multiplyScalar(0.25),
-      emissiveIntensity: 1.2,
+      color: race.color, roughness: 0.28, metalness: 0.9,
+      emissive: new THREE.Color(race.color).multiplyScalar(0.35),
+      emissiveIntensity: 1.4,
     });
     const capeMat = new THREE.MeshStandardMaterial({
       color: race.cape, roughness: 0.85, metalness: 0.05, side: THREE.DoubleSide,
     });
+    const metalMat = new THREE.MeshStandardMaterial({
+      color: race.metal, roughness: 0.35, metalness: 0.85,
+      normalMap: normalTex(128, 0.8),
+    });
 
-    const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.42, 0.7, 6, 12), clothMat);
+    // === Торс ===
+    const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.42, 0.7, 8, 16), clothMat);
     torso.position.y = 1.15; torso.castShadow = true; torso.receiveShadow = true;
     g.add(torso);
 
-    const chest = new THREE.Mesh(
-      new THREE.BoxGeometry(0.85, 0.4, 0.6),
-      raceId === 'iron_orc' ? accentMat : clothMat
-    );
-    chest.position.set(0, 1.55, 0.03); chest.castShadow = true;
+    // Нагрудник
+    const chest = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.42, 0.6), accentMat);
+    chest.position.set(0, 1.55, 0.02);
+    chest.castShadow = true;
     g.add(chest);
 
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 14), skinMat);
-    head.position.y = 1.95; head.castShadow = true;
-    g.add(head);
-
-    const eyeMat = new THREE.MeshStandardMaterial({
-      color: race.accent, emissive: race.accent, emissiveIntensity: 2.5, roughness: 0.2,
-    });
-    for (const sx of [-1, 1]) {
-      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 8), eyeMat);
-      eye.position.set(sx * 0.11, 1.98, 0.24);
-      g.add(eye);
+    // Рунические полосы на груди
+    for (let i = 0; i < 3; i++) {
+      const stripe = new THREE.Mesh(
+        new THREE.BoxGeometry(0.04, 0.36, 0.62),
+        new THREE.MeshStandardMaterial({
+          color: race.accent, emissive: race.accent, emissiveIntensity: 2.5,
+          roughness: 0.2, metalness: 0.5,
+        })
+      );
+      stripe.position.set((i-1)*0.16, 1.55, 0.02);
+      g.add(stripe);
     }
 
+    // === Голова ===
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 24, 20), skinMat);
+    head.position.y = 2.0; head.castShadow = true;
+    g.add(head);
+
+    // Глаза (светящиеся)
+    const eyeMat = new THREE.MeshStandardMaterial({
+      color: race.accent, emissive: race.accent, emissiveIntensity: 3.5,
+      roughness: 0.2, metalness: 0.3,
+    });
+    for (const sx of [-1, 1]) {
+      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.055, 12, 12), eyeMat);
+      eye.position.set(sx * 0.11, 2.03, 0.25);
+      g.add(eye);
+      // Зрачок тёмный
+      const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.025, 8, 8),
+        new THREE.MeshBasicMaterial({ color: 0x000000 }));
+      pupil.position.set(sx * 0.11, 2.03, 0.30);
+      g.add(pupil);
+    }
+
+    // Расовые черты
     if (raceId === 'ash_elf') {
       for (const sx of [-1, 1]) {
-        const ear = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.35, 5), skinMat);
-        ear.position.set(sx * 0.27, 2.02, 0);
-        ear.rotation.z = sx * 0.5; ear.rotation.x = -0.15;
+        const ear = new THREE.Mesh(
+          new THREE.ConeGeometry(0.07, 0.4, 8),
+          skinMat
+        );
+        ear.position.set(sx * 0.28, 2.06, 0);
+        ear.rotation.z = sx * 0.55; ear.rotation.x = -0.2;
         g.add(ear);
       }
-      const cape = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 1.6, 4, 6), capeMat);
-      cape.position.set(0, 1.1, -0.35); cape.userData.isCape = true;
+      // Плащ
+      const cape = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.9, 1.7, 6, 10),
+        capeMat
+      );
+      cape.position.set(0, 1.05, -0.38);
+      cape.userData.isCape = true;
       g.add(cape);
     } else if (raceId === 'iron_orc') {
       for (const sx of [-1, 1]) {
         const tusk = new THREE.Mesh(
-          new THREE.ConeGeometry(0.035, 0.14, 5),
+          new THREE.ConeGeometry(0.04, 0.16, 6),
           new THREE.MeshStandardMaterial({ color: 0xf0e8d0, roughness: 0.4 })
         );
-        tusk.position.set(sx * 0.09, 1.86, 0.25);
+        tusk.position.set(sx * 0.1, 1.9, 0.26);
         tusk.rotation.x = Math.PI;
         g.add(tusk);
       }
       for (const sx of [-1, 1]) {
         const sh = new THREE.Mesh(
-          new THREE.SphereGeometry(0.22, 10, 8, 0, TAU, 0, Math.PI * 0.6),
-          accentMat
+          new THREE.SphereGeometry(0.24, 18, 12, 0, TAU, 0, Math.PI * 0.65),
+          metalMat
         );
-        sh.position.set(sx * 0.55, 1.6, 0);
-        sh.rotation.z = sx * -0.35; sh.castShadow = true;
+        sh.position.set(sx * 0.58, 1.62, 0);
+        sh.rotation.z = sx * -0.4;
+        sh.castShadow = true;
         g.add(sh);
       }
-      torso.scale.set(1.15, 1.05, 1.15);
-      chest.scale.set(1.2, 1, 1.15);
+      torso.scale.set(1.18, 1.08, 1.18);
+      chest.scale.set(1.22, 1, 1.18);
+      head.scale.set(1.08, 1.05, 1.08);
     } else if (raceId === 'cyber_monk') {
       const wingMat = new THREE.MeshStandardMaterial({
-        color: race.accent, emissive: race.color, emissiveIntensity: 1.8,
-        transparent: true, opacity: 0.7, side: THREE.DoubleSide,
+        color: race.accent, emissive: race.color, emissiveIntensity: 2.2,
+        transparent: true, opacity: 0.72, side: THREE.DoubleSide,
       });
       for (const sx of [-1, 1]) {
-        const wing = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 1.4, 3, 4), wingMat);
-        wing.position.set(sx * 0.75, 1.55, -0.25);
-        wing.rotation.y = sx * 0.3; wing.rotation.z = sx * 0.4;
+        const wing = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.5, 4, 6), wingMat);
+        wing.position.set(sx * 0.78, 1.6, -0.28);
+        wing.rotation.y = sx * 0.35; wing.rotation.z = sx * 0.45;
         wing.userData.isWing = true; wing.userData.side = sx;
         g.add(wing);
       }
       const halo = new THREE.Mesh(
-        new THREE.TorusGeometry(0.35, 0.025, 6, 24),
-        new THREE.MeshBasicMaterial({ color: race.accent, transparent: true, opacity: 0.85 })
+        new THREE.TorusGeometry(0.38, 0.03, 8, 32),
+        new THREE.MeshBasicMaterial({ color: race.accent, transparent: true, opacity: 0.9 })
       );
-      halo.position.y = 2.35; halo.rotation.x = Math.PI / 2;
+      halo.position.y = 2.42; halo.rotation.x = Math.PI / 2;
       halo.userData.isHalo = true;
       g.add(halo);
     }
 
+    // === Руки ===
     for (const sx of [-1, 1]) {
-      const arm = new THREE.Mesh(new THREE.CapsuleGeometry(0.11, 0.55, 5, 10), skinMat);
-      arm.position.set(sx * 0.5, 1.2, 0);
-      arm.rotation.z = sx * 0.08; arm.castShadow = true;
+      const arm = new THREE.Mesh(new THREE.CapsuleGeometry(0.115, 0.58, 6, 12), skinMat);
+      arm.position.set(sx * 0.52, 1.2, 0);
+      arm.rotation.z = sx * 0.1; arm.castShadow = true;
       arm.userData.isArm = true; arm.userData.side = sx;
       g.add(arm);
-    }
-    for (const sx of [-1, 1]) {
-      const leg = new THREE.Mesh(new THREE.CapsuleGeometry(0.14, 0.55, 5, 10), clothMat);
-      leg.position.set(sx * 0.16, 0.42, 0);
-      leg.castShadow = true;
-      leg.userData.isLeg = true; leg.userData.side = sx;
-      g.add(leg);
+      // Наручи
+      const bracer = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.13, 0.22, 8), metalMat);
+      bracer.position.set(sx * 0.52, 0.78, 0);
+      bracer.castShadow = true;
+      g.add(bracer);
     }
 
-    const weapon = this.buildWeapon(raceId, accentMat);
-    weapon.position.set(0.55, 0.95, 0.15);
+    // === Ноги ===
+    for (const sx of [-1, 1]) {
+      const leg = new THREE.Mesh(new THREE.CapsuleGeometry(0.145, 0.58, 6, 12), clothMat);
+      leg.position.set(sx * 0.17, 0.42, 0);
+      leg.castShadow = true;
+      g.add(leg);
+      // Ботинки
+      const boot = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.16, 0.32), metalMat);
+      boot.position.set(sx * 0.17, 0.08, 0.05);
+      boot.castShadow = true;
+      g.add(boot);
+    }
+
+    // === Оружие ===
+    const weapon = this.buildWeapon(raceId, accentMat, metalMat);
+    weapon.position.set(0.58, 0.9, 0.15);
     weapon.userData.isWeapon = true;
     g.add(weapon);
 
     g.userData.animTime = 0;
+    g.userData.baseScale = 1;
     return g;
   }
 
-  static buildWeapon(raceId, accentMat) {
+  static buildWeapon(raceId, accentMat, metalMat) {
     const w = new THREE.Group();
     if (raceId === 'ash_elf') {
       const bowMat = new THREE.MeshStandardMaterial({ color: 0x4a2a1a, roughness: 0.7 });
-      const bow = new THREE.Mesh(new THREE.TorusGeometry(0.35, 0.03, 5, 14, Math.PI * 1.35), bowMat);
+      const bow = new THREE.Mesh(new THREE.TorusGeometry(0.4, 0.035, 8, 24, Math.PI * 1.4), bowMat);
       bow.rotation.z = Math.PI / 2;
       w.add(bow);
+      const string = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.006, 0.006, 0.72, 4),
+        new THREE.MeshBasicMaterial({ color: 0xdddddd })
+      );
+      string.position.x = 0.35;
+      w.add(string);
+      // Наконечники
+      for (const sy of [-1, 1]) {
+        const tip = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.12, 6), metalMat);
+        tip.position.set(0.02, sy * 0.4, 0);
+        tip.rotation.z = sy > 0 ? -Math.PI/2 : Math.PI/2;
+        w.add(tip);
+      }
     } else if (raceId === 'iron_orc') {
       const handleMat = new THREE.MeshStandardMaterial({ color: 0x3a2010, roughness: 0.8 });
-      const headMat = new THREE.MeshStandardMaterial({ color: 0x555555, metalness: 0.9, roughness: 0.35 });
-      const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 1.2, 6), handleMat);
-      handle.position.y = -0.15; w.add(handle);
-      const head = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.28, 0.28), headMat);
-      head.position.y = 0.5; w.add(head);
+      const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.055, 1.3, 8), handleMat);
+      handle.position.y = -0.15;
+      w.add(handle);
+      const head = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.32, 0.32), metalMat);
+      head.position.y = 0.55;
+      w.add(head);
+      // Рунная вставка
+      const rune = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.06, 0.34), accentMat);
+      rune.position.y = 0.55;
+      w.add(rune);
     } else {
       const staffMat = new THREE.MeshStandardMaterial({ color: 0x1a1030, roughness: 0.4, metalness: 0.7 });
-      const staff = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 1.5, 6), staffMat);
-      staff.position.y = 0.2; w.add(staff);
+      const staff = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 1.6, 10), staffMat);
+      staff.position.y = 0.2;
+      w.add(staff);
       const crystal = new THREE.Mesh(
-        new THREE.OctahedronGeometry(0.14, 0),
+        new THREE.OctahedronGeometry(0.16, 0),
         new THREE.MeshStandardMaterial({
-          color: 0xb85aff, emissive: 0xb85aff, emissiveIntensity: 2.5,
-          transparent: true, opacity: 0.9,
+          color: 0xb85aff, emissive: 0xb85aff, emissiveIntensity: 3.0,
+          transparent: true, opacity: 0.92,
         })
       );
-      crystal.position.y = 1.05; crystal.userData.isCrystal = true;
+      crystal.position.y = 1.12;
+      crystal.userData.isCrystal = true;
       w.add(crystal);
+      // Кольцо вокруг кристалла
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(0.22, 0.015, 6, 24),
+        new THREE.MeshBasicMaterial({ color: 0xb85aff, transparent: true, opacity: 0.8 })
+      );
+      ring.position.y = 1.12;
+      ring.rotation.x = Math.PI / 2;
+      ring.userData.isCrystalRing = true;
+      w.add(ring);
     }
     return w;
   }
 
-  static animateIdle(group, dt, autoRotate) {
+  static animateIdle(group, dt, autoRotate=true) {
     if (!group || !group.userData) return;
     group.userData.animTime = (group.userData.animTime || 0) + dt;
     const t = group.userData.animTime;
     const baseScale = group.userData.baseScale || 1;
     const breath = Math.sin(t * 1.8) * 0.012;
     group.scale.y = baseScale * (1 + breath);
-    if (autoRotate !== false) group.rotation.y += dt * 0.18;
+    if (autoRotate !== false) group.rotation.y += dt * 0.22;
     group.traverse((child) => {
       if (child.userData.isWing) {
-        child.rotation.z = child.userData.side * (0.4 + Math.sin(t * 1.2) * 0.08);
+        child.rotation.z = child.userData.side * (0.45 + Math.sin(t * 1.3) * 0.1);
       }
       if (child.userData.isHalo) child.rotation.z = t * 1.5;
       if (child.userData.isCrystal) child.rotation.y = t * 2;
+      if (child.userData.isCrystalRing) child.rotation.z = -t * 1.2;
+      if (child.userData.isCape) {
+        const geo = child.geometry;
+        const pos = geo.attributes.position;
+        for (let i = 0; i < pos.count; i++) {
+          const y = pos.getY(i);
+          pos.setZ(i, Math.sin(t * 2 + y * 3) * 0.04);
+        }
+        pos.needsUpdate = true;
+      }
     });
   }
 }
 
 // ----------------------------------------------------------------------------
-// 7. ГЛОБАЛЬНЫЕ СЦЕНЫ (создаются по шагам с таймаутами)
+// СИСТЕМА НАСЛЕДИЯ (Legacy & Mastery Tree)
 // ----------------------------------------------------------------------------
-let THREE = null;
-let EffectComposer = null, RenderPass = null, UnrealBloomPass = null, ShaderPass = null, Sky = null;
+const Legacy = {
+  data: null,
+  NODES: [],
 
-const App = {
-  menuRenderer: null,
-  menuScene: null,
-  menuCamera: null,
-  menuCharacter: null,
-  menuComposer: null,
-  menuClock: null,
-  menuRafId: null,
-  menuKeyLight: null,
-  menuRimLight: null,
-  menuGrade: null,
-  menuParticles: null,
+  init() {
+    this.data = loadJSON('apex:legacy', { points: 0, level: 0, xp: 0, unlocked: {} });
+    this.buildNodes();
+  },
 
-  gameRenderer: null,
-  gameScene: null,
-  gameCamera: null,
-  gameComposer: null,
-  gameClock: null,
-  gameRafId: null,
-  gameKeyLight: null,
-  gameSky: null,
-  gameGrade: null,
-  gameBloom: null,
-  gameFog: null,
+  buildNodes() {
+    // 18 узлов в 3 кольцах
+    const nodes = [
+      // Центр (стартовый)
+      { id:'root', name:'Старт', x:0, y:0, r:28, cost:0, req:null,
+        bonus:{hp:0, mana:0, dmg:0, speed:0, gold:0}, unlocked:true },
+    ];
+    const ringData = [
+      // Кольцо 1 (6 узлов)
+      { r: 90, count: 6, cost: 1, bonuses: [
+        { hp: 20 }, { dmg: 3 }, { mana: 15 }, { speed: 0.3 }, { gold: 5 }, { hp: 15 },
+      ]},
+      // Кольцо 2 (8 узлов)
+      { r: 175, count: 8, cost: 2, bonuses: [
+        { dmg: 6 }, { hp: 30 }, { speed: 0.5 }, { mana: 25 },
+        { dmg: 5, gold: 5 }, { hp: 25, mana: 15 }, { speed: 0.4, dmg: 2 }, { gold: 10 },
+      ]},
+    ];
+    let idCounter = 1;
+    let prevRingStart = 0;
+    for (let ring = 0; ring < ringData.length; ring++) {
+      const rd = ringData[ring];
+      const ringStart = nodes.length;
+      for (let i = 0; i < rd.count; i++) {
+        const a = (i / rd.count) * TAU + (ring * 0.3);
+        const n = {
+          id: 'n' + idCounter++,
+          name: this.getNameFromBonus(rd.bonuses[i]),
+          x: Math.cos(a) * rd.r,
+          y: Math.sin(a) * rd.r,
+          r: 26,
+          cost: rd.cost,
+          req: ring === 0 ? 'root' : ('n' + (prevRingStart + (i % ringData[ring-1].count) - (ringData[ring-1].count - 1) + 1)),
+          bonus: rd.bonuses[i],
+          unlocked: !!this.data.unlocked['n' + (idCounter - 1)],
+        };
+        // Скорректируем req для кольца 1 — все связаны с root
+        if (ring === 0) n.req = 'root';
+        if (ring === 1) n.req = 'n' + (prevRingStart + (i % (ringData[ring-1].count)) - 1 + 1);
+        nodes.push(n);
+      }
+      prevRingStart = ringStart;
+    }
+    this.NODES = nodes;
+    // Восстанавливаем unlocked из сохранения
+    for (const n of this.NODES) {
+      if (n.id === 'root') { n.unlocked = true; continue; }
+      n.unlocked = !!this.data.unlocked[n.id];
+    }
+  },
 
-  player: null,
-  playerInput: { moveX: 0, moveY: 0 },
-  enemies: [],
-  npcs: [],
-  particles: [],
-  ground: null,
-  trees: null,
-  grass: null,
-  grassData: [],
-  rocks: null,
-  cityGroup: null,
-  cityCenter: { x: 0, z: 0 },
-  cityRadius: 22,
-  water: null,
-  rain: null,
+  getNameFromBonus(b) {
+    const parts = [];
+    if (b.hp) parts.push('+'+b.hp+' HP');
+    if (b.mana) parts.push('+'+b.mana+' MP');
+    if (b.dmg) parts.push('+'+b.dmg+' УРОН');
+    if (b.speed) parts.push('+'+b.speed.toFixed(1)+' СКОР');
+    if (b.gold) parts.push('+'+b.gold+' ЗОЛ');
+    return parts.join(' ');
+  },
 
-  hud: { hp:100, maxHp:100, mana:80, maxMana:80, stamina:100, maxStamina:100,
-         level:1, xp:0, gold:50, fatigue:0 },
+  addXp(amount) {
+    this.data.xp = (this.data.xp || 0) + amount;
+    const needed = (this.data.level + 1) * 500;
+    if (this.data.xp >= needed) {
+      this.data.xp -= needed;
+      this.data.level++;
+      this.data.points++;
+      this.save();
+      showToast('НАСЛЕДИЕ УР.'+this.data.level+' (+1 ОЧКО)', 'legendary');
+    }
+  },
 
-  time: 0,
-  dayTime: 0.35,
-  weather: { rain: 0, targetRain: 0 },
-  currentZone: 'wild',
-  fpsGuard: null,
-  qualityLevel: 3,
-  currentRace: RACES[0].id,
-  minimapCanvas: null,
-  minimapCtx: null,
+  unlock(nodeId) {
+    const n = this.NODES.find(x => x.id === nodeId);
+    if (!n || n.unlocked) return false;
+    if (n.req) {
+      const req = this.NODES.find(x => x.id === n.req);
+      if (!req || !req.unlocked) { showToast('НУЖЕН ПРЕДЫДУЩИЙ УЗЕЛ'); return false; }
+    }
+    if (this.data.points < n.cost) { showToast('НЕ ХВАТАЕТ ОЧКОВ'); return false; }
+    n.unlocked = true;
+    this.data.points -= n.cost;
+    this.data.unlocked[nodeId] = true;
+    this.save();
+    showToast('УЗЕЛ ОТКРЫТ: ' + n.name, 'legendary');
+    return true;
+  },
+
+  // Возвращает суммарные бонусы
+  getBonuses() {
+    const b = { hp: 0, mana: 0, dmg: 0, speed: 0, gold: 0 };
+    for (const n of this.NODES) {
+      if (!n.unlocked) continue;
+      if (n.bonus.hp) b.hp += n.bonus.hp;
+      if (n.bonus.mana) b.mana += n.bonus.mana;
+      if (n.bonus.dmg) b.dmg += n.bonus.dmg;
+      if (n.bonus.speed) b.speed += n.bonus.speed;
+      if (n.bonus.gold) b.gold += n.bonus.gold;
+    }
+    return b;
+  },
+
+  save() { saveJSON('apex:legacy', this.data); },
+
+  // === Рендер Canvas ===
+  render(canvas) {
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const W = canvas.width, H = canvas.height;
+    const cx = W/2, cy = H/2;
+
+    ctx.clearRect(0, 0, W, H);
+    // Фон
+    const bg = ctx.createRadialGradient(cx, cy, 30, cx, cy, Math.max(W, H)/2);
+    bg.addColorStop(0, 'rgba(30,50,90,.9)');
+    bg.addColorStop(1, 'rgba(2,4,12,.98)');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    // Связи
+    ctx.lineWidth = 2;
+    for (const n of this.NODES) {
+      if (!n.req) continue;
+      const req = this.NODES.find(x => x.id === n.req);
+      if (!req) continue;
+      ctx.strokeStyle = (n.unlocked && req.unlocked)
+        ? 'rgba(130,220,255,.9)'
+        : 'rgba(90,130,190,.35)';
+      ctx.beginPath();
+      ctx.moveTo(cx + req.x, cy + req.y);
+      ctx.lineTo(cx + n.x, cy + n.y);
+      ctx.stroke();
+    }
+
+    // Узлы
+    for (const n of this.NODES) {
+      const px = cx + n.x, py = cy + n.y;
+      const grad = ctx.createRadialGradient(px, py, n.r*0.2, px, py, n.r);
+      if (n.unlocked) {
+        grad.addColorStop(0, 'rgba(220,250,255,1)');
+        grad.addColorStop(1, 'rgba(50,140,240,.9)');
+      } else if (n.req && this.NODES.find(x => x.id === n.req)?.unlocked && this.data.points >= n.cost) {
+        grad.addColorStop(0, 'rgba(180,210,240,.95)');
+        grad.addColorStop(1, 'rgba(80,110,170,.85)');
+      } else {
+        grad.addColorStop(0, 'rgba(80,90,120,.7)');
+        grad.addColorStop(1, 'rgba(30,40,70,.7)');
+      }
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(px, py, n.r, 0, TAU);
+      ctx.fill();
+      ctx.strokeStyle = n.unlocked ? 'rgba(220,250,255,1)' : 'rgba(120,150,200,.7)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Стоимость
+      if (!n.unlocked && n.cost > 0) {
+        ctx.fillStyle = '#ffe7b0';
+        ctx.font = '700 11px system-ui';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('⚡' + n.cost, px, py - 6);
+      }
+      // Имя
+      ctx.fillStyle = '#d8ecff';
+      ctx.font = '600 9px system-ui';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillText(n.name, px, py + n.r + 3);
+    }
+  },
+
+  // Обработка тапа
+  handleTap(canvas, clientX, clientY) {
+    const rect = canvas.getBoundingClientRect();
+    const sx = (clientX - rect.left) * (canvas.width / rect.width);
+    const sy = (clientY - rect.top) * (canvas.height / rect.height);
+    const cx = canvas.width/2, cy = canvas.height/2;
+    for (const n of this.NODES) {
+      const px = cx + n.x, py = cy + n.y;
+      if (Math.hypot(px - sx, py - sy) <= n.r + 6) {
+        if (this.unlock(n.id)) this.render(canvas);
+        return;
+      }
+    }
+  },
 };
 
 // ----------------------------------------------------------------------------
-// 8. ИНИЦИАЛИЗАЦИЯ (пошаговая, с таймаутами)
+// СИСТЕМА КРАФТА (Нестабильная алхимия)
 // ----------------------------------------------------------------------------
+const Craft = {
+  grid: new Array(9).fill(null),
+  inventory: { runes: 0, cores: 0, shards: 0, crystals: 0 },
 
-async function stepCheckWebGL() {
-  const test = document.createElement('canvas');
-  const gl = test.getContext('webgl2') || test.getContext('webgl');
-  if (!gl) throw new Error('WebGL не поддерживается устройством');
-  const lose = gl.getExtension('WEBGL_lose_context');
-  if (lose) lose.loseContext();
+  init() {
+    const saved = loadJSON('apex:craft', null);
+    if (saved) this.inventory = saved.inventory || this.inventory;
+    this.buildUI();
+  },
+
+  save() { saveJSON('apex:craft', { inventory: this.inventory }); },
+
+  buildUI() {
+    const grid = $('craftGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    for (let i = 0; i < 9; i++) {
+      const slot = document.createElement('div');
+      slot.className = 'craft-slot';
+      slot.dataset.index = String(i);
+      slot.addEventListener('click', () => this.onSlotClick(i));
+      grid.appendChild(slot);
+    }
+    this.renderUI();
+    const clearBtn = $('craftClear');
+    if (clearBtn) clearBtn.addEventListener('click', () => {
+      this.grid = new Array(9).fill(null);
+      this.renderUI();
+    });
+    const doBtn = $('craftDo');
+    if (doBtn) doBtn.addEventListener('click', () => this.craft());
+  },
+
+  onSlotClick(i) {
+    // Если ингредиент в слоте — убираем
+    if (this.grid[i]) {
+      // Возвращаем в инвентарь
+      const item = this.grid[i];
+      this.inventory[item] = (this.inventory[item] || 0) + 1;
+      this.grid[i] = null;
+      this.save(); this.renderUI();
+      return;
+    }
+    // Иначе — кладём первый доступный
+    const priority = ['crystals', 'shards', 'cores', 'runes'];
+    for (const key of priority) {
+      if ((this.inventory[key] || 0) > 0) {
+        this.inventory[key] -= 1;
+        this.grid[i] = key;
+        this.save(); this.renderUI();
+        return;
+      }
+    }
+    showToast('НЕТ ИНГРЕДИЕНТОВ');
+  },
+
+  renderUI() {
+    const grid = $('craftGrid');
+    if (!grid) return;
+    const icons = { runes: '🔮', cores: '⚡', shards: '💎', crystals: '💠' };
+    for (let i = 0; i < 9; i++) {
+      const slot = grid.children[i];
+      if (!slot) continue;
+      if (this.grid[i]) {
+        slot.textContent = icons[this.grid[i]] || '?';
+        slot.classList.add('filled');
+      } else {
+        slot.textContent = '';
+        slot.classList.remove('filled');
+      }
+    }
+    const invR = $('invRunes'); if (invR) invR.textContent = String(this.inventory.runes || 0);
+    const invC = $('invCores'); if (invC) invC.textContent = String(this.inventory.cores || 0);
+    const invS = $('invShards'); if (invS) invS.textContent = String(this.inventory.shards || 0);
+  },
+
+  // Основная логика крафта
+  craft() {
+    const result = $('craftResult');
+    if (!result) return;
+    const items = this.grid.filter(x => x);
+    if (items.length === 0) {
+      result.className = 'craft-result';
+      result.textContent = 'Положи ингредиенты.';
+      return;
+    }
+
+    // Считаем редкость
+    const rarity = { runes: 1, cores: 2, shards: 3, crystals: 5 };
+    let total = 0;
+    for (const item of items) total += rarity[item] || 1;
+
+    // Качество определяется суммой редкости + случайность
+    const roll = Math.random();
+    let outcome = 'fail';
+    let quality = 'обычный';
+    let bonus = 0;
+
+    if (total >= 12 && roll < 0.35) { outcome = 'legendary'; quality = 'ЛЕГЕНДАРНЫЙ'; bonus = randi(20, 45); }
+    else if (total >= 6 && roll < 0.65) { outcome = 'success'; quality = 'редкий'; bonus = randi(10, 22); }
+    else if (roll < 0.55) { outcome = 'success'; quality = 'обычный'; bonus = randi(3, 9); }
+    else { outcome = 'fail'; }
+
+    // Очищаем сетку
+    this.grid = new Array(9).fill(null);
+
+    if (outcome === 'fail') {
+      result.className = 'craft-result fail';
+      result.textContent = '💥 Взрыв! Ингредиенты уничтожены.';
+      showToast('КРАФТ ПРОВАЛЕН', 'magic');
+    } else if (outcome === 'success') {
+      result.className = 'craft-result success';
+      result.textContent = '✅ Успех! Создан ' + quality + ' предмет (+' + bonus + ' HP / +' + Math.round(bonus/2) + ' УРОН)';
+      applyCraftBonus(bonus);
+      showToast('СОЗДАН ' + quality.toUpperCase() + ' ПРЕДМЕТ', 'magic');
+    } else {
+      result.className = 'craft-result legendary';
+      result.textContent = '🌟 ЛЕГЕНДА! Создан предмет с +' + bonus + ' HP / +' + Math.round(bonus/2) + ' УРОН / +' + randi(5,15) + ' ЗОЛОТА';
+      applyCraftBonus(bonus * 2);
+      showToast('ЛЕГЕНДАРНЫЙ ПРЕДМЕТ!', 'legendary');
+    }
+    this.renderUI();
+    this.save();
+  },
+};
+
+// Применить бонус крафта к текущему игроку (если в игре)
+function applyCraftBonus(bonus) {
+  if (!App.gameScene || !App.player) return;
+  App.hud.maxHp += bonus;
+  App.hud.hp = App.hud.maxHp;
+  App.player.userData.hp = App.hud.hp;
 }
 
-async function stepLoadThree() {
-  const mod = await withTimeout(import('three'), 12000, 'three import');
-  if (!mod) throw new Error('Three.js не загрузился');
-  THREE = mod;
-  // Загружаем addons
-  const [composer, renderPass, bloom, shaderPass, skyMod] = await Promise.all([
-    withTimeout(import('three/addons/postprocessing/EffectComposer.js'), 8000, 'EffectComposer').catch(() => null),
-    withTimeout(import('three/addons/postprocessing/RenderPass.js'), 8000, 'RenderPass').catch(() => null),
-    withTimeout(import('three/addons/postprocessing/UnrealBloomPass.js'), 8000, 'Bloom').catch(() => null),
-    withTimeout(import('three/addons/postprocessing/ShaderPass.js'), 8000, 'ShaderPass').catch(() => null),
-    withTimeout(import('three/addons/objects/Sky.js'), 8000, 'Sky').catch(() => null),
-  ]);
-  EffectComposer = composer ? composer.EffectComposer : null;
-  RenderPass = renderPass ? renderPass.RenderPass : null;
-  UnrealBloomPass = bloom ? bloom.UnrealBloomPass : null;
-  ShaderPass = shaderPass ? shaderPass.ShaderPass : null;
-  Sky = skyMod ? skyMod.Sky : null;
-  console.log('[Boot] Three.js loaded. Addons:', {
-    EffectComposer: !!EffectComposer, Bloom: !!UnrealBloomPass, Sky: !!Sky,
-  });
-}
+// ----------------------------------------------------------------------------
+// СИСТЕМА ФРАКЦИЙ (World Pulse 2.0)
+// ----------------------------------------------------------------------------
+const Factions = {
+  list: [
+    { id:'order',  name:'Орден Света', icon:'⚜️',
+      color:'#ffd070',
+      desc:'Защитники Аэтельгарда. Дают бонус к защите и лечению.' },
+    { id:'chaos',  name:'Культ Хаоса', icon:'🔥',
+      color:'#ff5555',
+      desc:'Разрушители порядка. Дают бонус к урону и агрессии.' },
+    { id:'rift',   name:'Хранители Разлома', icon:'🌌',
+      color:'#b85aff',
+      desc:'Изучают энергию разломов. Дают бонус к мане и скорости.' },
+  ],
+  state: null, // { chosen, influence: { order, chaos, rift }, playerInfluence }
 
-async function stepInitRenderers() {
-  const menuCanvas = $('menuCanvas');
-  const gameCanvas = $('gameCanvas');
-  if (!menuCanvas || !gameCanvas) throw new Error('Canvas не найдены');
+  init() {
+    const saved = loadJSON('apex:factions', null);
+    this.state = saved || {
+      chosen: null,
+      influence: { order: 33, chaos: 33, rift: 34 },
+      playerInfluence: 0,
+    };
+    this.buildUI();
+  },
 
+  save() { saveJSON('apex:factions', this.state); },
+
+  buildUI() {
+    const list = $('factionList');
+    if (!list) return;
+    list.innerHTML = '';
+    for (const f of this.list) {
+      const card = document.createElement('div');
+      card.className = 'faction-card';
+      if (this.state.chosen === f.id) card.classList.add('active');
+      const influence = this.state.influence[f.id] || 0;
+      card.innerHTML =
+        '<div class="faction-icon">' + f.icon + '</div>' +
+        '<div class="faction-info">' +
+          '<div class="faction-name" style="color:' + f.color + '">' + f.name + '</div>' +
+          '<div class="faction-desc">' + f.desc + '</div>' +
+          '<div class="faction-bar"><i style="width:' + influence + '%;background:' + f.color + ';color:' + f.color + '"></i></div>' +
+          '<div style="font-size:10px;color:rgba(220,200,180,.6);margin-top:3px">Контроль: ' + Math.round(influence) + '%</div>' +
+        '</div>';
+      card.addEventListener('click', () => this.choose(f.id));
+      list.appendChild(card);
+    }
+    const infEl = $('factionInfluence');
+    if (infEl) infEl.textContent = String(this.state.playerInfluence);
+  },
+
+  choose(id) {
+    this.state.chosen = id;
+    this.save();
+    this.buildUI();
+    const f = this.list.find(x => x.id === id);
+    if (f) showToast('ВЫБРАНА: ' + f.name.toUpperCase(), 'magic');
+  },
+
+  addInfluence(amount) {
+    this.state.playerInfluence += amount;
+    if (this.state.chosen) {
+      this.state.influence[this.state.chosen] = Math.min(100,
+        (this.state.influence[this.state.chosen] || 0) + amount * 0.5);
+      // Остальные уменьшаются
+      for (const f of this.list) {
+        if (f.id !== this.state.chosen) {
+          this.state.influence[f.id] = Math.max(0, (this.state.influence[f.id] || 0) - amount * 0.15);
+        }
+      }
+    }
+    this.save();
+    this.buildUI();
+    // Проверка на рейд
+    for (const f of this.list) {
+      if (this.state.influence[f.id] >= 70 && !this.state.raidTriggered?.[f.id]) {
+        if (!this.state.raidTriggered) this.state.raidTriggered = {};
+        this.state.raidTriggered[f.id] = true;
+        showToast('РЕЙДОВЫЙ РАЗЛОМ ОТКРЫТ: ' + f.name, 'legendary');
+      }
+    }
+  },
+
+  getBonus() {
+    if (!this.state.chosen) return { hp: 0, mana: 0, dmg: 0, speed: 0 };
+    const inf = this.state.influence[this.state.chosen] || 0;
+    const factor = inf / 100;
+    if (this.state.chosen === 'order') return { hp: 30*factor, mana: 0, dmg: 0, speed: 0 };
+    if (this.state.chosen === 'chaos') return { hp: 0, mana: 0, dmg: 5*factor, speed: 0.3*factor };
+    return { hp: 0, mana: 30*factor, dmg: 0, speed: 0.4*factor };
+  },
+};
+
+// ----------------------------------------------------------------------------
+// APP STATE
+// ----------------------------------------------------------------------------
+const App = {
   // Меню
+  menuRenderer: null, menuScene: null, menuCamera: null,
+  menuCharacter: null, menuComposer: null, menuClock: null,
+  menuRafId: null, menuKeyLight: null, menuRimLight: null,
+  menuGrade: null, menuParticles: null, menuOrbitAngle: 0,
+
+  // Игра
+  gameRenderer: null, gameScene: null, gameCamera: null,
+  gameComposer: null, gameClock: null, gameRafId: null,
+  gameKeyLight: null, gameSky: null, gameGrade: null, gameFog: null,
+
+  player: null,
+  playerInput: { moveX: 0, moveY: 0 },
+  enemies: [], npcs: [], particles: [],
+  ground: null, trees: null, grass: null, grassData: [], rocks: null,
+  cityGroup: null, cityCenter: { x: 0, z: 0 }, cityRadius: 22,
+  stallPositions: [], water: null, rain: null,
+  minimapCtx: null,
+
+  hud: { hp:100, maxHp:100, mana:80, maxMana:80,
+         level:1, xp:0, gold:50, fatigue:0 },
+
+  time: 0, dayTime: 0.35,
+  weather: { rain: 0, targetRain: 0 },
+  currentZone: 'wild',
+  currentRace: RACES[0].id,
+};
+
+// ----------------------------------------------------------------------------
+// UI HELPERS
+// ----------------------------------------------------------------------------
+function showToast(text, kind) {
+  const wrap = $('toasts');
+  if (!wrap) return;
+  const el = document.createElement('div');
+  el.className = 'toast' + (kind ? ' ' + kind : '');
+  el.textContent = text;
+  wrap.appendChild(el);
+  setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 1800);
+}
+
+// ----------------------------------------------------------------------------
+// МЕНЮ 3D-СЦЕНА — с гарантированным отображением персонажа
+// ----------------------------------------------------------------------------
+async function buildMenuScene() {
+  const canvas = $('menuCanvas');
+  if (!canvas) throw new Error('menuCanvas not found');
+
   App.menuRenderer = new THREE.WebGLRenderer({
-    canvas: menuCanvas, antialias: true, alpha: true, powerPreference: 'high-performance',
+    canvas, antialias: true, alpha: true, powerPreference: 'high-performance',
   });
   App.menuRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  App.menuRenderer.setSize(window.innerWidth, window.innerHeight, false);
   App.menuRenderer.outputColorSpace = THREE.SRGBColorSpace;
   App.menuRenderer.toneMapping = THREE.ACESFilmicToneMapping;
   App.menuRenderer.toneMappingExposure = 1.15;
-
-  // Игра
-  App.gameRenderer = new THREE.WebGLRenderer({
-    canvas: gameCanvas, antialias: true, alpha: false, powerPreference: 'high-performance',
-  });
-  App.gameRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  App.gameRenderer.outputColorSpace = THREE.SRGBColorSpace;
-  App.gameRenderer.toneMapping = THREE.ACESFilmicToneMapping;
-  App.gameRenderer.toneMappingExposure = 1.0;
-  App.gameRenderer.shadowMap.enabled = true;
-  App.gameRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-  // Context loss handlers
-  for (const r of [App.menuRenderer, App.gameRenderer]) {
-    const canvas = r.domElement;
-    canvas.addEventListener('webglcontextlost', (e) => {
-      e.preventDefault();
-      console.warn('[WebGL] context lost');
-      if (r === App.menuRenderer) stopMenuLoop();
-      else stopGameLoop();
-    }, false);
-    canvas.addEventListener('webglcontextrestored', () => {
-      console.warn('[WebGL] context restored');
-      if (r === App.menuRenderer && App.menuRafId === null && !$('menu').classList.contains('hide')) {
-        startMenuLoop();
-      }
-      if (r === App.gameRenderer && App.gameRafId === null && $('game').classList.contains('active')) {
-        startGameLoop();
-      }
-    }, false);
-  }
-  console.log('[Boot] Renderers OK');
-}
-
-async function stepBuildMenuScene() {
-  const renderer = App.menuRenderer;
-  if (!renderer) throw new Error('Renderer не готов');
+  App.menuRenderer.shadowMap.enabled = true;
+  App.menuRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x0a0618, 0.045);
+  scene.fog = new THREE.FogExp2(0x0a0618, 0.035);
   App.menuScene = scene;
 
   const camera = new THREE.PerspectiveCamera(35, window.innerWidth/Math.max(window.innerHeight,1), 0.1, 200);
-  camera.position.set(0, 2.4, 6);
+  camera.position.set(0, 2.0, 5.5);
+  camera.lookAt(0, 1.5, 0);
   App.menuCamera = camera;
 
-  // Свет
-  const key = new THREE.DirectionalLight(0xffd8a0, 3.0);
+  // === Освещение (трёхпоинтовое + окружающее) ===
+  const key = new THREE.DirectionalLight(0xffd8a0, 3.5);
   key.position.set(3, 6, 4);
+  key.castShadow = true;
+  key.shadow.mapSize.set(1024, 1024);
+  key.shadow.camera.left = -3;
+  key.shadow.camera.right = 3;
+  key.shadow.camera.top = 4;
+  key.shadow.camera.bottom = -2;
+  key.shadow.bias = -0.0005;
   scene.add(key);
   App.menuKeyLight = key;
 
-  const rim = new THREE.DirectionalLight(0x8050ff, 2.4);
+  const rim = new THREE.DirectionalLight(0x8050ff, 2.8);
   rim.position.set(-4, 3, -3);
   scene.add(rim);
   App.menuRimLight = rim;
 
-  const fill = new THREE.PointLight(0x4070ff, 15, 12);
-  fill.position.set(-2, 1, 3);
+  const fill = new THREE.PointLight(0x4070ff, 18, 12);
+  fill.position.set(-2, 1.5, 3);
   scene.add(fill);
 
-  scene.add(new THREE.AmbientLight(0x2a1a3a, 1.1));
+  const front = new THREE.PointLight(0xffa060, 12, 10);
+  front.position.set(2, 1.8, 3);
+  scene.add(front);
 
-  // Подиум
-  const pedestal = new THREE.Mesh(
-    new THREE.CylinderGeometry(1.4, 1.6, 0.35, 24),
-    new THREE.MeshStandardMaterial({ color: 0x1a1228, roughness: 0.4, metalness: 0.7 })
-  );
-  pedestal.position.y = -0.05;
+  scene.add(new THREE.AmbientLight(0x3a2a4a, 1.0));
+
+  // === Подиум ===
+  const pedMat = new THREE.MeshStandardMaterial({
+    color: 0x1a1228, roughness: 0.4, metalness: 0.75,
+    normalMap: normalTex(128, 0.6),
+  });
+  const pedestal = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.6, 0.3, 32), pedMat);
+  pedestal.position.y = -0.15;
+  pedestal.receiveShadow = true;
   scene.add(pedestal);
 
+  // Вращающиеся рунные кольца
   const ringMat = new THREE.MeshStandardMaterial({
-    color: 0xffc879, emissive: 0xff9c4a, emissiveIntensity: 1.5,
+    color: 0xffc879, emissive: 0xff9c4a, emissiveIntensity: 1.8,
     roughness: 0.3, metalness: 0.9,
   });
-  const ring = new THREE.Mesh(new THREE.TorusGeometry(1.45, 0.02, 6, 48), ringMat);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(1.45, 0.025, 8, 64), ringMat);
   ring.rotation.x = Math.PI / 2;
-  ring.position.y = 0.13;
+  ring.position.y = 0.02;
   ring.userData.isRing = true;
   scene.add(ring);
 
-  const ring2 = new THREE.Mesh(new THREE.TorusGeometry(1.55, 0.015, 6, 48), ringMat.clone());
+  const ring2 = new THREE.Mesh(new THREE.TorusGeometry(1.55, 0.018, 8, 64), ringMat.clone());
   ring2.rotation.x = Math.PI / 2;
-  ring2.position.y = 0.14;
+  ring2.position.y = 0.03;
   ring2.userData.isRing2 = true;
   scene.add(ring2);
 
-  // Портал-фон
-  const portal = new THREE.Mesh(
-    new THREE.RingGeometry(2.6, 5.5, 48),
+  // Световое пятно
+  const lightPool = new THREE.Mesh(
+    new THREE.CircleGeometry(2.5, 48),
     new THREE.MeshBasicMaterial({
-      color: 0x8050ff, transparent: true, opacity: 0.15,
+      color: 0xff9c4a, transparent: true, opacity: 0.18,
       blending: THREE.AdditiveBlending, depthWrite: false,
     })
   );
+  lightPool.rotation.x = -Math.PI / 2;
+  lightPool.position.y = -0.29;
+  scene.add(lightPool);
+
+  // Портал-фон
+  const portalMat = new THREE.MeshBasicMaterial({
+    color: 0x8050ff, transparent: true, opacity: 0.22,
+    blending: THREE.AdditiveBlending, depthWrite: false,
+  });
+  const portal = new THREE.Mesh(new THREE.RingGeometry(2.6, 5.5, 64), portalMat);
   portal.position.set(0, 2, -6);
   scene.add(portal);
 
-  // Частицы
-  const partCount = 200;
+  // Магические частицы
+  const partCount = 250;
   const geo = new THREE.BufferGeometry();
   const pos = new Float32Array(partCount * 3);
   const col = new Float32Array(partCount * 3);
@@ -1193,54 +1758,169 @@ async function stepBuildMenuScene() {
   scene.add(particles);
   App.menuParticles = particles;
 
-  // Постобработка (если доступна)
-  if (EffectComposer && RenderPass && UnrealBloomPass && ShaderPass) {
-    try {
-      const composer = new EffectComposer(renderer);
-      composer.addPass(new RenderPass(scene, camera));
-      composer.addPass(new UnrealBloomPass(
-        new THREE.Vector2(window.innerWidth, window.innerHeight),
-        0.65, 0.6, 0.82
-      ));
-      const gradePass = new ShaderPass({
-        uniforms: {
-          tDiffuse: { value: null }, uSat: { value: 1.15 },
-          uContrast: { value: 1.08 }, uVignette: { value: 0.85 },
-          uTint: { value: new THREE.Color(0xff9c6a) },
-        },
-        vertexShader: 'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
-        fragmentShader: [
-          'uniform sampler2D tDiffuse; uniform float uSat, uContrast, uVignette;',
-          'uniform vec3 uTint; varying vec2 vUv;',
-          'void main() {',
-          '  vec4 c = texture2D(tDiffuse, vUv);',
-          '  float l = dot(c.rgb, vec3(0.299, 0.587, 0.114));',
-          '  c.rgb = mix(vec3(l), c.rgb, uSat);',
-          '  c.rgb = (c.rgb - 0.5) * uContrast + 0.5;',
-          '  c.rgb *= mix(vec3(1.0), uTint, 0.08);',
-          '  vec2 d = vUv - 0.5;',
-          '  float v = smoothstep(0.85, 0.25, length(d));',
-          '  c.rgb *= mix(1.0 - uVignette, 1.0, v);',
-          '  gl_FragColor = c;',
-          '}'
-        ].join('\n'),
-      });
-      composer.addPass(gradePass);
-      App.menuComposer = composer;
-      App.menuGrade = gradePass;
-    } catch (e) {
-      console.warn('[Boot] Menu post-processing failed, using plain renderer:', e);
-      App.menuComposer = null;
-    }
+  // === КРИТИЧНО: Создаём персонажа СРАЗУ ===
+  const ch = CharacterBuilder.build(App.currentRace);
+  ch.position.set(0, 0.0, 0);
+  ch.userData.baseScale = 1;
+  scene.add(ch);
+  App.menuCharacter = ch;
+
+  // === Постобработка с DoF ===
+  try {
+    const composer = new EffectComposer(App.menuRenderer);
+    composer.addPass(new RenderPass(scene, camera));
+    const bloom = new UnrealBloomPass(
+      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      0.75, 0.65, 0.82
+    );
+    composer.addPass(bloom);
+    const grade = new ShaderPass({
+      uniforms: {
+        tDiffuse: { value: null },
+        uSat: { value: 1.18 },
+        uContrast: { value: 1.1 },
+        uVignette: { value: 0.9 },
+        uTint: { value: new THREE.Color(0xff9c6a) },
+        uFocus: { value: new THREE.Vector2(0.5, 0.5) },
+        uMaxBlur: { value: 0.006 },
+      },
+      vertexShader: 'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+      fragmentShader: [
+        'uniform sampler2D tDiffuse;',
+        'uniform float uSat, uContrast, uVignette, uMaxBlur;',
+        'uniform vec3 uTint;',
+        'uniform vec2 uFocus;',
+        'varying vec2 vUv;',
+        'void main() {',
+        '  vec2 d = vUv - uFocus;',
+        '  float dd = length(d);',
+        '  float blur = smoothstep(0.15, 0.65, dd) * uMaxBlur;',
+        '  vec4 c = vec4(0.0);',
+        '  const int N = 8;',
+        '  for (int i = 0; i < N; i++) {',
+        '    float ang = float(i) * 6.28318 / float(N);',
+        '    vec2 off = vec2(cos(ang), sin(ang)) * blur;',
+        '    c += texture2D(tDiffuse, vUv + off);',
+        '  }',
+        '  c /= float(N);',
+        '  float l = dot(c.rgb, vec3(0.299, 0.587, 0.114));',
+        '  c.rgb = mix(vec3(l), c.rgb, uSat);',
+        '  c.rgb = (c.rgb - 0.5) * uContrast + 0.5;',
+        '  c.rgb *= mix(vec3(1.0), uTint, 0.06);',
+        '  float v = smoothstep(0.9, 0.25, length(vUv - 0.5));',
+        '  c.rgb *= mix(1.0 - uVignette, 1.0, v);',
+        '  gl_FragColor = c;',
+        '}'
+      ].join('\n'),
+    });
+    composer.addPass(grade);
+    App.menuComposer = composer;
+    App.menuGrade = grade;
+  } catch (e) {
+    console.warn('[Menu] Post-processing failed:', e);
+    App.menuComposer = null;
   }
 
   App.menuClock = new THREE.Clock();
-  console.log('[Boot] Menu scene OK');
+  console.log('[Menu] Scene ready, character visible');
 }
 
-async function stepBuildGameScene() {
-  const renderer = App.gameRenderer;
-  if (!renderer) throw new Error('Renderer не готов');
+function startMenuLoop() {
+  if (App.menuRafId !== null) return;
+  const loop = () => {
+    App.menuRafId = requestAnimationFrame(loop);
+    try {
+      if (!App.menuClock) return;
+      const dt = Math.min(App.menuClock.getDelta(), 0.05);
+
+      if (App.menuCharacter) {
+        CharacterBuilder.animateIdle(App.menuCharacter, dt, true);
+      }
+      if (App.menuScene) {
+        App.menuScene.traverse((o) => {
+          if (o.userData.isRing) o.rotation.z += dt * 0.5;
+          if (o.userData.isRing2) o.rotation.z -= dt * 0.35;
+        });
+      }
+      if (App.menuParticles) {
+        const p = App.menuParticles.geometry.attributes.position;
+        const t = App.menuClock.elapsedTime;
+        for (let i = 0; i < p.count; i++) {
+          p.setY(i, p.getY(i) + Math.sin(t * 0.7 + i * 0.3) * dt * 0.3);
+        }
+        p.needsUpdate = true;
+      }
+      if (App.menuComposer) App.menuComposer.render();
+      else if (App.menuRenderer && App.menuScene && App.menuCamera) {
+        App.menuRenderer.render(App.menuScene, App.menuCamera);
+      }
+    } catch (e) { console.error('[MenuLoop]', e); }
+  };
+  loop();
+}
+function stopMenuLoop() {
+  if (App.menuRafId !== null) { cancelAnimationFrame(App.menuRafId); App.menuRafId = null; }
+}
+
+function selectRace(raceId) {
+  App.currentRace = raceId;
+  const race = RACES.find(r => r.id === raceId);
+  if (!race) return;
+  document.querySelectorAll('.race-card').forEach((el) => {
+    el.classList.toggle('active', el.dataset.raceId === raceId);
+  });
+  const setStat = (id, barId, val) => {
+    const el = $(id); const bar = $(barId);
+    if (el) el.textContent = String(val);
+    if (bar) bar.style.width = (val / 15 * 100) + '%';
+  };
+  setStat('statStr', 'barStr', race.stats.str);
+  setStat('statAgi', 'barAgi', race.stats.agi);
+  setStat('statInt', 'barInt', race.stats.int);
+  setStat('statEth', 'barEth', race.stats.eth);
+
+  // КРИТИЧНО: всегда пересоздаём персонажа, вне зависимости от того, был он раньше
+  if (App.menuScene) {
+    if (App.menuCharacter) {
+      App.menuScene.remove(App.menuCharacter);
+      App.menuCharacter.traverse((o) => {
+        if (o.geometry) o.geometry.dispose();
+        if (o.material) {
+          if (Array.isArray(o.material)) o.material.forEach(m => m.dispose());
+          else o.material.dispose();
+        }
+      });
+    }
+    const ch = CharacterBuilder.build(raceId);
+    ch.position.set(0, 0.0, 0);
+    ch.userData.baseScale = 1;
+    App.menuScene.add(ch);
+    App.menuCharacter = ch;
+
+    if (App.menuRimLight) App.menuRimLight.color.setHex(race.color);
+    if (App.menuGrade) {
+      App.menuGrade.uniforms.uTint.value.setHex(race.color).lerp(new THREE.Color(0xffffff), 0.85);
+    }
+  }
+}
+
+// ----------------------------------------------------------------------------
+// ИГРОВАЯ СЦЕНА
+// ----------------------------------------------------------------------------
+async function buildGameScene() {
+  const canvas = $('gameCanvas');
+  if (!canvas) throw new Error('gameCanvas not found');
+
+  App.gameRenderer = new THREE.WebGLRenderer({
+    canvas, antialias: true, alpha: false, powerPreference: 'high-performance',
+  });
+  App.gameRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  App.gameRenderer.setSize(window.innerWidth, window.innerHeight, false);
+  App.gameRenderer.outputColorSpace = THREE.SRGBColorSpace;
+  App.gameRenderer.toneMapping = THREE.ACESFilmicToneMapping;
+  App.gameRenderer.toneMappingExposure = 1.0;
+  App.gameRenderer.shadowMap.enabled = true;
+  App.gameRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
   const scene = new THREE.Scene();
   scene.fog = new THREE.FogExp2(0xa0b8d0, 0.014);
@@ -1267,7 +1947,7 @@ async function stepBuildGameScene() {
       const theta = THREE.MathUtils.degToRad(180);
       const sun = new THREE.Vector3().setFromSphericalCoords(1, phi, theta);
       u['sunPosition'].value.copy(sun);
-    } catch (e) { console.warn('Sky failed', e); App.gameSky = null; }
+    } catch(e) { App.gameSky = null; }
   }
 
   // Свет
@@ -1289,15 +1969,14 @@ async function stepBuildGameScene() {
   scene.add(new THREE.HemisphereLight(0x99bbff, 0x4a3a2a, 0.55));
   scene.add(new THREE.AmbientLight(0x334466, 0.4));
 
-  // Террейн (плоский + шум)
+  // Террейн
   const terrainSize = 200, terrainSeg = 80;
   const terrainGeo = new THREE.PlaneGeometry(terrainSize, terrainSize, terrainSeg, terrainSeg);
   const tpos = terrainGeo.attributes.position;
   for (let i = 0; i < tpos.count; i++) {
     const x = tpos.getX(i), y = tpos.getY(i);
     const d = Math.hypot(x, y);
-    const h = (Math.sin(x*0.15) * Math.cos(y*0.17) * 1.2 + Math.sin(x*0.4 + y*0.3) * 0.5) *
-              smoothstep(6, 30, d);
+    const h = (Math.sin(x*0.15)*Math.cos(y*0.17)*1.2 + Math.sin(x*0.4+y*0.3)*0.5) * smoothstep(6, 30, d);
     tpos.setZ(i, h);
   }
   terrainGeo.computeVertexNormals();
@@ -1330,20 +2009,13 @@ async function stepBuildGameScene() {
     const scale = rand(0.75, 1.6);
     const tree = new THREE.Group();
     const trunkH = 2.2 * scale;
-    const trunk = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.12*scale, 0.22*scale, trunkH, 5, 2),
-      trunkMat
-    );
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12*scale, 0.22*scale, trunkH, 5, 2), trunkMat);
     trunk.position.y = trunkH / 2;
     trunk.castShadow = true;
     tree.add(trunk);
-    const crownN = randi(2, 4);
-    for (let c = 0; c < crownN; c++) {
+    for (let c = 0; c < randi(2, 4); c++) {
       const cr = (0.9 + c * 0.15) * scale;
-      const cone = new THREE.Mesh(
-        new THREE.ConeGeometry(cr, 1.1 * scale, 5),
-        c % 2 === 0 ? leafMatA : leafMatB
-      );
+      const cone = new THREE.Mesh(new THREE.ConeGeometry(cr, 1.1 * scale, 5), c % 2 === 0 ? leafMatA : leafMatB);
       cone.position.y = trunkH + c * 0.5 * scale;
       cone.rotation.y = rand(0, TAU);
       cone.castShadow = true;
@@ -1356,12 +2028,10 @@ async function stepBuildGameScene() {
   App.trees = trees;
 
   // Трава
-  const bladeCount = 1200;
+  const bladeCount = 1000;
   const bladeGeo = new THREE.PlaneGeometry(0.12, 0.6, 1, 2);
   bladeGeo.translate(0, 0.3, 0);
-  const grassMat = new THREE.MeshStandardMaterial({
-    color: 0x4a6a3a, roughness: 0.85, side: THREE.DoubleSide,
-  });
+  const grassMat = new THREE.MeshStandardMaterial({ color: 0x4a6a3a, roughness: 0.85, side: THREE.DoubleSide });
   const grassInst = new THREE.InstancedMesh(bladeGeo, grassMat, bladeCount);
   const dummy = new THREE.Object3D();
   const grassData = [];
@@ -1385,10 +2055,8 @@ async function stepBuildGameScene() {
 
   // Камни
   const rocks = new THREE.Group();
-  const rockMat = new THREE.MeshStandardMaterial({
-    color: 0x6a6255, roughness: 0.85, metalness: 0.1,
-    normalMap: normalTex(128, 1.2),
-  });
+  const rockMat = new THREE.MeshStandardMaterial({ color: 0x6a6255, roughness: 0.85, metalness: 0.1,
+    normalMap: normalTex(128, 1.2) });
   for (let i = 0; i < 25; i++) {
     const a = rand(0, TAU);
     const r = rand(5, 55);
@@ -1412,10 +2080,11 @@ async function stepBuildGameScene() {
   App.rocks = rocks;
 
   // Вода
-  const waterGeo = new THREE.CircleGeometry(8, 32);
-  const water = new THREE.Mesh(waterGeo, new THREE.MeshStandardMaterial({
-    color: 0x2a4a80, roughness: 0.08, metalness: 0.9, transparent: true, opacity: 0.85,
-  }));
+  const water = new THREE.Mesh(
+    new THREE.CircleGeometry(8, 32),
+    new THREE.MeshStandardMaterial({ color: 0x2a4a80, roughness: 0.08, metalness: 0.9,
+      transparent: true, opacity: 0.85 })
+  );
   water.rotation.x = -Math.PI / 2;
   water.position.set(30, 0.02, -25);
   scene.add(water);
@@ -1423,70 +2092,73 @@ async function stepBuildGameScene() {
 
   // ГОРОД
   buildCity(scene);
-
-  // NPC
   buildNPCs(scene);
-
-  // Игрок
   buildPlayer(scene);
-
-  // Враги
   for (let i = 0; i < 6; i++) spawnEnemy(scene);
+  buildRain(scene);
 
-  // Дождь
-  buildRain(scene, camera);
-
-  // Постобработка
-  if (EffectComposer && RenderPass && UnrealBloomPass && ShaderPass) {
-    try {
-      const composer = new EffectComposer(renderer);
-      composer.addPass(new RenderPass(scene, camera));
-      const bloom = new UnrealBloomPass(
-        new THREE.Vector2(window.innerWidth, window.innerHeight),
-        0.7, 0.7, 0.8
-      );
-      composer.addPass(bloom);
-      App.gameBloom = bloom;
-      const grade = new ShaderPass({
-        uniforms: {
-          tDiffuse: { value: null }, uSat: { value: 1.08 },
-          uContrast: { value: 1.12 }, uVignette: { value: 0.7 }, uTime: { value: 0 },
-        },
-        vertexShader: 'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
-        fragmentShader: [
-          'uniform sampler2D tDiffuse; uniform float uSat, uContrast, uVignette, uTime;',
-          'varying vec2 vUv;',
-          'void main() {',
-          '  vec4 c = texture2D(tDiffuse, vUv);',
-          '  float l = dot(c.rgb, vec3(0.299, 0.587, 0.114));',
-          '  c.rgb = mix(vec3(l), c.rgb, uSat);',
-          '  c.rgb = (c.rgb - 0.5) * uContrast + 0.5;',
-          '  vec2 d = vUv - 0.5;',
-          '  float v = smoothstep(0.95, 0.3, length(d));',
-          '  c.rgb *= mix(1.0 - uVignette, 1.0, v);',
-          '  gl_FragColor = c;',
-          '}'
-        ].join('\n'),
-      });
-      composer.addPass(grade);
-      App.gameComposer = composer;
-      App.gameGrade = grade;
-    } catch (e) {
-      console.warn('[Boot] Game post-processing failed:', e);
-      App.gameComposer = null;
-    }
+  // Постобработка с DoF
+  try {
+    const composer = new EffectComposer(App.gameRenderer);
+    composer.addPass(new RenderPass(scene, camera));
+    const bloom = new UnrealBloomPass(
+      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      0.7, 0.7, 0.8
+    );
+    composer.addPass(bloom);
+    const grade = new ShaderPass({
+      uniforms: {
+        tDiffuse: { value: null },
+        uSat: { value: 1.08 },
+        uContrast: { value: 1.12 },
+        uVignette: { value: 0.72 },
+        uTime: { value: 0 },
+        uFocus: { value: new THREE.Vector2(0.5, 0.45) },
+        uMaxBlur: { value: 0.0035 },
+      },
+      vertexShader: 'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+      fragmentShader: [
+        'uniform sampler2D tDiffuse;',
+        'uniform float uSat, uContrast, uVignette, uTime, uMaxBlur;',
+        'uniform vec2 uFocus;',
+        'varying vec2 vUv;',
+        'void main() {',
+        '  vec2 d = vUv - uFocus;',
+        '  float dd = length(d);',
+        '  float blur = smoothstep(0.2, 0.75, dd) * uMaxBlur;',
+        '  vec4 c = vec4(0.0);',
+        '  const int N = 6;',
+        '  for (int i = 0; i < N; i++) {',
+        '    float ang = float(i) * 6.28318 / float(N);',
+        '    vec2 off = vec2(cos(ang), sin(ang)) * blur;',
+        '    c += texture2D(tDiffuse, vUv + off);',
+        '  }',
+        '  c /= float(N);',
+        '  float l = dot(c.rgb, vec3(0.299, 0.587, 0.114));',
+        '  c.rgb = mix(vec3(l), c.rgb, uSat);',
+        '  c.rgb = (c.rgb - 0.5) * uContrast + 0.5;',
+        '  float v = smoothstep(0.95, 0.3, length(vUv - 0.5));',
+        '  c.rgb *= mix(1.0 - uVignette, 1.0, v);',
+        '  gl_FragColor = c;',
+        '}'
+      ].join('\n'),
+    });
+    composer.addPass(grade);
+    App.gameComposer = composer;
+    App.gameGrade = grade;
+  } catch (e) {
+    console.warn('[Game] Post-processing failed:', e);
+    App.gameComposer = null;
   }
 
   App.gameClock = new THREE.Clock();
-  App.minimapCanvas = $('minimap');
-  App.minimapCtx = App.minimapCanvas ? App.minimapCanvas.getContext('2d') : null;
-  console.log('[Boot] Game scene OK');
+  const minimapCanvas = $('minimap');
+  App.minimapCtx = minimapCanvas ? minimapCanvas.getContext('2d') : null;
 }
 
 function buildCity(scene) {
   const city = new THREE.Group();
   const c = App.cityCenter;
-
   // Мостовая
   const plazaTex = noiseTex(256, [140, 122, 100], 30);
   plazaTex.repeat.set(6, 6);
@@ -1503,77 +2175,51 @@ function buildCity(scene) {
   plaza.position.set(c.x, 0.05, c.z);
   plaza.receiveShadow = true;
   city.add(plaza);
-
   // Стена
-  const wallMat = new THREE.MeshStandardMaterial({ color: 0x5a5040, roughness: 0.9, metalness: 0.05 });
-  const wallSegments = 20;
-  for (let i = 0; i < wallSegments; i++) {
-    if (i > 0 && i < 3) continue; // проём для ворот
-    const a = (i / wallSegments) * TAU;
-    const r = App.cityRadius;
-    const wx = c.x + Math.cos(a) * r;
-    const wz = c.z + Math.sin(a) * r;
-    const block = new THREE.Mesh(
-      new THREE.BoxGeometry(2.4, rand(3, 4.5), 1.2),
-      wallMat
-    );
-    block.position.set(wx, 1.8, wz);
-    block.rotation.y = -a;
+  const wallMat = new THREE.MeshStandardMaterial({ color: 0x5a5040, roughness: 0.9 });
+  for (let i = 0; i < 20; i++) {
+    if (i > 0 && i < 3) continue;
+    const a = (i / 20) * TAU;
+    const wx = c.x + Math.cos(a) * App.cityRadius;
+    const wz = c.z + Math.sin(a) * App.cityRadius;
+    const block = new THREE.Mesh(new THREE.BoxGeometry(2.4, rand(3, 4.5), 1.2), wallMat);
+    block.position.set(wx, 1.8, wz); block.rotation.y = -a;
     block.castShadow = true;
     city.add(block);
     const top = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.4, 1.5), wallMat);
-    top.position.set(wx, 3.8, wz);
-    top.rotation.y = -a;
-    top.castShadow = true;
+    top.position.set(wx, 3.8, wz); top.rotation.y = -a;
     city.add(top);
   }
-
   // Фонтаны
   for (let f = 0; f < 2; f++) {
     const fx = c.x + (f === 0 ? -6 : 6);
     const fz = c.z + (f === 0 ? -4 : 4);
-    const fbase = new THREE.Mesh(
-      new THREE.CylinderGeometry(1.2, 1.4, 0.5, 12),
-      new THREE.MeshStandardMaterial({ color: 0x8a7a60, roughness: 0.8 })
-    );
+    const fbase = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.4, 0.5, 12),
+      new THREE.MeshStandardMaterial({ color: 0x8a7a60, roughness: 0.8 }));
     fbase.position.set(fx, 0.25, fz);
     fbase.castShadow = true;
     city.add(fbase);
-    const fbowl = new THREE.Mesh(
-      new THREE.CylinderGeometry(1.0, 1.0, 0.3, 12),
-      new THREE.MeshStandardMaterial({ color: 0x3a5a90, roughness: 0.15, metalness: 0.7 })
-    );
+    const fbowl = new THREE.Mesh(new THREE.CylinderGeometry(1.0, 1.0, 0.3, 12),
+      new THREE.MeshStandardMaterial({ color: 0x3a5a90, roughness: 0.15, metalness: 0.7 }));
     fbowl.position.set(fx, 0.65, fz);
     city.add(fbowl);
-    const fpillar = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.15, 0.2, 1.2, 6),
-      new THREE.MeshStandardMaterial({ color: 0x6a5a40, roughness: 0.8 })
-    );
-    fpillar.position.set(fx, 1.2, fz);
-    city.add(fpillar);
   }
-
   // Обелиск
-  const obelisk = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.5, 0.8, 6, 6),
+  const obelisk = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.8, 6, 6),
     new THREE.MeshStandardMaterial({
       color: 0x2a2a4a, metalness: 0.7, roughness: 0.3,
       emissive: 0x3a5aff, emissiveIntensity: 0.4,
-    })
-  );
+    }));
   obelisk.position.set(c.x, 3, c.z);
   obelisk.castShadow = true;
   city.add(obelisk);
-  const obeliskRune = new THREE.Mesh(
-    new THREE.TorusGeometry(0.9, 0.06, 6, 24),
-    new THREE.MeshBasicMaterial({ color: 0x7cd9ff, transparent: true, opacity: 0.9 })
-  );
+  const obeliskRune = new THREE.Mesh(new THREE.TorusGeometry(0.9, 0.06, 6, 24),
+    new THREE.MeshBasicMaterial({ color: 0x7cd9ff, transparent: true, opacity: 0.9 }));
   obeliskRune.rotation.x = Math.PI / 2;
   obeliskRune.position.set(c.x, 5.5, c.z);
   obeliskRune.userData.isHalo = true;
   city.add(obeliskRune);
-
-  // Торговые прилавки
+  // Прилавки
   App.stallPositions = [];
   const stalls = [
     { x: -3, z: -6, rot: 0, type: 'potion' },
@@ -1586,57 +2232,25 @@ function buildCity(scene) {
     const stall = new THREE.Group();
     const woodMat = new THREE.MeshStandardMaterial({ color: 0x4a2f1a, roughness: 0.85 });
     const counter = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.8, 1.2), woodMat);
-    counter.position.y = 0.4;
-    counter.castShadow = true; counter.receiveShadow = true;
+    counter.position.y = 0.4; counter.castShadow = true;
     stall.add(counter);
-    const canopy = new THREE.Mesh(
-      new THREE.BoxGeometry(2.8, 0.15, 1.8),
-      new THREE.MeshStandardMaterial({ color: 0x8a2a2a, roughness: 0.9 })
-    );
+    const canopy = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.15, 1.8),
+      new THREE.MeshStandardMaterial({ color: 0x8a2a2a, roughness: 0.9 }));
     canopy.position.y = 2.4;
-    canopy.castShadow = true;
     stall.add(canopy);
-    for (const sx2 of [-1.2, 1.2]) {
-      for (const sz2 of [-0.6, 0.6]) {
-        const pillar = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.06, 0.06, 2.4, 5),
-          woodMat
-        );
-        pillar.position.set(sx2, 1.2, sz2);
-        stall.add(pillar);
-      }
-    }
-    // Знамя
     const bannerColor = sp.type === 'potion' ? 0x4a9e4a :
                         sp.type === 'weapon' ? 0xff6030 :
                         sp.type === 'armor' ? 0x4a5aa0 : 0xa04ad0;
-    const banner = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.6, 1.5, 1, 4),
-      new THREE.MeshStandardMaterial({ color: bannerColor, side: THREE.DoubleSide, roughness: 0.85 })
-    );
+    const banner = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 1.5, 1, 4),
+      new THREE.MeshStandardMaterial({ color: bannerColor, side: THREE.DoubleSide, roughness: 0.85 }));
     banner.position.set(0, 1.6, 0);
     banner.userData.isBanner = true;
     banner.userData.phase = rand(0, TAU);
     stall.add(banner);
-    // Товары
-    for (let k = 0; k < 3; k++) {
-      const item = new THREE.Mesh(
-        new THREE.SphereGeometry(0.12, 6, 6),
-        new THREE.MeshStandardMaterial({
-          color: [0xff5555, 0x55aaff, 0xffdd55][k],
-          emissive: [0xff5555, 0x55aaff, 0xffdd55][k],
-          emissiveIntensity: 0.5,
-        })
-      );
-      item.position.set((k - 1) * 0.5, 0.9, 0);
-      stall.add(item);
-    }
-    stall.position.set(sx, 0, sz);
-    stall.rotation.y = sp.rot;
+    stall.position.set(sx, 0, sz); stall.rotation.y = sp.rot;
     city.add(stall);
     App.stallPositions.push({ x: sx, z: sz, type: sp.type });
   }
-
   scene.add(city);
   App.cityGroup = city;
 }
@@ -1659,7 +2273,6 @@ function buildNPCs(scene) {
     npc.rotation.y = Math.PI;
     npc.userData.isNPC = true;
     npc.userData.dialog = t;
-    npc.userData.autoRotate = false;
     scene.add(npc);
     App.npcs.push(npc);
   }
@@ -1670,11 +2283,16 @@ function buildPlayer(scene) {
   g.scale.setScalar(0.5);
   g.userData.baseScale = 0.5;
   g.position.set(0, 0.1, 0);
-  g.userData.autoRotate = false;
   g.userData.vel = { x: 0, z: 0 };
   g.userData.attackCd = 0;
   g.userData.hitFlash = 0;
-  g.userData.isPlayer = true;
+  // Применяем бонусы Наследия
+  const lb = Legacy.getBonuses();
+  const fb = Factions.getBonus();
+  App.hud.maxHp = 100 + lb.hp + fb.hp;
+  App.hud.hp = App.hud.maxHp;
+  App.hud.maxMana = 80 + lb.mana + fb.mana;
+  App.hud.mana = App.hud.maxMana;
   scene.add(g);
   App.player = g;
 }
@@ -1688,13 +2306,11 @@ function spawnEnemy(scene) {
   e.scale.setScalar(0.48);
   e.userData.baseScale = 0.48;
   e.position.set(x, 0.1, z);
-  e.userData.autoRotate = false;
   e.userData.isEnemy = true;
-  const nightBonus = (App.dayTime > 0.7 || App.dayTime < 0.2) ? 1.4 : 1.0;
-  e.userData.hp = 55 * nightBonus;
-  e.userData.maxHp = 55 * nightBonus;
-  e.userData.speed = rand(1.6, 2.8) * nightBonus;
-  e.userData.damage = 7 * nightBonus;
+  e.userData.hp = 55;
+  e.userData.maxHp = 55;
+  e.userData.speed = rand(1.6, 2.8);
+  e.userData.damage = 7;
   e.userData.attackCd = 0;
   e.userData.hitFlash = 0;
   e.userData.vel = { x: 0, z: 0 };
@@ -1710,7 +2326,7 @@ function spawnEnemy(scene) {
   App.enemies.push(e);
 }
 
-function buildRain(scene, camera) {
+function buildRain(scene) {
   const count = 500;
   const geo = new THREE.BufferGeometry();
   const pos = new Float32Array(count * 3);
@@ -1732,44 +2348,7 @@ function buildRain(scene, camera) {
 }
 
 // ----------------------------------------------------------------------------
-// 9. МЕНЮ LOOP
-// ----------------------------------------------------------------------------
-function startMenuLoop() {
-  if (App.menuRafId !== null) return;
-  const loop = () => {
-    App.menuRafId = requestAnimationFrame(loop);
-    try {
-      if (!App.menuClock) return;
-      const dt = Math.min(App.menuClock.getDelta(), 0.05);
-      if (App.menuCharacter) CharacterBuilder.animateIdle(App.menuCharacter, dt, true);
-      if (App.menuScene) {
-        App.menuScene.traverse((o) => {
-          if (o.userData.isRing) o.rotation.z += dt * 0.5;
-          if (o.userData.isRing2) o.rotation.z -= dt * 0.35;
-        });
-      }
-      if (App.menuParticles) {
-        const p = App.menuParticles.geometry.attributes.position;
-        const t = App.menuClock.elapsedTime;
-        for (let i = 0; i < p.count; i++) {
-          p.setY(i, p.getY(i) + Math.sin(t * 0.7 + i * 0.3) * dt * 0.3);
-        }
-        p.needsUpdate = true;
-      }
-      if (App.menuComposer) App.menuComposer.render();
-      else if (App.menuRenderer && App.menuScene && App.menuCamera) {
-        App.menuRenderer.render(App.menuScene, App.menuCamera);
-      }
-    } catch (e) { console.error('[MenuLoop]', e); }
-  };
-  loop();
-}
-function stopMenuLoop() {
-  if (App.menuRafId !== null) { cancelAnimationFrame(App.menuRafId); App.menuRafId = null; }
-}
-
-// ----------------------------------------------------------------------------
-// 10. GAME LOOP
+// ИГРОВОЙ ЦИКЛ
 // ----------------------------------------------------------------------------
 function startGameLoop() {
   if (App.gameRafId !== null) return;
@@ -1779,8 +2358,6 @@ function startGameLoop() {
       if (!App.gameClock) return;
       const dt = Math.min(App.gameClock.getDelta(), 0.05);
       App.time += dt;
-
-      if (App.fpsGuard) App.fpsGuard.tick(dt);
 
       updateDayNight(dt);
       updateWeather(dt);
@@ -1793,7 +2370,6 @@ function startGameLoop() {
       updateBanners(dt);
       updateCamera(dt);
 
-      // Свет за игроком
       if (App.player && App.gameKeyLight) {
         App.gameKeyLight.target.position.copy(App.player.position);
         App.gameKeyLight.position.set(
@@ -1818,9 +2394,6 @@ function stopGameLoop() {
   if (App.gameRafId !== null) { cancelAnimationFrame(App.gameRafId); App.gameRafId = null; }
 }
 
-// ----------------------------------------------------------------------------
-// 11. GAME UPDATE FUNCTIONS
-// ----------------------------------------------------------------------------
 function setSunElevation(elevDeg) {
   if (!App.gameSky) return;
   const phi = THREE.MathUtils.degToRad(90 - elevDeg);
@@ -1848,9 +2421,7 @@ function updateDayNight(dt) {
 }
 
 function updateWeather(dt) {
-  if (Math.random() < dt / 40) {
-    App.weather.targetRain = Math.random() < 0.35 ? 1 : 0;
-  }
+  if (Math.random() < dt / 40) App.weather.targetRain = Math.random() < 0.35 ? 1 : 0;
   App.weather.rain = lerp(App.weather.rain, App.weather.targetRain, 1 - Math.pow(0.001, dt));
   if (App.rain) {
     App.rain.material.opacity = App.weather.rain * 0.7;
@@ -1870,7 +2441,6 @@ function updateWeather(dt) {
   }
   if (App.ground && App.ground.material) {
     App.ground.material.roughness = lerp(0.92, 0.55, App.weather.rain);
-    App.ground.material.metalness = lerp(0.03, 0.25, App.weather.rain);
   }
 }
 
@@ -1885,8 +2455,9 @@ function updatePlayer(dt) {
   if (!p) return;
   p.userData.attackCd = Math.max(0, p.userData.attackCd - dt);
   p.userData.hitFlash = Math.max(0, p.userData.hitFlash - dt);
-  const fatigueFactor = 1 - App.hud.fatigue * 0.4;
-  const speed = 6 * fatigueFactor;
+  const lb = Legacy.getBonuses();
+  const fb = Factions.getBonus();
+  const speed = 6 + lb.speed + fb.speed;
   const tx = App.playerInput.moveX * speed;
   const tz = App.playerInput.moveY * speed;
   p.userData.vel.x = lerp(p.userData.vel.x, tx, 1 - Math.pow(0.001, dt));
@@ -1901,27 +2472,19 @@ function updatePlayer(dt) {
     while (diff > Math.PI) diff -= TAU;
     while (diff < -Math.PI) diff += TAU;
     p.rotation.y += diff * (1 - Math.pow(0.0001, dt));
-    App.hud.stamina = Math.max(0, App.hud.stamina - dt * 8);
-  } else {
-    App.hud.stamina = Math.min(App.hud.maxStamina, App.hud.stamina + dt * 15);
   }
-  if (isInCity()) {
-    App.hud.stamina = Math.min(App.hud.maxStamina, App.hud.stamina + dt * 20);
-    App.hud.fatigue = Math.max(0, App.hud.fatigue - dt * 0.15);
-  } else {
-    App.hud.fatigue = Math.min(1, App.hud.fatigue + dt * 0.01);
-  }
+  if (isInCity()) App.hud.hp = Math.min(App.hud.maxHp, App.hud.hp + 6 * dt);
+
   p.position.x = clamp(p.position.x, -95, 95);
   p.position.z = clamp(p.position.z, -95, 95);
-  const ms = Math.hypot(p.userData.vel.x, p.userData.vel.z);
-  p.position.y = 0.1 + Math.sin(App.time * 12) * 0.02 * (ms / Math.max(speed, 0.001));
-  App.currentZone = isInCity() ? 'city' : 'wild';
 }
 
 function updateEnemies(dt) {
   const p = App.player;
   if (!p) return;
-  const nightBonus = (App.dayTime > 0.7 || App.dayTime < 0.2) ? 1.4 : 1.0;
+  const nightBonus = (App.dayTime > 0.7 || App.dayTime < 0.2) ? 1.3 : 1.0;
+  const dmgBonus = Legacy.getBonuses().dmg + Factions.getBonus().dmg;
+
   for (let i = App.enemies.length - 1; i >= 0; i--) {
     const e = App.enemies[i];
     if (!e || e.userData.hp <= 0) continue;
@@ -1929,7 +2492,6 @@ function updateEnemies(dt) {
     e.userData.hitFlash = Math.max(0, e.userData.hitFlash - dt);
     e.userData.phase += dt;
 
-    // В городе враги убегают
     if (isInCity()) {
       const away = Math.atan2(e.position.x - App.cityCenter.x, e.position.z - App.cityCenter.z);
       e.userData.vel.x = lerp(e.userData.vel.x, Math.sin(away) * 3, 1 - Math.pow(0.01, dt));
@@ -1942,8 +2504,8 @@ function updateEnemies(dt) {
     const dx = p.position.x - e.position.x;
     const dz = p.position.z - e.position.z;
     const d = Math.hypot(dx, dz);
-    const aggroRange = 14 * nightBonus;
-    if (d > 1.2 && d < aggroRange) {
+    const aggro = 14 * nightBonus;
+    if (d > 1.2 && d < aggro) {
       const nx = dx / d, nz = dz / d;
       e.userData.vel.x = lerp(e.userData.vel.x, nx * e.userData.speed, 1 - Math.pow(0.01, dt));
       e.userData.vel.z = lerp(e.userData.vel.z, nz * e.userData.speed, 1 - Math.pow(0.01, dt));
@@ -1956,13 +2518,12 @@ function updateEnemies(dt) {
       e.rotation.y += diff * (1 - Math.pow(0.001, dt));
     } else if (d <= 1.6 && e.userData.attackCd <= 0) {
       e.userData.attackCd = 1.3;
-      App.hud.hp = Math.max(0, App.hud.hp - e.userData.damage);
+      App.hud.hp = Math.max(0, App.hud.hp - e.userData.damage * nightBonus);
       p.userData.hitFlash = 0.2;
       const fl = $('dmgFlash');
       if (fl) { fl.classList.add('hit'); setTimeout(() => fl.classList.remove('hit'), 140); }
       if (App.hud.hp <= 0) respawnPlayer();
     }
-    e.position.y = 0.1 + Math.sin(e.userData.phase * 5) * 0.03;
   }
 }
 
@@ -1972,12 +2533,10 @@ function respawnPlayer() {
   p.position.set(App.cityCenter.x, 0.1, App.cityCenter.z + 5);
   App.hud.hp = App.hud.maxHp;
   App.hud.mana = App.hud.maxMana;
-  App.hud.fatigue = 0;
   showToast('ВОЗРОЖДЕНИЕ У ОБЕЛИСКА');
 }
 
 function updateNPCs(dt) {
-  if (!App.player) return;
   for (const npc of App.npcs) {
     const t = App.time;
     npc.position.y = 0.1 + Math.sin(t * 1.5 + npc.position.x) * 0.03;
@@ -1987,7 +2546,6 @@ function updateNPCs(dt) {
 
 function updateGrass(dt) {
   if (!App.grass || !App.grassData) return;
-  if (App.qualityLevel < 2) return; // экономим CPU при сниженном качестве
   const dummy = new THREE.Object3D();
   const step = 12;
   const start = Math.floor(App.time * 60) % step;
@@ -2006,40 +2564,109 @@ function updateGrass(dt) {
 
 function updateBanners(dt) {
   if (!App.cityGroup) return;
-  const t = App.time;
   App.cityGroup.traverse((o) => {
-    if (o.userData.isBanner) {
-      const geo = o.geometry;
-      const pos = geo.attributes.position;
-      for (let i = 0; i < pos.count; i++) {
-        const y = pos.getY(i);
-        pos.setZ(i, Math.sin(t * 2 + (o.userData.phase || 0) + y * 2) * 0.08 * y);
-      }
-      pos.needsUpdate = true;
-    }
-    if (o.userData.isHalo) o.rotation.z = t * 0.8;
+    if (o.userData.isHalo) o.rotation.z = App.time * 0.8;
   });
 }
 
+function updateCamera(dt) {
+  const p = App.player;
+  if (!p || !App.gameCamera) return;
+  const cam = App.gameCamera;
+  const cx = p.position.x;
+  const cz = p.position.z + 9;
+  cam.position.x = lerp(cam.position.x, cx, 1 - Math.pow(0.0005, dt));
+  cam.position.z = lerp(cam.position.z, cz, 1 - Math.pow(0.0005, dt));
+  cam.position.y = lerp(cam.position.y, 6, 1 - Math.pow(0.001, dt));
+  cam.lookAt(p.position.x, 1.2, p.position.z);
+  if (p.userData.hitFlash > 0) {
+    const s = p.userData.hitFlash * 15;
+    cam.position.x += rand(-s, s) * 0.02;
+    cam.position.y += rand(-s, s) * 0.02;
+  }
+}
+
+function updateHUD(dt) {
+  const hpLbl = $('orbHpLbl'); const manaLbl = $('orbManaLbl');
+  const orbHp = $('orbHp'); const orbMana = $('orbMana');
+  const uiLevel = $('uiLevel'); const uiTime = $('uiTime');
+  const uiZone = $('uiZone'); const uiGold = $('uiGold');
+
+  if (hpLbl) hpLbl.textContent = String(Math.round(App.hud.hp));
+  if (manaLbl) manaLbl.textContent = String(Math.round(App.hud.mana));
+  if (orbHp) orbHp.style.setProperty('--pct', (App.hud.hp / App.hud.maxHp * 100) + '%');
+  if (orbMana) orbMana.style.setProperty('--pct', (App.hud.mana / App.hud.maxMana * 100) + '%');
+  if (uiLevel) uiLevel.textContent = String(App.hud.level);
+  if (uiGold) uiGold.textContent = String(Math.floor(App.hud.gold));
+  if (uiTime) {
+    const h = Math.floor(App.dayTime * 24);
+    const m = Math.floor((App.dayTime * 24 - h) * 60);
+    uiTime.textContent = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+  }
+  if (uiZone) {
+    const isCity = isInCity();
+    uiZone.textContent = isCity ? 'Тихий Причал' : 'Лес Шепчущих';
+    uiZone.className = 'val ' + (isCity ? 'zone-city' : 'zone-wild');
+  }
+  App.hud.mana = clamp(App.hud.mana + 6 * dt, 0, App.hud.maxMana);
+}
+
+function updateMinimap() {
+  const ctx = App.minimapCtx;
+  const canvas = $('minimap');
+  if (!ctx || !canvas || !App.player) return;
+  const W = canvas.width, H = canvas.height;
+  const p = App.player;
+  const range = 60;
+  ctx.clearRect(0, 0, W, H);
+  const bg = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W/2);
+  bg.addColorStop(0, 'rgba(20,30,60,0.85)');
+  bg.addColorStop(1, 'rgba(5,8,20,0.95)');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+  // Город
+  const cxs = W/2 + ((App.cityCenter.x - p.position.x) / range) * (W/2);
+  const cys = H/2 + ((App.cityCenter.z - p.position.z) / range) * (H/2);
+  const cR = (App.cityRadius / range) * (W/2);
+  ctx.fillStyle = 'rgba(124, 217, 255, 0.15)';
+  ctx.strokeStyle = 'rgba(124, 217, 255, 0.6)';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(cxs, cys, cR, 0, TAU); ctx.fill(); ctx.stroke();
+  // NPC
+  for (const n of App.npcs) {
+    const nx = W/2 + ((n.position.x - p.position.x) / range) * (W/2);
+    const ny = H/2 + ((n.position.z - p.position.z) / range) * (H/2);
+    ctx.fillStyle = '#ffe7b0';
+    ctx.beginPath(); ctx.arc(nx, ny, 5, 0, TAU); ctx.fill();
+  }
+  // Враги
+  for (const e of App.enemies) {
+    const ex = W/2 + ((e.position.x - p.position.x) / range) * (W/2);
+    const ey = H/2 + ((e.position.z - p.position.z) / range) * (H/2);
+    ctx.fillStyle = '#ff4040';
+    ctx.beginPath(); ctx.arc(ex, ey, 4, 0, TAU); ctx.fill();
+  }
+  // Игрок
+  ctx.save();
+  ctx.translate(W/2, H/2);
+  ctx.rotate(p.rotation.y);
+  ctx.fillStyle = '#7cd9ff';
+  ctx.beginPath();
+  ctx.moveTo(0, -12); ctx.lineTo(7, 8); ctx.lineTo(0, 5); ctx.lineTo(-7, 8);
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+
+// ----------------------------------------------------------------------------
+// БОЙ / СПОСОБНОСТИ
+// ----------------------------------------------------------------------------
 function playerAttack(type) {
   const p = App.player;
   if (!p || p.userData.attackCd > 0) return;
-  const staminaCost = type === 'heavy' ? 25 : 10;
-  if (App.hud.stamina < staminaCost) { showToast('НЕ ХВАТАЕТ СТАМИНЫ'); return; }
-  App.hud.stamina -= staminaCost;
   p.userData.attackCd = type === 'heavy' ? 0.75 : 0.35;
-
-  let rightArm = null;
-  p.traverse((o) => { if (o.userData.isArm && o.userData.side === 1) rightArm = o; });
-  if (rightArm) {
-    const orig = rightArm.rotation.z;
-    rightArm.rotation.z = -0.9;
-    setTimeout(() => { if (rightArm) rightArm.rotation.z = orig; }, 150);
-  }
-
+  const dmgBonus = Legacy.getBonuses().dmg + Factions.getBonus().dmg;
   const range = type === 'heavy' ? 3.5 : 2.5;
   const facing = p.rotation.y;
-  let hitCount = 0;
   for (const e of App.enemies) {
     if (!e || e.userData.hp <= 0) continue;
     const dx = e.position.x - p.position.x;
@@ -2051,22 +2678,14 @@ function playerAttack(type) {
     while (diff > Math.PI) diff -= TAU;
     while (diff < -Math.PI) diff += TAU;
     if (Math.abs(diff) > 1.4) continue;
-    const dmg = type === 'heavy' ? 45 : 22;
+    const dmg = (type === 'heavy' ? 45 : 22) + dmgBonus;
     e.userData.hp -= dmg;
     e.userData.hitFlash = 0.25;
     e.userData.vel.x += (dx / d) * 6;
     e.userData.vel.z += (dz / d) * 6;
-    hitCount++;
     spawnHitParticles(e.position, type === 'heavy');
     showDamageNumber(e.position, dmg, type === 'heavy' ? 'heavy' : 'slash');
     if (e.userData.hp <= 0) killEnemy(e);
-  }
-  if (hitCount === 0 && type === 'heavy') {
-    spawnHitParticles({
-      x: p.position.x + Math.sin(facing) * 2,
-      y: 0.3,
-      z: p.position.z + Math.cos(facing) * 2,
-    }, false);
   }
 }
 
@@ -2081,18 +2700,30 @@ function killEnemy(e) {
       else o.material.dispose();
     }
   });
+  const goldBonus = Legacy.getBonuses().gold;
   App.hud.xp += 25;
-  App.hud.gold += randi(3, 12);
+  App.hud.gold += randi(3, 12) + goldBonus;
+  Legacy.addXp(15);
+
+  // Дроп ингредиентов
+  if (Math.random() < 0.6) {
+    const r = Math.random();
+    if (r < 0.5) Craft.inventory.runes++;
+    else if (r < 0.8) Craft.inventory.cores++;
+    else if (r < 0.95) Craft.inventory.shards++;
+    else Craft.inventory.crystals++;
+    Craft.save();
+  }
+  // Влияние фракции
+  Factions.addInfluence(2);
+
   if (App.hud.xp >= 100) {
     App.hud.xp -= 100;
     App.hud.level++;
-    App.hud.maxHp += 15;
-    App.hud.hp = App.hud.maxHp;
-    App.hud.maxMana += 10;
-    App.hud.mana = App.hud.maxMana;
+    App.hud.maxHp += 15; App.hud.hp = App.hud.maxHp;
+    App.hud.maxMana += 10; App.hud.mana = App.hud.maxMana;
     showToast('УРОВЕНЬ ' + App.hud.level, 'magic');
   }
-  // Спавним нового
   setTimeout(() => {
     if (App.gameRafId !== null && App.gameScene) spawnEnemy(App.gameScene);
   }, 3000);
@@ -2106,7 +2737,7 @@ function playerCast() {
   const facing = p.rotation.y;
   const cx = p.position.x + Math.sin(facing) * 3;
   const cz = p.position.z + Math.cos(facing) * 3;
-
+  const dmgBonus = Legacy.getBonuses().dmg + Factions.getBonus().dmg;
   const sphere = new THREE.Mesh(
     new THREE.SphereGeometry(0.3, 12, 12),
     new THREE.MeshBasicMaterial({ color: 0xb85aff, transparent: true, opacity: 0.9 })
@@ -2127,14 +2758,13 @@ function playerCast() {
     requestAnimationFrame(tick);
   };
   tick();
-
   for (const e of App.enemies) {
-    if (!e) continue;
     if (dist(cx, cz, e.position.x, e.position.z) < 3) {
-      e.userData.hp -= 55;
+      const dmg = 55 + dmgBonus;
+      e.userData.hp -= dmg;
       e.userData.hitFlash = 0.3;
       spawnHitParticles(e.position, true);
-      showDamageNumber(e.position, 55, 'cast');
+      showDamageNumber(e.position, dmg, 'cast');
       if (e.userData.hp <= 0) killEnemy(e);
     }
   }
@@ -2146,11 +2776,13 @@ function playerUlt() {
   App.hud.mana -= 40;
   const p = App.player;
   if (!p) return;
+  const dmgBonus = Legacy.getBonuses().dmg + Factions.getBonus().dmg;
   for (const e of Array.from(App.enemies)) {
     if (!e) continue;
     const d = dist(p.position.x, p.position.z, e.position.x, e.position.z);
     if (d < 8) {
-      e.userData.hp -= 120;
+      const dmg = 120 + dmgBonus;
+      e.userData.hp -= dmg;
       e.userData.hitFlash = 0.4;
       const dx = e.position.x - p.position.x;
       const dz = e.position.z - p.position.z;
@@ -2158,7 +2790,7 @@ function playerUlt() {
       e.userData.vel.x += (dx / dd) * 20;
       e.userData.vel.z += (dz / dd) * 20;
       spawnHitParticles(e.position, true);
-      showDamageNumber(e.position, 120, 'ult');
+      showDamageNumber(e.position, dmg, 'ult');
       if (e.userData.hp <= 0) killEnemy(e);
     }
   }
@@ -2188,7 +2820,6 @@ function spawnHitParticles(pos, big) {
     App.particles.push(pt);
   }
 }
-
 function spawnMagicParticles(cx, cz) {
   if (!App.gameScene) return;
   for (let i = 0; i < 25; i++) {
@@ -2210,7 +2841,6 @@ function spawnMagicParticles(cx, cz) {
     App.particles.push(pt);
   }
 }
-
 function spawnUltBurst(pos) {
   if (!App.gameScene) return;
   for (let i = 0; i < 60; i++) {
@@ -2233,7 +2863,6 @@ function spawnUltBurst(pos) {
     App.particles.push(pt);
   }
 }
-
 function updateParticles(dt) {
   if (!App.gameScene) return;
   const keep = [];
@@ -2258,7 +2887,6 @@ function updateParticles(dt) {
   }
   App.particles = keep;
 }
-
 function showDamageNumber(pos, dmg, kind) {
   if (!App.gameScene) return;
   const c = document.createElement('canvas');
@@ -2266,17 +2894,15 @@ function showDamageNumber(pos, dmg, kind) {
   const ctx = c.getContext('2d');
   if (!ctx) return;
   ctx.font = 'bold 42px system-ui';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.lineWidth = 6;
-  ctx.strokeStyle = 'rgba(0,0,0,0.9)';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(0,0,0,0.9)';
   let color = '#ffffff';
   if (kind === 'heavy') color = '#ffd88a';
   else if (kind === 'cast') color = '#d8a0ff';
   else if (kind === 'ult') color = '#ff80d0';
-  ctx.strokeText('-' + dmg, 64, 32);
+  ctx.strokeText('-' + Math.round(dmg), 64, 32);
   ctx.fillStyle = color;
-  ctx.fillText('-' + dmg, 64, 32);
+  ctx.fillText('-' + Math.round(dmg), 64, 32);
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }));
@@ -2289,7 +2915,6 @@ function showDamageNumber(pos, dmg, kind) {
   App.gameScene.add(sprite);
   App.particles.push(sprite);
 }
-
 function updateFloatNumbers(dt) {
   for (const pt of App.particles) {
     if (pt.userData.isFloat && pt.userData.vy !== undefined) {
@@ -2299,214 +2924,79 @@ function updateFloatNumbers(dt) {
   }
 }
 
-function updateCamera(dt) {
-  const p = App.player;
-  if (!p || !App.gameCamera) return;
-  const cam = App.gameCamera;
-  const cx = p.position.x;
-  const cz = p.position.z + 9;
-  cam.position.x = lerp(cam.position.x, cx, 1 - Math.pow(0.0005, dt));
-  cam.position.z = lerp(cam.position.z, cz, 1 - Math.pow(0.0005, dt));
-  cam.position.y = lerp(cam.position.y, 6, 1 - Math.pow(0.001, dt));
-  cam.lookAt(p.position.x, 1.2, p.position.z);
-  if (p.userData.hitFlash > 0) {
-    const s = p.userData.hitFlash * 15;
-    cam.position.x += rand(-s, s) * 0.02;
-    cam.position.y += rand(-s, s) * 0.02;
-  }
-}
-
-function updateHUD(dt) {
-  const hpLbl = $('orbHpLbl');
-  const manaLbl = $('orbManaLbl');
-  const orbHp = $('orbHp');
-  const orbMana = $('orbMana');
-  const uiLevel = $('uiLevel');
-  const uiTime = $('uiTime');
-  const uiZone = $('uiZone');
-  const uiGold = $('uiGold');
-  const staminaBar = $('staminaBar');
-
-  if (hpLbl) hpLbl.textContent = String(Math.round(App.hud.hp));
-  if (manaLbl) manaLbl.textContent = String(Math.round(App.hud.mana));
-  if (orbHp) orbHp.style.setProperty('--pct', (App.hud.hp / App.hud.maxHp * 100) + '%');
-  if (orbMana) orbMana.style.setProperty('--pct', (App.hud.mana / App.hud.maxMana * 100) + '%');
-  if (uiLevel) uiLevel.textContent = String(App.hud.level);
-  if (uiGold) uiGold.textContent = String(App.hud.gold);
-  if (staminaBar) staminaBar.style.width = (App.hud.stamina / App.hud.maxStamina * 100) + '%';
-  if (uiTime) {
-    const h = Math.floor(App.dayTime * 24);
-    const m = Math.floor((App.dayTime * 24 - h) * 60);
-    uiTime.textContent = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
-  }
-  if (uiZone) {
-    const isCity = isInCity();
-    uiZone.textContent = isCity ? 'Тихий Причал' : 'Лес Шепчущих';
-    uiZone.className = 'val ' + (isCity ? 'zone-city' : 'zone-wild');
-  }
-
-  App.hud.mana = clamp(App.hud.mana + 6 * dt, 0, App.hud.maxMana);
-  if (isInCity()) {
-    App.hud.hp = clamp(App.hud.hp + 8 * dt, 0, App.hud.maxHp);
-  } else if (App.hud.fatigue > 0.5) {
-    App.hud.hp = clamp(App.hud.hp + 2 * dt * (1 - App.hud.fatigue), 0, App.hud.maxHp);
-  } else {
-    App.hud.hp = clamp(App.hud.hp + 3 * dt, 0, App.hud.maxHp);
-  }
-}
-
-function updateMinimap() {
-  const ctx = App.minimapCtx;
-  if (!ctx || !App.player || !App.minimapCanvas) return;
-  const W = App.minimapCanvas.width;
-  const H = App.minimapCanvas.height;
-  const p = App.player;
-  const range = 60;
-  ctx.clearRect(0, 0, W, H);
-  const grad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W/2);
-  grad.addColorStop(0, 'rgba(20,30,60,0.7)');
-  grad.addColorStop(1, 'rgba(5,8,20,0.95)');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, W, H);
-
-  // Город
-  const cxs = W/2 + ((App.cityCenter.x - p.position.x) / range) * (W/2);
-  const cys = H/2 + ((App.cityCenter.z - p.position.z) / range) * (H/2);
-  const cR = (App.cityRadius / range) * (W/2);
-  ctx.fillStyle = 'rgba(124, 217, 255, 0.12)';
-  ctx.strokeStyle = 'rgba(124, 217, 255, 0.5)';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(cxs, cys, cR, 0, TAU);
-  ctx.fill();
-  ctx.stroke();
-
-  // NPC
-  for (const n of App.npcs) {
-    const nx = W/2 + ((n.position.x - p.position.x) / range) * (W/2);
-    const ny = H/2 + ((n.position.z - p.position.z) / range) * (H/2);
-    ctx.fillStyle = '#ffe7b0';
-    ctx.beginPath();
-    ctx.arc(nx, ny, 4, 0, TAU);
-    ctx.fill();
-  }
-  // Враги
-  for (const e of App.enemies) {
-    const ex = W/2 + ((e.position.x - p.position.x) / range) * (W/2);
-    const ey = H/2 + ((e.position.z - p.position.z) / range) * (H/2);
-    ctx.fillStyle = '#ff4040';
-    ctx.beginPath();
-    ctx.arc(ex, ey, 4, 0, TAU);
-    ctx.fill();
-  }
-  // Игрок
-  ctx.save();
-  ctx.translate(W/2, H/2);
-  ctx.rotate(p.rotation.y);
-  ctx.fillStyle = '#7cd9ff';
-  ctx.beginPath();
-  ctx.moveTo(0, -10);
-  ctx.lineTo(6, 7);
-  ctx.lineTo(0, 4);
-  ctx.lineTo(-6, 7);
-  ctx.closePath();
-  ctx.fill();
-  ctx.restore();
-}
-
-function showToast(text, kind) {
-  const wrap = $('toasts');
-  if (!wrap) return;
-  const el = document.createElement('div');
-  el.className = 'toast' + (kind ? ' ' + kind : '');
-  el.textContent = text;
-  wrap.appendChild(el);
-  setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 1800);
-}
-
 // ----------------------------------------------------------------------------
-// 12. RESIZE
+// ДИАЛОГИ / МОДАЛЫ
 // ----------------------------------------------------------------------------
-function handleResize() {
-  const w = window.innerWidth, h = window.innerHeight;
-  if (App.menuRenderer && App.menuCamera) {
-    App.menuRenderer.setSize(w, h, false);
-    App.menuCamera.aspect = w / Math.max(h, 1);
-    App.menuCamera.updateProjectionMatrix();
-    if (App.menuComposer) App.menuComposer.setSize(w, h);
-  }
-  if (App.gameRenderer && App.gameCamera) {
-    App.gameRenderer.setSize(w, h, false);
-    App.gameCamera.aspect = w / Math.max(h, 1);
-    App.gameCamera.updateProjectionMatrix();
-    if (App.gameComposer) App.gameComposer.setSize(w, h);
-  }
+function openModal(id) {
+  const m = $(id);
+  if (m) m.classList.add('open');
 }
-window.addEventListener('resize', handleResize, { passive: true });
-window.addEventListener('orientationchange', () => setTimeout(handleResize, 150), { passive: true });
-
-// ----------------------------------------------------------------------------
-// 13. RACE SELECTION UI
-// ----------------------------------------------------------------------------
-function buildRaceUI() {
-  const list = $('raceList');
-  if (!list) return;
-  for (const race of RACES) {
-    const card = document.createElement('div');
-    card.className = 'race-card';
-    card.dataset.raceId = race.id;
-    card.innerHTML = '<div class="rc-name">' + race.name + '</div>' +
-                     '<div class="rc-desc">' + race.desc + '</div>' +
-                     '<div class="rc-tag">' + race.tag + '</div>';
-    card.addEventListener('click', () => selectRace(race.id));
-    list.appendChild(card);
-  }
-  selectRace(RACES[0].id);
+function closeModal(id) {
+  const m = $(id);
+  if (m) m.classList.remove('open');
 }
 
-function selectRace(raceId) {
-  App.currentRace = raceId;
-  const race = RACES.find(r => r.id === raceId);
-  if (!race) return;
-  document.querySelectorAll('.race-card').forEach((el) => {
-    el.classList.toggle('active', el.dataset.raceId === raceId);
-  });
-  const setStat = (id, barId, val) => {
-    const el = $(id); const bar = $(barId);
-    if (el) el.textContent = String(val);
-    if (bar) bar.style.width = (val / 15 * 100) + '%';
-  };
-  setStat('statStr', 'barStr', race.stats.str);
-  setStat('statAgi', 'barAgi', race.stats.agi);
-  setStat('statInt', 'barInt', race.stats.int);
-  setStat('statEth', 'barEth', race.stats.eth);
-
-  // Обновляем модель в меню
-  if (App.menuScene && App.menuCharacter) {
-    App.menuScene.remove(App.menuCharacter);
-    App.menuCharacter.traverse((o) => {
-      if (o.geometry) o.geometry.dispose();
-      if (o.material) {
-        if (Array.isArray(o.material)) o.material.forEach(m => m.dispose());
-        else o.material.dispose();
-      }
-    });
-    const newCh = CharacterBuilder.build(raceId);
-    newCh.position.y = 0.15;
-    newCh.userData.baseScale = 1;
-    App.menuCharacter = newCh;
-    App.menuScene.add(newCh);
-    if (App.menuRimLight) App.menuRimLight.color.setHex(race.color);
-    if (App.menuGrade) {
-      App.menuGrade.uniforms.uTint.value.setHex(race.color).lerp(new THREE.Color(0xffffff), 0.85);
+function openDialogue(npc) {
+  if (!npc.userData.dialog) return;
+  const d = npc.userData.dialog;
+  const p = $('dlgPortrait'); const n = $('dlgName');
+  const t = $('dlgText'); const a = $('dlgActions');
+  if (p) p.textContent = d.emoji;
+  if (n) n.textContent = d.name;
+  if (t) t.textContent = d.text;
+  if (a) {
+    a.innerHTML = '';
+    for (const act of getMerchantActions(d.id)) {
+      const btn = document.createElement('button');
+      btn.className = 'dlg-action';
+      btn.textContent = act.label;
+      btn.addEventListener('click', () => { act.run(); closeModal('modalDialogue'); });
+      a.appendChild(btn);
     }
   }
+  openModal('modalDialogue');
+}
+
+function getMerchantActions(type) {
+  const actions = [];
+  if (type === 'potion') {
+    actions.push({ label: 'Зелье HP (30 зол)', run: () => {
+      if (App.hud.gold < 30) { showToast('НЕТ ЗОЛОТА'); return; }
+      App.hud.gold -= 30; App.hud.hp = Math.min(App.hud.maxHp, App.hud.hp + 50);
+      showToast('+50 HP');
+    }});
+    actions.push({ label: 'Зелье MP (30 зол)', run: () => {
+      if (App.hud.gold < 30) { showToast('НЕТ ЗОЛОТА'); return; }
+      App.hud.gold -= 30; App.hud.mana = Math.min(App.hud.maxMana, App.hud.mana + 40);
+      showToast('+40 MP');
+    }});
+  } else if (type === 'weapon') {
+    actions.push({ label: 'Заточить (80 зол, +10 HP)', run: () => {
+      if (App.hud.gold < 80) { showToast('НЕТ ЗОЛОТА'); return; }
+      App.hud.gold -= 80; App.hud.maxHp += 10; App.hud.hp = App.hud.maxHp;
+      showToast('+10 МАКС. HP', 'magic');
+    }});
+  } else if (type === 'armor') {
+    actions.push({ label: 'Починить (100 зол, +20 HP)', run: () => {
+      if (App.hud.gold < 100) { showToast('НЕТ ЗОЛОТА'); return; }
+      App.hud.gold -= 100; App.hud.maxHp += 20; App.hud.hp = App.hud.maxHp;
+      showToast('+20 МАКС. HP', 'magic');
+    }});
+  } else if (type === 'runes') {
+    actions.push({ label: 'Купить руны (40 зол, +3)', run: () => {
+      if (App.hud.gold < 40) { showToast('НЕТ ЗОЛОТА'); return; }
+      App.hud.gold -= 40; Craft.inventory.runes += 3; Craft.save();
+      showToast('+3 РУНЫ');
+    }});
+  }
+  actions.push({ label: 'Уйти', run: () => {} });
+  return actions;
 }
 
 // ----------------------------------------------------------------------------
-// 14. GAME INPUT
+// ВВОД
 // ----------------------------------------------------------------------------
-function initGameInput() {
+function initInput() {
   const canvas = $('gameCanvas');
   if (!canvas) return;
 
@@ -2514,6 +3004,7 @@ function initGameInput() {
   const btnAttack = $('btnAttack');
   const btnCast = $('btnCast');
   const btnUlt = $('btnUlt');
+  const btnCraft = $('btnCraft');
 
   if (btnAttack) {
     let holdTimer = null;
@@ -2526,27 +3017,29 @@ function initGameInput() {
     const clear = () => { if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; } };
     btnAttack.addEventListener('pointerup', clear, { passive: false });
     btnAttack.addEventListener('pointercancel', clear, { passive: false });
-    btnAttack.addEventListener('pointerleave', clear, { passive: false });
   }
   if (btnCast) btnCast.addEventListener('pointerdown', (e) => { e.preventDefault(); playerCast(); }, { passive: false });
-  if (btnUlt)  btnUlt.addEventListener('pointerdown',  (e) => { e.preventDefault(); playerUlt();  }, { passive: false });
+  if (btnUlt) btnUlt.addEventListener('pointerdown', (e) => { e.preventDefault(); playerUlt(); }, { passive: false });
+  if (btnCraft) btnCraft.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    Craft.renderUI();
+    openModal('modalCraft');
+  }, { passive: false });
 
-  // Джойстик через pointer events на canvas
+  // Джойстик
   const state = { active: false, pointerId: null, baseX: 0, baseY: 0, moved: false, startX: 0, startY: 0 };
-  const onDown = (e) => {
+  canvas.addEventListener('pointerdown', (e) => {
     if (state.active) return;
     if (e.clientX > window.innerWidth * 0.55) return;
     state.active = true;
     state.pointerId = e.pointerId;
-    state.baseX = e.clientX;
-    state.baseY = e.clientY;
-    state.startX = e.clientX;
-    state.startY = e.clientY;
+    state.baseX = e.clientX; state.baseY = e.clientY;
+    state.startX = e.clientX; state.startY = e.clientY;
     state.moved = false;
-    try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+    try { canvas.setPointerCapture(e.pointerId); } catch(err) {}
     e.preventDefault();
-  };
-  const onMove = (e) => {
+  }, { passive: false });
+  canvas.addEventListener('pointermove', (e) => {
     if (!state.active || state.pointerId !== e.pointerId) return;
     const dx = e.clientX - state.baseX;
     const dy = e.clientY - state.baseY;
@@ -2554,30 +3047,24 @@ function initGameInput() {
     const maxR = 80;
     const d = Math.hypot(dx, dy);
     let nx = dx, ny = dy;
-    if (d > maxR) { nx = (dx / d) * maxR; ny = (dy / d) * maxR; }
+    if (d > maxR) { nx = (dx/d)*maxR; ny = (dy/d)*maxR; }
     const mag = Math.hypot(nx, ny) / maxR;
-    const dead = 0.15;
-    if (mag < dead) {
-      App.playerInput.moveX = 0;
-      App.playerInput.moveY = 0;
+    if (mag < 0.15) {
+      App.playerInput.moveX = 0; App.playerInput.moveY = 0;
     } else {
       App.playerInput.moveX = nx / maxR;
       App.playerInput.moveY = ny / maxR;
     }
     e.preventDefault();
-  };
+  }, { passive: false });
   const onUp = (e) => {
     if (state.pointerId !== e.pointerId) return;
-    state.active = false;
-    state.pointerId = null;
-    App.playerInput.moveX = 0;
-    App.playerInput.moveY = 0;
-    try { canvas.releasePointerCapture(e.pointerId); } catch (err) {}
+    state.active = false; state.pointerId = null;
+    App.playerInput.moveX = 0; App.playerInput.moveY = 0;
+    try { canvas.releasePointerCapture(e.pointerId); } catch(err) {}
     if (!state.moved) tryInteractNPC(e.clientX, e.clientY);
     e.preventDefault();
   };
-  canvas.addEventListener('pointerdown', onDown, { passive: false });
-  canvas.addEventListener('pointermove', onMove, { passive: false });
   canvas.addEventListener('pointerup', onUp, { passive: false });
   canvas.addEventListener('pointercancel', onUp, { passive: false });
   canvas.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -2600,21 +3087,57 @@ function initGameInput() {
     if (k === 'a' || k === 'arrowleft') App.playerInput.moveX = 0;
     if (k === 'd' || k === 'arrowright') App.playerInput.moveX = 0;
   });
+
+  // Кнопки-модалы
+  document.querySelectorAll('[data-close]').forEach(el => {
+    el.addEventListener('click', () => closeModal(el.dataset.close));
+  });
+  document.querySelectorAll('.modal').forEach(m => {
+    m.addEventListener('click', (e) => {
+      if (e.target === m) m.classList.remove('open');
+    });
+  });
+
+  // Кнопка "Наследие"
+  const btnLegacy = $('btnLegacy');
+  if (btnLegacy) btnLegacy.addEventListener('click', () => {
+    Legacy.render($('legacyCanvas'));
+    const lp = $('legacyPoints'); if (lp) lp.textContent = String(Legacy.data.points);
+    const ll = $('legacyLevel'); if (ll) ll.textContent = String(Legacy.data.level);
+    openModal('modalLegacy');
+  });
+  const legacyCanvas = $('legacyCanvas');
+  if (legacyCanvas) {
+    legacyCanvas.addEventListener('pointerdown', (e) => {
+      Legacy.handleTap(legacyCanvas, e.clientX, e.clientY);
+      const lp = $('legacyPoints'); if (lp) lp.textContent = String(Legacy.data.points);
+    });
+  }
+
+  // Кнопка "Фракция"
+  const btnFaction = $('btnFaction');
+  if (btnFaction) btnFaction.addEventListener('click', () => {
+    Factions.buildUI();
+    openModal('modalFaction');
+  });
+
+  // Настройки
+  const btnSettings = $('btnSettings');
+  if (btnSettings) btnSettings.addEventListener('click', () => showToast('НАСТРОЙКИ: СКОРО'));
 }
 
-// Диалог с NPC
 function tryInteractNPC(clientX, clientY) {
   if (!isInCity()) return;
-  const gs = App;
-  if (!gs.player || !gs.gameCamera || !gs.gameRenderer) return;
-  const canvas = gs.gameRenderer.domElement;
+  const p = App.player;
+  if (!p || !App.gameCamera || !App.gameRenderer) return;
+  const canvas = App.gameRenderer.domElement;
   const rect = canvas.getBoundingClientRect();
   const sx = clientX - rect.left;
   const sy = clientY - rect.top;
-  for (const npc of gs.npcs) {
+  for (const npc of App.npcs) {
     const pos = npc.position.clone();
     pos.y += 1.0;
-    pos.project(gs.gameCamera);
+    pos.project(App.gameCamera);
     const nx = (pos.x * 0.5 + 0.5) * rect.width;
     const ny = (-pos.y * 0.5 + 0.5) * rect.height;
     if (Math.hypot(nx - sx, ny - sy) < 90) {
@@ -2624,125 +3147,68 @@ function tryInteractNPC(clientX, clientY) {
   }
 }
 
-function openDialogue(npc) {
-  const dlg = $('dialogue');
-  if (!dlg || !npc.userData.dialog) return;
-  const d = npc.userData.dialog;
-  const p = $('dlgPortrait');
-  const n = $('dlgName');
-  const t = $('dlgText');
-  const a = $('dlgActions');
-  if (p) p.textContent = d.emoji;
-  if (n) n.textContent = d.name;
-  if (t) t.textContent = d.text;
-  if (a) {
-    a.innerHTML = '';
-    const actions = getMerchantActions(d.id);
-    for (const act of actions) {
-      const btn = document.createElement('button');
-      btn.className = 'dlg-action';
-      btn.textContent = act.label;
-      btn.addEventListener('click', () => { act.run(); dlg.classList.remove('open'); });
-      a.appendChild(btn);
-    }
+// ----------------------------------------------------------------------------
+// UI: ВЫБОР РАСЫ
+// ----------------------------------------------------------------------------
+function buildRaceUI() {
+  const list = $('raceList');
+  if (!list) return;
+  list.innerHTML = '';
+  for (const race of RACES) {
+    const card = document.createElement('div');
+    card.className = 'race-card';
+    card.dataset.raceId = race.id;
+    card.innerHTML = '<div class="rc-name">' + race.name + '</div>' +
+                     '<div class="rc-desc">' + race.desc + '</div>' +
+                     '<div class="rc-tag">' + race.tag + '</div>';
+    card.addEventListener('click', () => selectRace(race.id));
+    list.appendChild(card);
   }
-  dlg.classList.add('open');
-}
-
-function getMerchantActions(type) {
-  const actions = [];
-  if (type === 'potion') {
-    actions.push({ label: 'Купить зелье HP (30 золотых)', run: () => {
-      if (App.hud.gold < 30) { showToast('НЕ ХВАТАЕТ ЗОЛОТА'); return; }
-      App.hud.gold -= 30;
-      App.hud.hp = Math.min(App.hud.maxHp, App.hud.hp + 50);
-      showToast('+50 HP');
-    }});
-    actions.push({ label: 'Купить зелье MP (30 золотых)', run: () => {
-      if (App.hud.gold < 30) { showToast('НЕ ХВАТАЕТ ЗОЛОТА'); return; }
-      App.hud.gold -= 30;
-      App.hud.mana = Math.min(App.hud.maxMana, App.hud.mana + 40);
-      showToast('+40 MP');
-    }});
-  } else if (type === 'weapon') {
-    actions.push({ label: 'Заточить клинок (80 золотых)', run: () => {
-      if (App.hud.gold < 80) { showToast('НЕ ХВАТАЕТ ЗОЛОТА'); return; }
-      App.hud.gold -= 80;
-      App.hud.maxHp += 10;
-      App.hud.hp = App.hud.maxHp;
-      showToast('+10 МАКС. HP', 'magic');
-    }});
-  } else if (type === 'armor') {
-    actions.push({ label: 'Починить броню (100 золотых)', run: () => {
-      if (App.hud.gold < 100) { showToast('НЕ ХВАТАЕТ ЗОЛОТА'); return; }
-      App.hud.gold -= 100;
-      App.hud.maxHp += 20;
-      App.hud.hp = App.hud.maxHp;
-      showToast('+20 МАКС. HP', 'magic');
-    }});
-  } else if (type === 'runes') {
-    actions.push({ label: 'Купить руны (40 золотых ×3)', run: () => {
-      if (App.hud.gold < 40) { showToast('НЕ ХВАТАЕТ ЗОЛОТА'); return; }
-      App.hud.gold -= 40;
-      showToast('+3 РУНЫ');
-    }});
-  }
-  actions.push({ label: 'Уйти', run: () => {} });
-  return actions;
+  selectRace(App.currentRace);
 }
 
 // ----------------------------------------------------------------------------
-// 15. FPS GUARD — применяет снижение качества
+// РЕСАЙЗ
 // ----------------------------------------------------------------------------
-function applyQualityLevel(level) {
-  App.qualityLevel = level;
-  if (!App.gameRenderer) return;
-  if (level >= 3) {
-    App.gameRenderer.shadowMap.enabled = true;
-    App.gameRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    if (App.gameBloom) App.gameBloom.enabled = true;
-    if (App.gameFog) App.gameFog.density = 0.014;
-    if (App.gameCamera) App.gameCamera.far = 500;
-  } else if (level === 2) {
-    App.gameRenderer.shadowMap.enabled = true;
-    App.gameRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
-    if (App.gameBloom) App.gameBloom.enabled = true;
-    if (App.gameFog) App.gameFog.density = 0.018;
-  } else if (level === 1) {
-    App.gameRenderer.shadowMap.enabled = false;
-    App.gameRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
-    if (App.gameBloom) App.gameBloom.enabled = false;
-    if (App.gameFog) App.gameFog.density = 0.024;
-  } else {
-    App.gameRenderer.shadowMap.enabled = false;
-    App.gameRenderer.setPixelRatio(1);
-    if (App.gameBloom) App.gameBloom.enabled = false;
-    if (App.gameFog) App.gameFog.density = 0.032;
+function handleResize() {
+  const w = window.innerWidth, h = window.innerHeight;
+  if (App.menuRenderer && App.menuCamera) {
+    App.menuRenderer.setSize(w, h, false);
+    App.menuCamera.aspect = w / Math.max(h, 1);
+    App.menuCamera.updateProjectionMatrix();
+    if (App.menuComposer) App.menuComposer.setSize(w, h);
   }
-  // Уведомляем игрока
-  const names = ['LOW', 'MEDIUM', 'HIGH', 'ULTRA'];
-  showToast('КАЧЕСТВО: ' + names[level], 'magic');
+  if (App.gameRenderer && App.gameCamera) {
+    App.gameRenderer.setSize(w, h, false);
+    App.gameCamera.aspect = w / Math.max(h, 1);
+    App.gameCamera.updateProjectionMatrix();
+    if (App.gameComposer) App.gameComposer.setSize(w, h);
+  }
 }
+window.addEventListener('resize', handleResize, { passive: true });
+window.addEventListener('orientationchange', () => setTimeout(handleResize, 150), { passive: true });
 
 // ----------------------------------------------------------------------------
-// 16. СЦЕНАРИИ ПЕРЕХОДА
+// ПЕРЕХОД ИЗ МЕНЮ В ИГРУ
 // ----------------------------------------------------------------------------
 async function enterGame() {
-  // Fade out menu
-  await Fader.fadeOut(700);
-  if (App.menuScene) stopMenuLoop();
-  const menuEl = $('menu');
-  const gameEl = $('game');
-  const vigM = $('vigMenu');
-  const vigG = $('vigGame');
-  const menuCanvas = $('menuCanvas');
-  const gameCanvas = $('gameCanvas');
-  if (menuEl) menuEl.classList.add('hide');
-  if (vigM) vigM.style.display = 'none';
-  if (menuCanvas) menuCanvas.style.display = 'none';
-  if (gameEl) gameEl.classList.add('active');
-  if (vigG) vigG.style.display = 'block';
-  if (gameCanvas) gameCanvas.style.display = 'block';
+  const btnPlay = $('btnPlay');
+  const btnLabel = $('btnPlayLabel');
+  if (btnPlay) btnPlay.classList.add('loading');
+  if (btnLabel) btnLabel.textContent = 'СОЗДАНИЕ РАЗЛОМА…';
+
+  await Fader.out(700);
+
+  // Скрываем меню
+  stopMenuLoop();
+  const menuEl = $('menu'); if (menuEl) menuEl.style.display = 'none';
+  const vigM = $('vigMenu'); if (vigM) vigM.style.display = 'none';
+  const menuCanvas = $('menuCanvas'); if (menuCanvas) menuCanvas.style.display = 'none';
+
+  // Показываем игру
+  const gameEl = $('game'); if (gameEl) gameEl.classList.add('active');
+  const vigG = $('vigGame'); if (vigG) vigG.style.display = 'block';
+  const gameCanvas = $('gameCanvas'); if (gameCanvas) gameCanvas.style.display = 'block';
 
   // Пересоздаём игрока с выбранной расой
   if (App.gameScene && App.player) {
@@ -2758,147 +3224,87 @@ async function enterGame() {
   }
 
   handleResize();
-
-  // Fade in
   await new Promise(r => setTimeout(r, 80));
-  await Fader.fadeIn(700);
+  await Fader.in(700);
 
-  // Старт игрового цикла
-  if (App.gameClock) App.gameClock.getDelta(); // сброс
+  if (App.gameClock) App.gameClock.getDelta();
   startGameLoop();
-
-  // FPS Guard — настраиваем
-  App.fpsGuard = new FPSGuard(applyQualityLevel);
-
-  setTimeout(() => showToast('ДОБРО ПОЖАЛОВАТЬ В AETHELGARD', 'magic'), 600);
+  setTimeout(() => showToast('ДОБРО ПОЖАЛОВАТЬ В AETHELGARD', 'magic'), 500);
 }
 
 // ----------------------------------------------------------------------------
-// 17. BOOTSTRAP
+// BOOT
 // ----------------------------------------------------------------------------
 async function boot() {
-  Loader.init();
-  Fader.init();
+  try {
+    // Инициализация систем-ретеншен
+    Legacy.init();
+    Craft.init();
+    Factions.init();
+    initInput();
 
-  const steps = [
-    { pct: 3,  name: 'Проверка WebGL...',       fn: stepCheckWebGL,      critical: true  },
-    { pct: 12, name: 'Загрузка Three.js...',    fn: stepLoadThree,       critical: true  },
-    { pct: 28, name: 'Инициализация рендерера...', fn: stepInitRenderers, critical: true  },
-    { pct: 48, name: 'Генерация меню...',       fn: stepBuildMenuScene,  critical: false },
-    { pct: 72, name: 'Генерация мира...',       fn: stepBuildGameScene,  critical: false },
-    { pct: 92, name: 'Разогрев шейдеров...',    fn: async () => {
-      // Прогреваем shaders компиляцией простого кадра
-      if (App.menuRenderer && App.menuScene && App.menuCamera) {
-        App.menuRenderer.compile(App.menuScene, App.menuCamera);
-      }
-      if (App.gameRenderer && App.gameScene && App.gameCamera) {
-        App.gameRenderer.compile(App.gameScene, App.gameCamera);
-      }
-      await yieldFrames(3);
-    }, critical: false },
-    { pct: 100, name: 'Готово!', fn: async () => { await yieldFrames(2); }, critical: false },
-  ];
-
-  for (let i = 0; i < steps.length; i++) {
-    const step = steps[i];
-    Loader.set(step.pct, step.name);
-    await yieldFrames(2);
-    try {
-      await withTimeout(step.fn(), step.critical ? 15000 : 12000, step.name);
-      console.log('[Boot] OK:', step.name);
-    } catch (e) {
-      console.warn('[Boot] Step failed:', step.name, e);
-      if (step.critical) {
-        Loader.error('Критическая ошибка: ' + step.name + ' — ' + (e.message || ''));
-        return;
-      }
-      // Non-critical: продолжаем
+    Loader.set(5, 'Проверка WebGL…');
+    await new Promise(r => setTimeout(r, 100));
+    const testCanvas = document.createElement('canvas');
+    if (!testCanvas.getContext('webgl2') && !testCanvas.getContext('webgl')) {
+      throw new Error('WebGL не поддерживается');
     }
-    await yieldFrames(1);
-  }
 
-  // Строим UI рас
-  try {
+    Loader.set(15, 'Инициализация Three.js…');
+    await new Promise(r => setTimeout(r, 100));
+
+    Loader.set(35, 'Загрузка меню…');
+    await buildMenuScene();
+    await new Promise(r => setTimeout(r, 100));
+
+    Loader.set(65, 'Генерация мира…');
+    await buildGameScene();
+    await new Promise(r => setTimeout(r, 100));
+
+    Loader.set(85, 'Разогрев шейдеров…');
+    if (App.menuRenderer && App.menuScene && App.menuCamera) {
+      App.menuRenderer.compile(App.menuScene, App.menuCamera);
+    }
+    if (App.gameRenderer && App.gameScene && App.gameCamera) {
+      App.gameRenderer.compile(App.gameScene, App.gameCamera);
+    }
+    await new Promise(r => setTimeout(r, 150));
+
+    Loader.set(100, 'Готово!');
+
+    // Строим UI выбора рас
     buildRaceUI();
-  } catch (e) {
-    console.warn('[Boot] Race UI failed', e);
-  }
 
-  // Регистрируем input
-  try {
-    initGameInput();
-  } catch (e) {
-    console.warn('[Boot] Input init failed', e);
-  }
-
-  // Настраиваем кнопку Старт
-  const startBtn = $('loaderStart');
-  if (startBtn) {
-    startBtn.classList.add('ready');
-    startBtn.addEventListener('click', async () => {
-      try {
+    // Настраиваем кнопку "ПРОДОЛЖИТЬ" на лоадере
+    Loader.ready();
+    const startBtn = $('loaderStart');
+    if (startBtn) {
+      startBtn.addEventListener('click', async () => {
         Loader.hide();
-        await new Promise(r => setTimeout(r, 500));
-        // Показываем меню
+        await new Promise(r => setTimeout(r, 400));
         const menuEl = $('menu');
         if (menuEl) menuEl.style.display = 'block';
+        handleResize();
+        // Сброс таймера клока чтобы первый кадр был корректным
+        if (App.menuClock) App.menuClock.getDelta();
         startMenuLoop();
-        // Слушаем клики по расам → уже привязаны
-        // Готовим кнопку входа (btn-enter) — она должна быть в DOM
-        const btnEnter = document.querySelector('.btn-enter');
-        if (btnEnter) {
-          btnEnter.addEventListener('click', async () => {
-            try {
-              await enterGame();
-            } catch (e) {
-              console.error('[EnterGame]', e);
-            }
-          });
-        }
-      } catch (e) {
-        console.error('[StartBtn]', e);
-      }
-    });
-    console.log('[Boot] Start button ready');
-  } else {
-    // Если кнопки нет — сразу в меню
-    Loader.hide();
-    const menuEl = $('menu');
-    if (menuEl) menuEl.style.display = 'block';
-    startMenuLoop();
-  }
+      });
+    }
 
-  console.log('[Boot] Complete');
+    // КНОПКА ИГРАТЬ
+    const btnPlay = $('btnPlay');
+    if (btnPlay) {
+      btnPlay.addEventListener('click', () => { enterGame().catch(e => console.error('[Play]', e)); });
+    }
+
+    console.log('[Boot] Complete');
+  } catch (e) {
+    console.error('[Boot] Fatal:', e);
+    Loader.error('Ошибка: ' + (e.message || 'неизвестно'));
+  }
 }
 
-// ----------------------------------------------------------------------------
-// 18. LIFECYCLE
-// ----------------------------------------------------------------------------
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) {
-    stopMenuLoop();
-    stopGameLoop();
-  } else {
-    // Возобновляем только активную сцену
-    const gameEl = $('game');
-    const menuEl = $('menu');
-    if (gameEl && gameEl.classList.contains('active')) {
-      if (App.gameClock) App.gameClock.getDelta();
-      startGameLoop();
-    } else if (menuEl && !menuEl.classList.contains('hide') && menuEl.style.display !== 'none') {
-      if (App.menuClock) App.menuClock.getDelta();
-      startMenuLoop();
-    }
-  }
-}, { passive: true });
-
-// ----------------------------------------------------------------------------
-// 19. START — обёрнуто в try/catch
-// ----------------------------------------------------------------------------
-boot().catch((e) => {
-  console.error('[Boot fatal]', e);
-  Loader.error('Ошибка: ' + (e.message || 'неизвестно'));
-});
+boot();
 </script>
 </body>
 </html>
