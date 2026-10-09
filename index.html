@@ -1821,6 +1821,9 @@ function buildGameScene() {
     scene.add(rock);
   }
 
+  // Procedural wind-swaying grass field + responsive footprint trails
+  buildWildGrass(scene);
+
   // NPCs at stalls
   buildNPCs(scene);
 
@@ -1855,6 +1858,106 @@ function buildGameScene() {
   App.gameClock = new THREE.Clock();
   const mm = $('minimap');
   App.minimapCtx = mm ? mm.getContext('2d') : null;
+}
+
+
+// ---------------------------------------------------------------------------
+// WILD GRASS + FOOTPRINT TRACKING
+// Lightweight instanced grass with a shader-driven wind sway. Footprints are
+// pooled/faded ground decals created only while the player is moving outdoors.
+// ---------------------------------------------------------------------------
+function buildWildGrass(scene) {
+  const blade = new THREE.BufferGeometry();
+  blade.setAttribute('position', new THREE.Float32BufferAttribute([
+    -0.075, 0, 0,  0.075, 0, 0,  0.015, 0.88, 0
+  ], 3));
+  blade.setAttribute('uv', new THREE.Float32BufferAttribute([
+    0, 0, 1, 0, 0.58, 1
+  ], 2));
+  blade.computeVertexNormals();
+
+  const mat = new THREE.MeshStandardMaterial({
+    color: 0x9dbd65, roughness: 0.95, side: THREE.DoubleSide,
+    vertexColors: true
+  });
+  mat.onBeforeCompile = shader => {
+    shader.uniforms.uGrassTime = { value: 0 };
+    shader.vertexShader = shader.vertexShader.replace(
+      '#include <common>',
+      '#include <common>\nuniform float uGrassTime;'
+    );
+    shader.vertexShader = shader.vertexShader.replace(
+      '#include <begin_vertex>',
+      '#include <begin_vertex>\ntransformed.x += sin(uGrassTime * 1.4 + instanceMatrix[3].x * 0.17 + instanceMatrix[3].z * 0.13) * uv.y * 0.16;'
+    );
+    mat.userData.shader = shader;
+  };
+  const count = 3200;
+  const grass = new THREE.InstancedMesh(blade, mat, count);
+  grass.name = 'WindGrass';
+  grass.frustumCulled = false;
+  const dummy = new THREE.Object3D();
+  const color = new THREE.Color();
+  for (let i = 0; i < count; i++) {
+    const a = rand(0, TAU), r = Math.sqrt(rand(22*22, 88*88));
+    const x = Math.cos(a) * r, z = Math.sin(a) * r;
+    dummy.position.set(x, 0.03, z);
+    dummy.rotation.set(0, rand(0, TAU), rand(-0.14, 0.14));
+    const scale = rand(0.55, 1.45);
+    dummy.scale.set(scale, scale, scale);
+    dummy.updateMatrix();
+    grass.setMatrixAt(i, dummy.matrix);
+    color.setHSL(rand(0.20, 0.29), rand(0.28, 0.56), rand(0.27, 0.47));
+    grass.setColorAt(i, color);
+  }
+  grass.instanceMatrix.needsUpdate = true;
+  if (grass.instanceColor) grass.instanceColor.needsUpdate = true;
+  scene.add(grass);
+  App.wildGrass = grass;
+  App.footprints = [];
+  App.footprintClock = 0;
+}
+
+function updateGrassAndFootprints(dt) {
+  if (App.wildGrass?.material?.userData?.shader) {
+    App.wildGrass.material.userData.shader.uniforms.uGrassTime.value = App.time || 0;
+  }
+  const p = App.player;
+  if (!p || !App.gameScene) return;
+  const moving = Math.hypot(App.playerInput.moveX || 0, App.playerInput.moveY || 0) > 0.22;
+  App.footprintClock = (App.footprintClock || 0) + dt;
+  if (moving && dist(p.position.x, p.position.z, 0, 0) > 21 && App.footprintClock > 0.28) {
+    App.footprintClock = 0;
+    const markGeo = new THREE.CircleGeometry(0.105, 7);
+    const markMat = new THREE.MeshBasicMaterial({
+      color: 0x26351a, transparent: true, opacity: 0.28,
+      depthWrite: false, side: THREE.DoubleSide
+    });
+    const mark = new THREE.Mesh(markGeo, markMat);
+    mark.rotation.x = -Math.PI / 2;
+    const side = Math.random() < 0.5 ? -0.13 : 0.13;
+    mark.position.set(p.position.x + Math.cos(p.rotation.y) * side, 0.045,
+      p.position.z - Math.sin(p.rotation.y) * side);
+    mark.userData.life = 7.5;
+    mark.userData.maxLife = 7.5;
+    App.gameScene.add(mark);
+    App.footprints.push(mark);
+    if (App.footprints.length > 90) {
+      const old = App.footprints.shift();
+      App.gameScene.remove(old);
+      old.geometry.dispose(); old.material.dispose();
+    }
+  }
+  for (let i = App.footprints.length - 1; i >= 0; i--) {
+    const mark = App.footprints[i];
+    mark.userData.life -= dt;
+    mark.material.opacity = 0.28 * clamp(mark.userData.life / mark.userData.maxLife, 0, 1);
+    if (mark.userData.life <= 0) {
+      App.gameScene.remove(mark);
+      mark.geometry.dispose(); mark.material.dispose();
+      App.footprints.splice(i, 1);
+    }
+  }
 }
 
 function buildCity(scene) {
@@ -2223,6 +2326,7 @@ function startGameLoop() {
       updateDayNight(dt);
       updateWeather(dt);
       updatePlayer(dt);
+      updateGrassAndFootprints(dt);
       updateEnemies(dt);
       updateNPCs(dt);
       updateParticles(dt);
