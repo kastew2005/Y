@@ -26,6 +26,7 @@
     background:radial-gradient(ellipse at 50% 50%, rgba(255,40,40,0) 38%, rgba(255,30,30,0.45) 100%);}
   #wet{position:fixed;inset:0;pointer-events:none;z-index:15;opacity:0;transition:opacity .6s;
     background:radial-gradient(ellipse at 50% 70%, rgba(60,110,140,0) 30%, rgba(80,130,160,0.34) 100%);}
+
   #rotate{position:fixed;inset:0;z-index:200;display:none;flex-direction:column;align-items:center;
     justify-content:center;background:radial-gradient(ellipse at 50% 40%, #10161a 0%, #05070a 70%);
     gap:20px;text-align:center;padding:20px;}
@@ -33,20 +34,57 @@
   #rotate svg{width:60px;height:60px;stroke:var(--amber);fill:none;stroke-width:2;animation:rot 2s ease-in-out infinite;}
   @keyframes rot{0%,40%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
   #rotate p{font-size:13px;letter-spacing:4px;color:rgba(200,164,92,0.85);font-weight:600;}
+
+  /* ============ LOADER ============ */
   #loader{position:fixed;inset:0;z-index:150;display:flex;flex-direction:column;align-items:center;
-    justify-content:center;gap:20px;background:radial-gradient(ellipse at 50% 40%, #10161a 0%, #05070a 70%);
-    transition:opacity .8s, visibility .8s;}
-  #loader.gone{opacity:0;visibility:hidden;}
+    justify-content:center;gap:20px;
+    background:radial-gradient(ellipse at 50% 40%, #0f1519 0%, #05070a 70%);
+    transition:opacity .9s, visibility .9s;padding:24px;}
+  #loader.gone{opacity:0;visibility:hidden;pointer-events:none;}
+  #loader .brand{text-align:center;}
   #loader h1{font-size:clamp(22px,6.5vw,42px);font-weight:200;letter-spacing:13px;color:#e8e4dc;
     text-shadow:0 0 40px rgba(200,164,92,0.4);padding-left:13px;}
   #loader .sub{font-size:9px;letter-spacing:6px;color:rgba(200,164,92,0.75);font-weight:600;margin-top:-12px;}
-  #bar{width:min(260px,60vw);height:2px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;}
+  #fireCanvas{width:min(260px,60vw);height:min(180px,32vw);border-radius:14px;
+    background:radial-gradient(ellipse at 50% 75%, rgba(255,140,50,0.10) 0%, rgba(0,0,0,0.6) 80%);
+    border:1px solid rgba(216,162,74,0.18);
+    box-shadow:inset 0 0 40px rgba(255,140,50,0.10), 0 12px 40px rgba(0,0,0,0.7);}
+  #bar{width:min(320px,72vw);height:3px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;}
   #bar i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#8a6a2c,#e2c47e,#fff3d0);
-    transition:width .3s;box-shadow:0 0 12px rgba(226,196,126,.8);}
-  #ltxt{font-size:10px;letter-spacing:3px;color:rgba(255,255,255,.35);font-weight:600;height:12px;}
-  #menu{position:fixed;inset:0;z-index:130;display:flex;flex-direction:column;align-items:center;
-    justify-content:center;gap:22px;background:radial-gradient(ellipse at 50% 40%, rgba(30,20,10,0.45) 0%, rgba(5,7,10,0.97) 70%);
+    transition:width .35s ease;box-shadow:0 0 14px rgba(226,196,126,.9);}
+  #ltxt{font-size:10px;letter-spacing:3px;color:rgba(255,255,255,.42);font-weight:600;
+    height:14px;text-align:center;min-height:14px;}
+  #ltxt .pct{color:var(--amber);}
+  #tip{max-width:min(440px,86vw);text-align:center;min-height:48px;padding:0 12px;}
+  #tip .label{font-size:8.5px;letter-spacing:4px;color:rgba(216,162,74,0.55);font-weight:700;margin-bottom:6px;}
+  #tip .text{font-size:12.5px;color:rgba(255,255,255,0.72);line-height:1.65;font-style:italic;
+    transition:opacity .5s;}
+  #tip .text.fade{opacity:0;}
+  #startBtn{margin-top:6px;padding:14px 42px;border-radius:30px;font-size:12px;font-weight:800;
+    letter-spacing:4px;color:#05070a;cursor:pointer;
+    background:linear-gradient(160deg, #f0d89a 0%, #d8a24a 45%, #8a6a2c 100%);
+    border:1px solid rgba(255,240,200,0.55);
+    box-shadow:0 12px 40px rgba(216,162,74,0.35), inset 0 1px 0 rgba(255,255,255,0.5);
+    opacity:0;transform:translateY(12px);pointer-events:none;
+    transition:opacity .6s ease, transform .6s cubic-bezier(.2,.9,.3,1.4), box-shadow .3s;}
+  #startBtn.on{opacity:1;transform:none;pointer-events:auto;}
+  #startBtn:active{transform:scale(.95);box-shadow:0 6px 20px rgba(216,162,74,0.5);}
+  #errBox{display:none;max-width:min(440px,86vw);padding:14px 18px;border-radius:12px;
+    background:rgba(60,10,10,0.6);border:1px solid rgba(255,120,120,0.3);
+    font-size:11px;color:#ffd0d0;line-height:1.7;text-align:center;}
+  #errBox.on{display:block;}
+  #retryBtn{display:none;margin-top:10px;padding:10px 26px;border-radius:22px;font-size:11px;
+    font-weight:800;letter-spacing:2px;color:#e8e4dc;cursor:pointer;
+    background:linear-gradient(160deg, rgba(60,50,36,0.7), rgba(18,16,12,0.9));
+    border:1px solid rgba(216,162,74,0.4);}
+  #retryBtn.on{display:inline-block;}
+
+  /* ============ MENU ============ */
+  #menu{position:fixed;inset:0;z-index:130;display:none;flex-direction:column;align-items:center;
+    justify-content:center;gap:22px;
+    background:radial-gradient(ellipse at 50% 40%, rgba(30,20,10,0.45) 0%, rgba(5,7,10,0.97) 70%);
     transition:opacity .8s, visibility .8s;}
+  #menu.on{display:flex;animation:fadeIn .6s ease;}
   #menu.gone{opacity:0;visibility:hidden;pointer-events:none;}
   #menu::before{content:'';position:absolute;inset:0;opacity:.30;pointer-events:none;
     background:repeating-linear-gradient(90deg, rgba(255,255,255,0.015) 0 2px, transparent 2px 5px),
@@ -75,10 +113,11 @@
     border-color:rgba(255,255,255,0.12);}
   #menu .foot{position:absolute;bottom:18px;font-size:9px;letter-spacing:3px;
     color:rgba(255,255,255,0.22);font-weight:600;}
+
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
   .modal{position:fixed;inset:0;z-index:140;display:none;align-items:center;justify-content:center;
     background:rgba(5,7,10,0.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);}
   .modal.on{display:flex;animation:fadeIn .35s ease;}
-  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
   .spanel{width:min(520px,94vw);max-height:92vh;overflow-y:auto;padding:22px 24px;border-radius:16px;
     background:linear-gradient(160deg, rgba(30,26,20,0.9), rgba(10,10,12,0.96));
     border:1px solid rgba(216,162,74,0.25);
@@ -98,7 +137,7 @@
     align-items:center;justify-content:center;cursor:pointer;transition:all .15s;padding:3px;}
   .slot:hover{border-color:rgba(216,162,74,0.5);}
   .slot.selected{border-color:var(--amber);box-shadow:0 0 14px rgba(216,162,74,0.4);}
-  .slot .ic{width:24px;height:24px;opacity:0.9;}
+  .slot .ic{width:24px;height:24px;opacity:0.9;border-radius:4px;}
   .slot .cnt{position:absolute;right:3px;bottom:2px;font-size:10px;font-weight:800;
     color:#f0e8da;background:rgba(0,0,0,0.65);padding:1px 4px;border-radius:4px;font-variant-numeric:tabular-nums;}
   .slot .spoil{position:absolute;left:3px;top:2px;width:6px;height:6px;border-radius:50%;background:#e05030;}
@@ -110,7 +149,7 @@
     border:1px solid rgba(255,255,255,0.08);cursor:pointer;transition:all .15s;}
   .recipe:hover{border-color:rgba(216,162,74,0.5);}
   .recipe.can{border-color:rgba(120,200,80,0.4);}
-  .recipe .ic{width:28px;height:28px;flex:0 0 28px;}
+  .recipe .ic{width:28px;height:28px;flex:0 0 28px;border-radius:4px;}
   .recipe .name{flex:1;font-size:12px;font-weight:700;letter-spacing:1.4px;color:#f0e8da;}
   .recipe .reqs{font-size:10px;color:rgba(255,255,255,0.55);letter-spacing:0.8px;text-align:right;}
   .recipe .reqs .miss{color:#ff9080;}
@@ -132,6 +171,7 @@
     background:linear-gradient(160deg, rgba(216,162,74,0.30), rgba(60,40,18,0.9));}
   .row-end{display:flex;gap:8px;margin-top:18px;}
   .row-end .mbtn{flex:1;padding:11px 20px;font-size:11px;}
+
   #hud{position:fixed;inset:0;pointer-events:none;z-index:20;opacity:0;transition:opacity .6s;}
   #hud.on{opacity:1;}
   #stats{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);left:calc(env(safe-area-inset-left,0px) + 14px);
@@ -247,7 +287,7 @@
   #cook-panel.on{display:flex;}
   #cook-panel .cslot{width:46px;height:46px;border-radius:8px;background:rgba(0,0,0,0.5);
     border:1px solid rgba(255,255,255,0.15);position:relative;display:flex;align-items:center;
-    justify-content:center;cursor:pointer;font-size:9px;color:rgba(255,255,255,0.5);text-align:center;padding:2px;}
+    justify-content:center;cursor:pointer;font-size:14px;color:rgba(255,255,255,0.5);text-align:center;padding:2px;}
   #cook-panel .cslot .prog{position:absolute;left:2px;right:2px;bottom:2px;height:3px;border-radius:2px;
     background:rgba(216,162,74,0.3);overflow:hidden;}
   #cook-panel .cslot .prog i{display:block;height:100%;width:0%;background:#d8a24a;transition:width .2s;}
@@ -257,13 +297,27 @@
 <div id="rotate"><svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="3"/><path d="M9 18h6"/></svg><p>ПОВЕРНИТЕ УСТРОЙСТВО</p></div>
 <div id="grade"></div><div id="vignette"></div><div id="frost"></div><div id="blood"></div><div id="flash"></div><div id="wet"></div>
 
+<div id="loader">
+  <div class="brand"><h1>WILDERNESS</h1><div class="sub">HARDCORE SURVIVAL</div></div>
+  <canvas id="fireCanvas" width="520" height="360"></canvas>
+  <div id="bar"><i></i></div>
+  <div id="ltxt">ЗАГРУЗКА...</div>
+  <div id="tip">
+    <div class="label">СОВЕТ ВЫЖИВАЛЬЩИКА</div>
+    <div class="text" id="tipText">Ночью температура падает — держитесь ближе к огню.</div>
+  </div>
+  <div id="errBox"></div>
+  <button id="startBtn">НАЧАТЬ ВЫЖИВАНИЕ</button>
+  <button id="retryBtn">ПОПРОБОВАТЬ СНОВА</button>
+</div>
+
 <div id="menu">
   <div class="brand"><h1>WILDERNESS</h1><div class="sub">HARDCORE SURVIVAL</div><div class="line"></div></div>
   <div class="btns">
     <div class="mbtn primary" id="btn-play">НАЧАТЬ ВЫЖИВАНИЕ</div>
     <div class="mbtn" id="btn-settings">НАСТРОЙКИ</div>
   </div>
-  <div class="foot">v3.0 · ОСТРОВ · ФАУНА · КРАФТ · THREE.JS</div>
+  <div class="foot">v3.1 · ОСТРОВ · ФАУНА · КРАФТ</div>
 </div>
 
 <div class="modal" id="settings">
@@ -282,10 +336,7 @@
 <div class="modal" id="inventory">
   <div class="spanel">
     <h3>ИНВЕНТАРЬ</h3>
-    <div class="tabs">
-      <div class="on" data-tab="items">ПРЕДМЕТЫ</div>
-      <div data-tab="craft">КРАФТ</div>
-    </div>
+    <div class="tabs"><div class="on" data-tab="items">ПРЕДМЕТЫ</div><div data-tab="craft">КРАФТ</div></div>
     <div id="tab-items">
       <div class="inv-grid" id="inv-grid"></div>
       <div class="weight-row"><span>ВЕС</span><span class="val" id="weight-val">0.0 / 40.0</span></div>
@@ -303,9 +354,6 @@
     <div class="row-end"><div class="mbtn ghost" id="btn-inv-close">ЗАКРЫТЬ</div></div>
   </div>
 </div>
-
-<div id="loader"><h1>WILDERNESS</h1><div class="sub">HARDCORE SURVIVAL</div>
-  <div id="bar"><i></i></div><div id="ltxt">ИНИЦИАЛИЗАЦИЯ...</div></div>
 
 <div id="hud">
   <div id="stats">
@@ -344,24 +392,14 @@
     <div class="btn" id="b-jump" data-act="jump"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V5M6 11l6-6 6 6"/></svg><small>JUMP</small></div>
     <div class="btn" id="b-attack" data-act="attack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3l7 7-3 1-2 2-6-6 2-2z"/><path d="M10 9L3 16l2 2 7-7"/><path d="M6 18l-2 3 3-2"/></svg><small>STRIKE</small></div>
   </div>
-  <div id="dsk">WASD — ДВИЖЕНИЕ · МЫШЬ — ОБЗОР · ЛКМ — УДАР · SHIFT — БЕГ · SPACE — ПРЫЖОК<br>E — ВЗАИМОДЕЙСТВИЕ · F — ЕСТЬ · Q — КОСТЁР · I — ИНВЕНТАРЬ · ESC — ПАУЗА</div>
+  <div id="dsk">WASD — ДВИЖЕНИЕ · МЫШЬ — ОБЗОР · ЛКМ — УДАР · SHIFT — БЕГ · SPACE — ПРЫЖОК<br>E — ВЗАИМОДЕЙСТВИЕ · F — ЕСТЬ · Q — КРАФТ · I — ИНВЕНТАРЬ · ESC — ПАУЗА</div>
 </div>
 
 <div id="death"><h2>ВЫ ПОГИБЛИ</h2><p id="death-msg">ЛЕС ЗАБРАЛ ЕЩЁ ОДНОГО</p><button id="respawn">ВОЗРОДИТЬСЯ</button></div>
 
-<script type="importmap">
-{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}
-</script>
-
 <script type="module">
-import * as THREE from 'three';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-
 /* ============================================================================
-   0. UTILS
+   0. GLOBAL STATE + UI HELPERS
    ========================================================================== */
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
@@ -371,6 +409,254 @@ const rnd = (a,b) => a + Math.random()*(b-a);
 const IS_TOUCH = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 if (IS_TOUCH) document.body.classList.add('touch');
 
+const yieldFrame = () => new Promise(r => setTimeout(r, 0));
+
+// UI references
+const loaderEl = $('#loader');
+const loaderBar = $('#bar i');
+const loaderTxt = $('#ltxt');
+const startBtn = $('#startBtn');
+const retryBtn = $('#retryBtn');
+const errBox = $('#errBox');
+const tipText = $('#tipText');
+
+let currentProgress = 0;
+function setProgress(p, txt){
+  currentProgress = clamp(p, 0, 1);
+  loaderBar.style.width = (currentProgress * 100).toFixed(1) + '%';
+  if (txt) loaderTxt.innerHTML = `${txt} <span class="pct">${(currentProgress*100).toFixed(0)}%</span>`;
+  else loaderTxt.innerHTML = `<span class="pct">${(currentProgress*100).toFixed(0)}%</span>`;
+}
+
+// Survival tips
+const SURVIVAL_TIPS = [
+  "Ночью температура падает — держитесь ближе к огню.",
+  "Сырое мясо портится. Жарьте его на костре до стейка.",
+  "Волки охотятся стаями. Не подпускайте их близко.",
+  "Кабаны агрессивны — обходите их стороной или убейте с двух-трёх ударов.",
+  "Под кроной дерева дождь вас не замочит.",
+  "Кирка рубит камень, топор — дерево. Не путайте!",
+  "Перегрузка замедляет вас. Не таскайте лишнего.",
+  "Овца даёт шкуру, шерсть и мясо. Она безобидна, но быстра.",
+  "Ночью волки воют. Это значит — они близко.",
+  "Соберите волокно, чтобы сделать бинты и факел.",
+  "Костёр нужно строить только на земле — в воде он не разожжётся.",
+  "Следите за шкалой кислорода под водой. На нуле вы начнёте тонуть.",
+  "Курицы и кролики — быстрая, но лёгкая добыча.",
+  "Ударьте животное топором, потом подойдите и нажмите USE, чтобы разделать тушу."
+];
+
+// Loader campfire canvas
+const fireCanvas = $('#fireCanvas');
+const fctx = fireCanvas.getContext('2d');
+const fireParticles = [];
+const fireLogs = [];
+let fireTime = 0;
+
+function initFireScene(){
+  const W = fireCanvas.width, H = fireCanvas.height;
+  // Logs
+  for (let i = 0; i < 5; i++){
+    fireLogs.push({
+      x: W*0.5 + (Math.random()-0.5)*80,
+      y: H*0.78,
+      a: (i/5)*Math.PI*2 + 0.3,
+      len: 60 + Math.random()*30,
+      w: 14 + Math.random()*6,
+    });
+  }
+  // Sparks
+  for (let i = 0; i < 90; i++){
+    fireParticles.push(newFireParticle(true));
+  }
+}
+function newFireParticle(initial){
+  const W = fireCanvas.width, H = fireCanvas.height;
+  return {
+    x: W*0.5 + (Math.random()-0.5)*50,
+    y: initial ? H*0.75 - Math.random()*140 : H*0.82,
+    vx: (Math.random()-0.5)*0.6,
+    vy: -0.5 - Math.random()*1.8,
+    life: initial ? Math.random() : 1,
+    maxLife: 1,
+    size: 1 + Math.random()*3,
+    hue: 20 + Math.random()*35,
+  };
+}
+function drawFire(dt){
+  fireTime += dt;
+  const W = fireCanvas.width, H = fireCanvas.height;
+  fctx.clearRect(0, 0, W, H);
+
+  // Ground shadow
+  const gGrad = fctx.createRadialGradient(W*0.5, H*0.85, 10, W*0.5, H*0.85, 200);
+  gGrad.addColorStop(0, 'rgba(255,140,60,0.22)');
+  gGrad.addColorStop(0.5, 'rgba(255,100,40,0.06)');
+  gGrad.addColorStop(1, 'rgba(0,0,0,0)');
+  fctx.fillStyle = gGrad;
+  fctx.fillRect(0, 0, W, H);
+
+  // Logs
+  fctx.save();
+  for (const l of fireLogs){
+    fctx.translate(l.x, l.y);
+    fctx.rotate(l.a);
+    fctx.fillStyle = '#2a1a12';
+    fctx.beginPath();
+    fctx.roundRect(-l.len/2, -l.w/2, l.len, l.w, 4);
+    fctx.fill();
+    fctx.fillStyle = '#4a2a18';
+    fctx.beginPath();
+    fctx.roundRect(-l.len/2 + 2, -l.w/2 + 2, l.len - 4, l.w/2, 2);
+    fctx.fill();
+    fctx.setTransform(1,0,0,1,0,0);
+  }
+  fctx.restore();
+
+  // Glow at base
+  const time = fireTime;
+  const glowSize = 90 + Math.sin(time*8)*10;
+  const gGrad2 = fctx.createRadialGradient(W*0.5, H*0.78, 4, W*0.5, H*0.78, glowSize);
+  gGrad2.addColorStop(0, 'rgba(255,200,100,0.9)');
+  gGrad2.addColorStop(0.4, 'rgba(255,120,40,0.5)');
+  gGrad2.addColorStop(1, 'rgba(255,60,10,0)');
+  fctx.fillStyle = gGrad2;
+  fctx.fillRect(0, 0, W, H);
+
+  // Particles
+  for (let i = 0; i < fireParticles.length; i++){
+    const p = fireParticles[i];
+    p.life -= dt * 0.7;
+    if (p.life <= 0) { fireParticles[i] = newFireParticle(false); continue; }
+    p.x += p.vx * dt * 60;
+    p.y += p.vy * dt * 60;
+    p.vx += Math.sin(time*3 + i)*0.02;
+    p.vy -= 0.02;
+
+    const alpha = Math.pow(p.life, 1.6) * 0.9;
+    const hue = p.hue + Math.sin(time*4 + i)*8;
+    const sat = 90;
+    const light = 45 + p.life*20;
+
+    // Glow
+    fctx.fillStyle = `hsla(${hue}, ${sat}%, ${light}%, ${alpha*0.35})`;
+    fctx.beginPath();
+    fctx.arc(p.x, p.y, p.size*3, 0, Math.PI*2);
+    fctx.fill();
+    // Core
+    fctx.fillStyle = `hsla(${hue}, ${sat}%, ${light+15}%, ${alpha})`;
+    fctx.beginPath();
+    fctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+    fctx.fill();
+  }
+}
+if (fctx.roundRect === undefined){
+  CanvasRenderingContext2D.prototype.roundRect = function(x,y,w,h,r){
+    this.beginPath();
+    this.moveTo(x+r,y);
+    this.arcTo(x+w,y,x+w,y+h,r);
+    this.arcTo(x+w,y+h,x,y+h,r);
+    this.arcTo(x,y+h,x,y,r);
+    this.arcTo(x,y,x+w,y,r);
+    this.closePath();
+    return this;
+  };
+}
+initFireScene();
+let lastFireT = performance.now();
+function tickFireLoader(){
+  if (loaderEl.classList.contains('gone')) return;
+  const now = performance.now();
+  const dt = Math.min((now - lastFireT)/1000, 0.05);
+  lastFireT = now;
+  drawFire(dt);
+  requestAnimationFrame(tickFireLoader);
+}
+tickFireLoader();
+
+// Rotate tips
+let tipIdx = 0;
+let tipTimer = 0;
+setInterval(() => {
+  if (loaderEl.classList.contains('gone')) return;
+  tipText.classList.add('fade');
+  setTimeout(() => {
+    tipIdx = (tipIdx + 1) % SURVIVAL_TIPS.length;
+    tipText.textContent = SURVIVAL_TIPS[tipIdx];
+    tipText.classList.remove('fade');
+  }, 400);
+}, 6500);
+
+function showError(msg, canRetry = true){
+  errBox.textContent = msg;
+  errBox.classList.add('on');
+  if (canRetry) retryBtn.classList.add('on');
+  loaderTxt.textContent = 'ОШИБКА ЗАГРУЗКИ';
+  loaderBar.style.background = 'linear-gradient(90deg,#8a2010,#e05030,#ff8060)';
+}
+
+/* ============================================================================
+   1. DYNAMIC MODULE LOADING WITH FALLBACK
+   ========================================================================== */
+async function loadModules(){
+  const CDNS = [
+    {
+      name: 'unpkg',
+      three: 'https://unpkg.com/three@0.160.0/build/three.module.js',
+      base: 'https://unpkg.com/three@0.160.0/examples/jsm/',
+    },
+    {
+      name: 'jsdelivr',
+      three: 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js',
+      base: 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/',
+    },
+    {
+      name: 'esm.sh',
+      three: 'https://esm.sh/three@0.160.0',
+      base: 'https://esm.sh/three@0.160.0/examples/jsm/',
+    }
+  ];
+
+  for (let i = 0; i < CDNS.length; i++){
+    const cdn = CDNS[i];
+    setProgress(0.05 + i*0.02, `ЗАГРУЗКА ДВИЖКА (${cdn.name.toUpperCase()})...`);
+    try {
+      const THREE = await Promise.race([
+        import(cdn.three),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout three')), 12000))
+      ]);
+      const EffectComposer = (await Promise.race([
+        import(cdn.base + 'postprocessing/EffectComposer.js'),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout EffectComposer')), 12000))
+      ])).EffectComposer;
+      const RenderPass = (await import(cdn.base + 'postprocessing/RenderPass.js')).RenderPass;
+      const UnrealBloomPass = (await import(cdn.base + 'postprocessing/UnrealBloomPass.js')).UnrealBloomPass;
+      const OutputPass = (await import(cdn.base + 'postprocessing/OutputPass.js')).OutputPass;
+      console.log('✅ Three.js loaded from', cdn.name);
+      return { THREE, EffectComposer, RenderPass, UnrealBloomPass, OutputPass };
+    } catch (e) {
+      console.warn('❌ CDN failed:', cdn.name, e.message);
+    }
+  }
+  throw new Error('Все CDN недоступны. Проверьте интернет-соединение.');
+}
+
+/* ============================================================================
+   2. MAIN BOOT
+   ========================================================================== */
+let THREE, EffectComposer, RenderPass, UnrealBloomPass, OutputPass;
+
+// Global containers used by game logic
+let renderer, scene, camera, composer, bloom;
+let clock;
+let elapsed = 0;
+let gameActive = false;
+let paused = false;
+let dayLight = 1;
+let gameTime = 6*60;
+let hitFlashTimer = 0;
+
+// Perlin noise (needed before world gen)
 class Perlin {
   constructor(seed=1){
     this.p = new Uint8Array(512);
@@ -399,149 +685,141 @@ class Perlin {
     return s/n;
   }
 }
-const PERLIN = new Perlin(20240711);
-const PERLIN2 = new Perlin(99001);
-const PERLIN3 = new Perlin(555);
+let PERLIN, PERLIN2, PERLIN3;
 
 /* ============================================================================
-   1. SETTINGS
+   3. SETTINGS
    ========================================================================== */
 const settings = Object.assign(
   { sensitivity: 1.0, volume: 60, quality: 2 },
-  JSON.parse(localStorage.getItem('wild3_settings') || '{}')
+  JSON.parse(localStorage.getItem('wild31_settings') || '{}')
 );
-const saveSettings = () => localStorage.setItem('wild3_settings', JSON.stringify(settings));
+const saveSettings = () => localStorage.setItem('wild31_settings', JSON.stringify(settings));
 
 /* ============================================================================
-   2. RENDERER
+   4. GAME STATE (declared early so all systems can reference)
    ========================================================================== */
-const renderer = new THREE.WebGLRenderer({ antialias: settings.quality > 0, powerPreference:'high-performance', stencil:false });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, IS_TOUCH ? 1.5 : 2));
-renderer.setSize(innerWidth, innerHeight);
-renderer.shadowMap.enabled = settings.quality > 0;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.0;
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-document.body.appendChild(renderer.domElement);
+const WORLD_SIZE = 480;
+const WATER_LEVEL = 0.6;
 
-const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x6d7f8c, 0.008);
-const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.08, 1200);
-camera.rotation.order = 'YXZ';
+let terrainMesh = null;
+let waterMesh = null;
+let waterUniforms = null;
+let grassMesh = null, fernMesh = null;
+let leafInstancedMesh = null;
 
-const composer = new EffectComposer(renderer);
-composer.addPass(new RenderPass(scene, camera));
-const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight),
-  settings.quality >= 2 ? 0.42 : 0.30, 0.82, 0.90);
-composer.addPass(bloom);
-composer.addPass(new OutputPass());
+const harvestables = [];
+const treeCanopies = [];
+const leafInstances = [];
+const animals = [];
+const wolves = []; // kept for compat; animals holds all
 
-function onResize(){
-  camera.aspect = innerWidth/innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
-  composer.setSize(innerWidth, innerHeight);
-  bloom.resolution.set(innerWidth, innerHeight);
-}
-addEventListener('resize', onResize);
-addEventListener('orientationchange', () => setTimeout(onResize, 200));
+let campfire = null;
+let sun, sunDisk, sunHalo, sunDiskMat, sunHaloMat, hemi, ambient;
+let skyDome, skyU;
 
-/* ============================================================================
-   3. ORIENTATION
-   ========================================================================== */
-const rotateEl = $('#rotate');
-function checkOrientation(){
-  const portrait = innerHeight > innerWidth && innerWidth < 700;
-  rotateEl.classList.toggle('on', portrait && IS_TOUCH);
-}
-checkOrientation();
-addEventListener('resize', checkOrientation);
-addEventListener('orientationchange', () => setTimeout(checkOrientation, 200));
-function tryLockLandscape(){
-  if (!IS_TOUCH) return;
-  if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(()=>{});
-}
+const windUniforms = [];
+const _m4 = new THREE.Matrix4();
+const _q  = new THREE.Quaternion();
+const _v3 = new THREE.Vector3();
+const _s3 = new THREE.Vector3();
+const _e  = new THREE.Euler();
 
-/* ============================================================================
-   4. SKY + SUN
-   ========================================================================== */
-const skyU = {
-  uTop:{value:new THREE.Color(0x2d4d78)}, uMid:{value:new THREE.Color(0x9db4c7)},
-  uBot:{value:new THREE.Color(0xc9b28a)}, uSunDir:{value:new THREE.Vector3(0.5,0.5,0.2)},
-  uNight:{value:0}, uTime:{value:0},
+const player = {
+  pos: new THREE.Vector3(0,0,0),
+  vel: new THREE.Vector3(),
+  yaw: 0, pitch: 0,
+  onGround: true,
+  inWater: false,
+  submerged: false,
+  height: 1.68,
+  speed: 3.4,
+  sprintSpeed: 6.2,
+  stamina: 100, health: 100, food: 100, water: 100, warmth: 100, air: 100,
+  alive: true,
+  walkPhase: 0, bobAmount: 0,
+  breath: 0,
+  _wasInWater: false,
 };
-const skyMat = new THREE.ShaderMaterial({
-  side:THREE.BackSide, depthWrite:false, fog:false, uniforms:skyU,
-  vertexShader:`varying vec3 vDir;void main(){vDir=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
-  fragmentShader:`
-    uniform vec3 uTop,uMid,uBot,uSunDir; uniform float uNight,uTime; varying vec3 vDir;
-    float hash(vec3 p){return fract(sin(dot(p,vec3(12.9898,78.233,45.164)))*43758.5453);}
-    void main(){
-      vec3 d=normalize(vDir);float h=d.y;
-      vec3 col=mix(uBot,uMid,smoothstep(-0.10,0.30,h));
-      col=mix(col,uTop,smoothstep(0.18,0.85,h));
-      float sd=max(dot(d,normalize(uSunDir)),0.0);
-      col+=vec3(1.0,0.82,0.55)*pow(sd,26.0)*1.6;
-      col+=vec3(1.0,0.72,0.42)*pow(sd,6.0)*0.28;
-      vec3 md=normalize(-uSunDir);float mv=max(dot(d,md),0.0);
-      col+=vec3(0.68,0.78,1.0)*pow(mv,360.0)*2.0*uNight;
-      col+=vec3(0.35,0.48,0.75)*pow(mv,9.0)*0.10*uNight;
-      if(uNight>0.01&&h>-0.02){
-        vec3 g=floor(d*210.0);float s=hash(g);
-        float star=smoothstep(0.9975,1.0,s);
-        float tw=0.55+0.45*sin(uTime*2.6+s*90.0);
-        col+=vec3(0.85,0.92,1.0)*star*tw*uNight*2.0;
-      }
-      gl_FragColor=vec4(col,1.0);
-    }`
-});
-const skyDome = new THREE.Mesh(new THREE.SphereGeometry(700,40,26), skyMat);
-skyDome.frustumCulled = false;
-scene.add(skyDome);
 
-const sun = new THREE.DirectionalLight(0xfff2d8, 3.2);
-sun.castShadow = settings.quality > 0;
-const shadowSize = settings.quality >= 2 ? 2048 : (settings.quality >= 1 ? 1024 : 512);
-sun.shadow.mapSize.set(shadowSize, shadowSize);
-sun.shadow.camera.near = 1;
-sun.shadow.camera.far = 220;
-sun.shadow.camera.left = -65; sun.shadow.camera.right = 65;
-sun.shadow.camera.top = 65; sun.shadow.camera.bottom = -65;
-sun.shadow.bias = -0.0008;
-sun.shadow.normalBias = 0.04;
-scene.add(sun, sun.target);
-
-// Soft sun disk with bloom halo
-const sunDiskGeo = new THREE.PlaneGeometry(24, 24);
-const sunDiskMat = new THREE.MeshBasicMaterial({
-  color:0xfff4c8, transparent:true, opacity:0.65, depthWrite:false,
-  blending:THREE.AdditiveBlending, fog:false,
-});
-const sunDisk = new THREE.Mesh(sunDiskGeo, sunDiskMat);
-scene.add(sunDisk);
-const sunHaloGeo = new THREE.PlaneGeometry(90, 90);
-const sunHaloMat = new THREE.MeshBasicMaterial({
-  color:0xffd28a, transparent:true, opacity:0.14, depthWrite:false,
-  blending:THREE.AdditiveBlending, fog:false, map:(()=>{
-    const c=document.createElement('canvas');c.width=c.height=128;
-    const g=c.getContext('2d');
-    const gr=g.createRadialGradient(64,64,0,64,64,64);
-    gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(0.5,'rgba(255,220,150,0.3)');gr.addColorStop(1,'rgba(255,200,120,0)');
-    g.fillStyle=gr;g.fillRect(0,0,128,128);
-    const t=new THREE.CanvasTexture(c);return t;
-  })(),
-});
-const sunHalo = new THREE.Mesh(sunHaloGeo, sunHaloMat);
-scene.add(sunHalo);
-
-const hemi = new THREE.HemisphereLight(0x9fb8d0, 0x2c2a22, 0.9);
-scene.add(hemi);
-const ambient = new THREE.AmbientLight(0x404a55, 0.4);
-scene.add(ambient);
+const ITEMS = {
+  wood:       { name:'Древесина', weight:1.5, cat:'resource', color:'#c8a45c' },
+  stone:      { name:'Камень',    weight:2.5, cat:'resource', color:'#9aa4ae' },
+  fiber:      { name:'Волокно',   weight:0.1, cat:'resource', color:'#a0c080' },
+  raw_meat:   { name:'Сырое мясо',weight:0.8, cat:'food',     color:'#c06a5a', spoilRate:0.0055 },
+  cooked_meat:{ name:'Жареное',   weight:0.7, cat:'food',     color:'#8a4a20', spoilRate:0.0018 },
+  hide:       { name:'Шкура',     weight:0.7, cat:'resource', color:'#8a6a4a' },
+  wool:       { name:'Шерсть',    weight:0.3, cat:'resource', color:'#e0d8c0' },
+  feather:    { name:'Перо',      weight:0.05,cat:'resource', color:'#f0e8d8' },
+  tusk:       { name:'Клык',      weight:0.4, cat:'resource', color:'#f0e0c0' },
+  axe:        { name:'Топор',     weight:3.0, cat:'tool',     color:'#c0c0c8' },
+  pickaxe:    { name:'Кирка',     weight:3.5, cat:'tool',     color:'#a0a0a8' },
+  spear:      { name:'Копьё',     weight:2.5, cat:'tool',     color:'#c0b0a0' },
+  torch:      { name:'Факел',     weight:1.0, cat:'tool',     color:'#ffa040' },
+  bandage:    { name:'Бинт',      weight:0.1, cat:'med',      color:'#f0e8d8' },
+};
+const RECIPES = [
+  { id:'pickaxe', name:'Кирка',  reqs:{wood:5, stone:5}, cat:'tool' },
+  { id:'spear',   name:'Копьё',  reqs:{wood:4, stone:2}, cat:'tool' },
+  { id:'torch',   name:'Факел',  reqs:{wood:1, fiber:2}, cat:'tool' },
+  { id:'campfire',name:'Костёр', reqs:{wood:5, stone:3}, cat:'build' },
+  { id:'bandage', name:'Бинт',   reqs:{fiber:3},         cat:'med' },
+];
+const INVENTORY_SIZE = 24;
+const MAX_WEIGHT = 40;
+const inventory = {
+  slots: new Array(INVENTORY_SIZE).fill(null).map(() => ({ id:null, count:0, spoil:0 })),
+  selected: -1,
+};
 
 /* ============================================================================
-   5. GEOMETRY HELPERS
+   5. TERRAIN FUNCTIONS (used during async generation)
+   ========================================================================== */
+function smoothstep(a,b,x){ x=clamp((x-a)/(b-a),0,1); return x*x*(3-2*x); }
+function terrainHeight(x,z){
+  const d = Math.hypot(x,z);
+  const island = 1 - smoothstep(160, 240, d);
+  let h = 0;
+  h += PERLIN.fbm(x*0.0035, 0, z*0.0035, 5) * 30;
+  h += PERLIN2.fbm(x*0.011, 0, z*0.011, 4) * 8;
+  h += PERLIN.fbm(x*0.05, 0, z*0.05, 3) * 1.6;
+  const flat = clamp((d-10)/22, 0, 1);
+  h *= flat;
+  const mount = PERLIN3.fbm(x*0.008, 0, z*0.008, 3) * 14;
+  const mountMask = smoothstep(40, 120, d) * (1 - smoothstep(130, 190, d));
+  h += Math.max(0, mount) * mountMask * 0.9;
+  h = h * island - (1 - island) * 6;
+  return h;
+}
+function terrainNormal(x,z){
+  const e = 0.8;
+  return new THREE.Vector3(
+    terrainHeight(x-e,z) - terrainHeight(x+e,z), 2*e,
+    terrainHeight(x,z-e) - terrainHeight(x,z+e)
+  ).normalize();
+}
+function isLand(x,z){ return terrainHeight(x,z) > WATER_LEVEL + 0.15; }
+function isBeach(x,z){
+  const h = terrainHeight(x,z);
+  return h > WATER_LEVEL - 0.1 && h < WATER_LEVEL + 1.6;
+}
+function biomeAt(x,z){
+  const y = terrainHeight(x,z);
+  if (y < WATER_LEVEL + 0.05) return 'ocean';
+  if (y < WATER_LEVEL + 1.4) return 'beach';
+  if (y > 22) return 'snow';
+  const n = terrainNormal(x,z);
+  if (n.y < 0.55) return 'rock';
+  const moist = PERLIN.fbm(x*0.007, 0, z*0.007, 3)*0.5+0.5;
+  const d = Math.hypot(x,z);
+  const warm = clamp(1 - y/18, 0, 1) * (1 - clamp((d-140)/100,0,0.4));
+  if (warm > 0.55 && moist > 0.55) return 'tropical';
+  if (moist > 0.45) return 'forest';
+  return 'grass';
+}
+
+/* ============================================================================
+   6. GEOMETRY HELPERS
    ========================================================================== */
 function erodeGeometry(geo, amp=0.1, freq=2.2, seedOff=0){
   const pos = geo.attributes.position;
@@ -574,7 +852,7 @@ function tubeFromCurve(curve, radiusFn, segs=20, radial=12, noiseAmp=0, noiseFre
       let pz = p.z + (tmpN.z*cx + tmpB.z*cy)*r;
       if (noiseAmp > 0){
         const n = PERLIN.fbm(px*noiseFreq, py*noiseFreq, pz*noiseFreq, 2);
-        px += tmpN.x*n*noiseAmp; py += tmpN.y*n*noiseAmp; pz += tmpB.z*n*noiseAmp;
+        px += tmpN.x*n*noiseAmp; py += tmpN.y*n*noiseAmp; pz += tmpN.z*n*noiseAmp;
       }
       positions.push(px,py,pz);
     }
@@ -591,155 +869,147 @@ function tubeFromCurve(curve, radiusFn, segs=20, radial=12, noiseAmp=0, noiseFre
 }
 
 /* ============================================================================
-   6. TERRAIN — большой остров, биомы
+   7. RENDERER SETUP (called after modules load)
    ========================================================================== */
-const WORLD_SIZE = 560;
-const WATER_LEVEL = 0.6;
+function initRenderer(){
+  renderer = new THREE.WebGLRenderer({ antialias: settings.quality > 0, powerPreference:'high-performance', stencil:false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, IS_TOUCH ? 1.5 : 2));
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.shadowMap.enabled = settings.quality > 0;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.0;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  document.body.appendChild(renderer.domElement);
 
-// БИОМЫ: функция возвращает высоту по (x,z)
-function terrainHeight(x,z){
-  const d = Math.hypot(x,z);
-  // Маска острова: 0 на краю океана, 1 внутри
-  const island = 1 - smoothstep(180, 260, d);
-  // Большая форма рельефа
-  let h = 0;
-  h += PERLIN.fbm(x*0.0035, 0, z*0.0035, 5) * 30;
-  h += PERLIN2.fbm(x*0.011, 0, z*0.011, 4) * 8;
-  h += PERLIN.fbm(x*0.05, 0, z*0.05, 3) * 1.6;
-  // Плоская площадка спавна
-  const flat = clamp((d-10)/22, 0, 1);
-  h *= flat;
-  // Горы в центре острова
-  const mount = PERLIN3.fbm(x*0.008, 0, z*0.008, 3) * 14;
-  const mountMask = smoothstep(50, 130, d) * (1 - smoothstep(150, 210, d));
-  h += Math.max(0, mount) * mountMask * 0.9;
-  // Океан вокруг
-  h = h * island - (1 - island) * 6;
-  return h;
-}
-function smoothstep(a,b,x){ x=clamp((x-a)/(b-a),0,1); return x*x*(3-2*x); }
-function terrainNormal(x,z){
-  const e = 0.8;
-  return new THREE.Vector3(
-    terrainHeight(x-e,z) - terrainHeight(x+e,z), 2*e,
-    terrainHeight(x,z-e) - terrainHeight(x,z+e)
-  ).normalize();
-}
-function isLand(x,z){ return terrainHeight(x,z) > WATER_LEVEL + 0.15; }
-function isBeach(x,z){
-  const h = terrainHeight(x,z);
-  return h > WATER_LEVEL - 0.1 && h < WATER_LEVEL + 1.6;
-}
-function biomeAt(x,z){
-  const y = terrainHeight(x,z);
-  if (y < WATER_LEVEL + 0.05) return 'ocean';
-  if (y < WATER_LEVEL + 1.4) return 'beach';
-  if (y > 22) return 'snow';
-  const n = terrainNormal(x,z);
-  if (n.y < 0.55) return 'rock';
-  // Влажность
-  const moist = PERLIN.fbm(x*0.007, 0, z*0.007, 3)*0.5+0.5;
-  const d = Math.hypot(x,z);
-  const warm = clamp(1 - y/18, 0, 1) * (1 - clamp((d-140)/100,0,0.4));
-  if (warm > 0.55 && moist > 0.55) return 'tropical';
-  if (moist > 0.45) return 'forest';
-  return 'grass';
-}
+  scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x6d7f8c, 0.008);
+  camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.08, 1200);
+  camera.rotation.order = 'YXZ';
 
-let terrainMesh = null;
-function buildTerrain(){
-  const SEG = settings.quality >= 2 ? 280 : (settings.quality >= 1 ? 220 : 150);
-  const geo = new THREE.PlaneGeometry(WORLD_SIZE, WORLD_SIZE, SEG, SEG);
-  geo.rotateX(-Math.PI/2);
-  const pos = geo.attributes.position;
-  for (let i=0;i<pos.count;i++){
-    const x = pos.getX(i), z = pos.getZ(i);
-    pos.setY(i, terrainHeight(x,z));
-  }
-  geo.computeVertexNormals();
-  const nrm = geo.attributes.normal;
-  const colors = new Float32Array(pos.count*3);
-  const cOcean = new THREE.Color(0x1a3a4a);
-  const cWet = new THREE.Color(0x6a5a3a);
-  const cSand = new THREE.Color(0xc8b98a);
-  const cSandDry = new THREE.Color(0xddcfa0);
-  const cGrass = new THREE.Color(0x4a6b2a);
-  const cGrassDry = new THREE.Color(0x6a7a3a);
-  const cGrassLush = new THREE.Color(0x3a5c22);
-  const cTropical = new THREE.Color(0x2c5c1e);
-  const cForest = new THREE.Color(0x24381a);
-  const cRock = new THREE.Color(0x54545a);
-  const cSnow = new THREE.Color(0xe8eef2);
-  const tmp = new THREE.Color();
-  for (let i=0;i<pos.count;i++){
-    const x = pos.getX(i), z = pos.getZ(i), y = pos.getY(i);
-    const slope = 1 - nrm.getY(i);
-    const moist = PERLIN.fbm(x*0.007, 0, z*0.007, 3)*0.5+0.5;
-    const vary = PERLIN2.fbm(x*0.2, 0, z*0.2, 2)*0.5+0.5;
+  composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight),
+    settings.quality >= 2 ? 0.42 : 0.30, 0.82, 0.90);
+  composer.addPass(bloom);
+  composer.addPass(new OutputPass());
 
-    if (y < WATER_LEVEL - 0.5){ tmp.copy(cOcean); }
-    else if (y < WATER_LEVEL + 0.3){ tmp.copy(cWet).lerp(cSand, clamp((y-WATER_LEVEL+0.5)*1.5,0,1)); }
-    else if (y < WATER_LEVEL + 1.6){
-      const t = clamp((y - WATER_LEVEL - 0.3)/1.3, 0, 1);
-      tmp.copy(cSand).lerp(cSandDry, t).lerp(cGrass, t*t);
-    } else {
-      // Базовая трава
-      tmp.copy(cGrass).lerp(cGrassLush, moist);
-      // Тропики
-      if (moist > 0.55 && y < 12) tmp.lerp(cTropical, clamp((moist-0.55)*2, 0, 0.7));
-      // Хвойный/тёмный лес
-      if (moist > 0.45 && y < 18) tmp.lerp(cForest, clamp((moist-0.45)*1.4, 0, 0.5));
-      // Сухие зоны
-      tmp.lerp(cGrassDry, clamp((0.4-moist)*1.4, 0, 0.6));
-      // Склон → камень
-      tmp.lerp(cRock, clamp((slope-0.42)*3.6, 0, 1));
-      // Снег
-      if (y > 20) tmp.lerp(cSnow, clamp((y-20)/6, 0, 1));
-      // Разнообразие
-      tmp.lerp(tmp.clone().offsetHSL(0, 0, 0.05), vary*0.3);
-    }
-    colors[i*3]=tmp.r; colors[i*3+1]=tmp.g; colors[i*3+2]=tmp.b;
-  }
-  geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-  const mat = new THREE.MeshStandardMaterial({ vertexColors:true, roughness:0.96, metalness:0 });
-  terrainMesh = new THREE.Mesh(geo, mat);
-  terrainMesh.receiveShadow = true;
-  scene.add(terrainMesh);
+  clock = new THREE.Clock();
+
+  addEventListener('resize', onResize);
+  addEventListener('orientationchange', () => setTimeout(onResize, 200));
+}
+function onResize(){
+  if (!renderer) return;
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+  composer.setSize(innerWidth, innerHeight);
+  bloom.resolution.set(innerWidth, innerHeight);
 }
 
 /* ============================================================================
-   7. WATER — с шейдером волн
+   8. ORIENTATION
    ========================================================================== */
-let waterMesh = null;
-const waterUniforms = { uTime:{value:0} };
-function buildWater(){
-  const geo = new THREE.PlaneGeometry(WORLD_SIZE*1.8, WORLD_SIZE*1.8, 100, 100);
-  geo.rotateX(-Math.PI/2);
-  const mat = new THREE.MeshStandardMaterial({
-    color:0x1a4a5e, roughness:0.06, metalness:0.85,
-    transparent:true, opacity:0.82, envMapIntensity:1.6,
-  });
-  mat.onBeforeCompile = (shader) => {
-    shader.uniforms.uTime = waterUniforms.uTime;
-    shader.vertexShader = 'uniform float uTime;\n' + shader.vertexShader;
-    shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>',
-      `#include <begin_vertex>
-       float w = sin(position.x*0.28 + uTime*1.1)*0.18
-               + sin(position.z*0.24 - uTime*0.9)*0.14
-               + sin((position.x+position.z)*0.42 + uTime*1.9)*0.06;
-       transformed.y += w;
-      `);
+const rotateEl = $('#rotate');
+function checkOrientation(){
+  const portrait = innerHeight > innerWidth && innerWidth < 700;
+  rotateEl.classList.toggle('on', portrait && IS_TOUCH);
+}
+checkOrientation();
+addEventListener('resize', checkOrientation);
+addEventListener('orientationchange', () => setTimeout(checkOrientation, 200));
+function tryLockLandscape(){
+  if (!IS_TOUCH) return;
+  if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(()=>{});
+}
+
+/* ============================================================================
+   9. SKY + LIGHTS
+   ========================================================================== */
+function initSky(){
+  skyU = {
+    uTop:{value:new THREE.Color(0x2d4d78)}, uMid:{value:new THREE.Color(0x9db4c7)},
+    uBot:{value:new THREE.Color(0xc9b28a)}, uSunDir:{value:new THREE.Vector3(0.5,0.5,0.2)},
+    uNight:{value:0}, uTime:{value:0},
   };
-  waterMesh = new THREE.Mesh(geo, mat);
-  waterMesh.position.y = WATER_LEVEL;
-  waterMesh.renderOrder = 1;
-  scene.add(waterMesh);
+  const skyMat = new THREE.ShaderMaterial({
+    side:THREE.BackSide, depthWrite:false, fog:false, uniforms:skyU,
+    vertexShader:`varying vec3 vDir;void main(){vDir=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+    fragmentShader:`
+      uniform vec3 uTop,uMid,uBot,uSunDir; uniform float uNight,uTime; varying vec3 vDir;
+      float hash(vec3 p){return fract(sin(dot(p,vec3(12.9898,78.233,45.164)))*43758.5453);}
+      void main(){
+        vec3 d=normalize(vDir);float h=d.y;
+        vec3 col=mix(uBot,uMid,smoothstep(-0.10,0.30,h));
+        col=mix(col,uTop,smoothstep(0.18,0.85,h));
+        float sd=max(dot(d,normalize(uSunDir)),0.0);
+        col+=vec3(1.0,0.82,0.55)*pow(sd,26.0)*1.6;
+        col+=vec3(1.0,0.72,0.42)*pow(sd,6.0)*0.28;
+        vec3 md=normalize(-uSunDir);float mv=max(dot(d,md),0.0);
+        col+=vec3(0.68,0.78,1.0)*pow(mv,360.0)*2.0*uNight;
+        col+=vec3(0.35,0.48,0.75)*pow(mv,9.0)*0.10*uNight;
+        if(uNight>0.01&&h>-0.02){
+          vec3 g=floor(d*210.0);float s=hash(g);
+          float star=smoothstep(0.9975,1.0,s);
+          float tw=0.55+0.45*sin(uTime*2.6+s*90.0);
+          col+=vec3(0.85,0.92,1.0)*star*tw*uNight*2.0;
+        }
+        gl_FragColor=vec4(col,1.0);
+      }`
+  });
+  skyDome = new THREE.Mesh(new THREE.SphereGeometry(700,40,26), skyMat);
+  skyDome.frustumCulled = false;
+  scene.add(skyDome);
+
+  sun = new THREE.DirectionalLight(0xfff2d8, 3.2);
+  sun.castShadow = settings.quality > 0;
+  const shadowSize = settings.quality >= 2 ? 2048 : (settings.quality >= 1 ? 1024 : 512);
+  sun.shadow.mapSize.set(shadowSize, shadowSize);
+  sun.shadow.camera.near = 1;
+  sun.shadow.camera.far = 220;
+  sun.shadow.camera.left = -60; sun.shadow.camera.right = 60;
+  sun.shadow.camera.top = 60; sun.shadow.camera.bottom = -60;
+  sun.shadow.bias = -0.0008;
+  sun.shadow.normalBias = 0.04;
+  scene.add(sun, sun.target);
+
+  const sunDiskGeo = new THREE.PlaneGeometry(24, 24);
+  sunDiskMat = new THREE.MeshBasicMaterial({
+    color:0xfff4c8, transparent:true, opacity:0.65, depthWrite:false,
+    blending:THREE.AdditiveBlending, fog:false,
+  });
+  sunDisk = new THREE.Mesh(sunDiskGeo, sunDiskMat);
+  scene.add(sunDisk);
+
+  const haloCanvas = document.createElement('canvas');
+  haloCanvas.width = haloCanvas.height = 128;
+  const hg = haloCanvas.getContext('2d');
+  const gr = hg.createRadialGradient(64,64,0,64,64,64);
+  gr.addColorStop(0,'rgba(255,255,255,1)');
+  gr.addColorStop(0.5,'rgba(255,220,150,0.3)');
+  gr.addColorStop(1,'rgba(255,200,120,0)');
+  hg.fillStyle = gr; hg.fillRect(0,0,128,128);
+  const haloTex = new THREE.CanvasTexture(haloCanvas);
+  const sunHaloGeo = new THREE.PlaneGeometry(90, 90);
+  sunHaloMat = new THREE.MeshBasicMaterial({
+    color:0xffd28a, transparent:true, opacity:0.14, depthWrite:false,
+    blending:THREE.AdditiveBlending, fog:false, map:haloTex,
+  });
+  sunHalo = new THREE.Mesh(sunHaloGeo, sunHaloMat);
+  scene.add(sunHalo);
+
+  hemi = new THREE.HemisphereLight(0x9fb8d0, 0x2c2a22, 0.9);
+  scene.add(hemi);
+  ambient = new THREE.AmbientLight(0x404a55, 0.4);
+  scene.add(ambient);
 }
-function updateWater(t){ waterUniforms.uTime.value = t; }
 
 /* ============================================================================
-   8. TEXTURES
+   10. MATERIALS + TEXTURES
    ========================================================================== */
+let barkMat, woodMat, rockMat, rockMatDark, LEAF_TEX, GRASS_TEX, FERN_TEX, BARK_TEX;
+
 function cvsTex(draw, w=64, h=64){
   const c = document.createElement('canvas'); c.width = w; c.height = h;
   const g = c.getContext('2d'); draw(g, w, h);
@@ -748,59 +1018,55 @@ function cvsTex(draw, w=64, h=64){
   t.anisotropy = 4;
   return t;
 }
-const LEAF_TEX = cvsTex((g)=>{
-  const grad = g.createLinearGradient(0,0,0,64);
-  grad.addColorStop(0,'#7fb844'); grad.addColorStop(0.5,'#4e8a2a'); grad.addColorStop(1,'#2c521a');
-  g.fillStyle=grad;
-  g.beginPath(); g.moveTo(32,3); g.bezierCurveTo(60,16,60,48,32,61);
-  g.bezierCurveTo(4,48,4,16,32,3); g.fill();
-  g.strokeStyle='rgba(24,48,16,0.55)'; g.lineWidth=1.4;
-  g.beginPath(); g.moveTo(32,6); g.lineTo(32,58); g.stroke();
-});
-const GRASS_TEX = cvsTex((g)=>{
-  const grad=g.createLinearGradient(0,0,0,64);
-  grad.addColorStop(0,'#88c04a'); grad.addColorStop(0.7,'#4a7520'); grad.addColorStop(1,'#2a4410');
-  g.fillStyle=grad;
-  g.beginPath(); g.moveTo(16,2); g.lineTo(28,60); g.lineTo(4,60); g.closePath(); g.fill();
-  g.strokeStyle='rgba(20,40,10,0.4)'; g.lineWidth=0.8;
-  g.beginPath(); g.moveTo(16,4); g.lineTo(16,60); g.stroke();
-}, 32, 64);
-const FERN_TEX = cvsTex((g)=>{
-  const grad=g.createLinearGradient(0,0,0,64);
-  grad.addColorStop(0,'#5c8a3a'); grad.addColorStop(1,'#2a4a18');
-  g.fillStyle=grad;
-  g.beginPath(); g.moveTo(32,2); g.bezierCurveTo(60,20,60,50,32,62);
-  g.bezierCurveTo(4,50,4,20,32,2); g.fill();
-  g.strokeStyle='rgba(20,40,12,0.7)'; g.lineWidth=1.4;
-  g.beginPath(); g.moveTo(32,4); g.lineTo(32,58); g.stroke();
-  for (let i=1;i<=6;i++){ const y=6+i*8;
-    g.beginPath(); g.moveTo(32,y); g.lineTo(10,y+4); g.stroke();
-    g.beginPath(); g.moveTo(32,y); g.lineTo(54,y+4); g.stroke();
-  }
-});
-const BARK_TEX = cvsTex((g)=>{
-  g.fillStyle='#4a3626'; g.fillRect(0,0,128,256);
-  for (let i=0;i<800;i++){
-    const x=Math.random()*128, y=Math.random()*256;
-    const h=6+Math.random()*40, w=1+Math.random()*3;
-    const v=Math.random();
-    g.fillStyle = v>0.55 ? `rgba(92,70,50,${0.15+Math.random()*0.35})`
-                        : `rgba(30,20,12,${0.15+Math.random()*0.45})`;
-    g.fillRect(x,y,w,h);
-  }
-}, 128, 256);
-BARK_TEX.wrapS = BARK_TEX.wrapT = THREE.RepeatWrapping;
-BARK_TEX.repeat.set(2,3);
+function initTextures(){
+  LEAF_TEX = cvsTex((g)=>{
+    const grad = g.createLinearGradient(0,0,0,64);
+    grad.addColorStop(0,'#7fb844'); grad.addColorStop(0.5,'#4e8a2a'); grad.addColorStop(1,'#2c521a');
+    g.fillStyle=grad;
+    g.beginPath(); g.moveTo(32,3); g.bezierCurveTo(60,16,60,48,32,61);
+    g.bezierCurveTo(4,48,4,16,32,3); g.fill();
+    g.strokeStyle='rgba(24,48,16,0.55)'; g.lineWidth=1.4;
+    g.beginPath(); g.moveTo(32,6); g.lineTo(32,58); g.stroke();
+  });
+  GRASS_TEX = cvsTex((g)=>{
+    const grad=g.createLinearGradient(0,0,0,64);
+    grad.addColorStop(0,'#88c04a'); grad.addColorStop(0.7,'#4a7520'); grad.addColorStop(1,'#2a4410');
+    g.fillStyle=grad;
+    g.beginPath(); g.moveTo(16,2); g.lineTo(28,60); g.lineTo(4,60); g.closePath(); g.fill();
+  }, 32, 64);
+  FERN_TEX = cvsTex((g)=>{
+    const grad=g.createLinearGradient(0,0,0,64);
+    grad.addColorStop(0,'#5c8a3a'); grad.addColorStop(1,'#2a4a18');
+    g.fillStyle=grad;
+    g.beginPath(); g.moveTo(32,2); g.bezierCurveTo(60,20,60,50,32,62);
+    g.bezierCurveTo(4,50,4,20,32,2); g.fill();
+    g.strokeStyle='rgba(20,40,12,0.7)'; g.lineWidth=1.4;
+    g.beginPath(); g.moveTo(32,4); g.lineTo(32,58); g.stroke();
+    for (let i=1;i<=6;i++){ const y=6+i*8;
+      g.beginPath(); g.moveTo(32,y); g.lineTo(10,y+4); g.stroke();
+      g.beginPath(); g.moveTo(32,y); g.lineTo(54,y+4); g.stroke();
+    }
+  });
+  BARK_TEX = cvsTex((g)=>{
+    g.fillStyle='#4a3626'; g.fillRect(0,0,128,256);
+    for (let i=0;i<600;i++){
+      const x=Math.random()*128, y=Math.random()*256;
+      const h=6+Math.random()*40, w=1+Math.random()*3;
+      const v=Math.random();
+      g.fillStyle = v>0.55 ? `rgba(92,70,50,${0.15+Math.random()*0.35})`
+                          : `rgba(30,20,12,${0.15+Math.random()*0.45})`;
+      g.fillRect(x,y,w,h);
+    }
+  }, 128, 256);
+  BARK_TEX.wrapS = BARK_TEX.wrapT = THREE.RepeatWrapping;
+  BARK_TEX.repeat.set(2,3);
 
-const barkMat = new THREE.MeshStandardMaterial({ color:0x6b5238, map:BARK_TEX, roughness:0.95 });
-const woodMat = new THREE.MeshStandardMaterial({ color:0x8a6b45, roughness:0.92 });
-const rockMat = new THREE.MeshStandardMaterial({ color:0x6a6a6d, roughness:0.88, metalness:0.05, flatShading:true });
-const rockMatDark = new THREE.MeshStandardMaterial({ color:0x4a4a4e, roughness:0.92, flatShading:true });
+  barkMat = new THREE.MeshStandardMaterial({ color:0x6b5238, map:BARK_TEX, roughness:0.95 });
+  woodMat = new THREE.MeshStandardMaterial({ color:0x8a6b45, roughness:0.92 });
+  rockMat = new THREE.MeshStandardMaterial({ color:0x6a6a6d, roughness:0.88, metalness:0.05, flatShading:true });
+  rockMatDark = new THREE.MeshStandardMaterial({ color:0x4a4a4e, roughness:0.92, flatShading:true });
+}
 
-/* ============================================================================
-   9. WIND SHADER
-   ========================================================================== */
-const windUniforms = [];
 function applyWind(material, strength=0.08, speed=1.6){
   material.onBeforeCompile = (shader) => {
     shader.uniforms.uWindTime = { value: 0 };
@@ -825,28 +1091,139 @@ function applyWind(material, strength=0.08, speed=1.6){
 }
 
 /* ============================================================================
-   10. TREES (big island, biome-aware)
+   11. ASYNC WORLD BUILDERS
    ========================================================================== */
-const leafInstances = [];
-const harvestables = [];
-const treeCanopies = [];
+async function buildTerrainAsync(){
+  setProgress(0.15, 'ФОРМИРОВАНИЕ ОСТРОВА...');
+  await yieldFrame();
 
-const _m4 = new THREE.Matrix4();
-const _q  = new THREE.Quaternion();
-const _v3 = new THREE.Vector3();
-const _s3 = new THREE.Vector3();
-const _e  = new THREE.Euler();
+  const SEG = settings.quality >= 2 ? 220 : (settings.quality >= 1 ? 160 : 110);
+  const geo = new THREE.PlaneGeometry(WORLD_SIZE, WORLD_SIZE, SEG, SEG);
+  geo.rotateX(-Math.PI/2);
+  const pos = geo.attributes.position;
+  const total = pos.count;
+  const BATCH = 3000;
 
-function addLeaf(x,y,z,scale,tilt){
-  _e.set(tilt+rnd(-0.5,0.5), rnd(0,Math.PI*2), rnd(-0.5,0.5));
-  _q.setFromEuler(_e);
-  _v3.set(x,y,z);
-  _s3.set(scale,scale,scale);
-  _m4.compose(_v3,_q,_s3);
-  leafInstances.push(_m4.clone());
+  for (let start = 0; start < total; start += BATCH){
+    const end = Math.min(start + BATCH, total);
+    for (let i = start; i < end; i++){
+      const x = pos.getX(i), z = pos.getZ(i);
+      pos.setY(i, terrainHeight(x, z));
+    }
+    setProgress(0.15 + (end/total) * 0.10, 'ФОРМИРОВАНИЕ ОСТРОВА...');
+    await yieldFrame();
+  }
+
+  geo.computeVertexNormals();
+  const nrm = geo.attributes.normal;
+  const colors = new Float32Array(pos.count*3);
+
+  const cOcean = new THREE.Color(0x1a3a4a);
+  const cWet = new THREE.Color(0x6a5a3a);
+  const cSand = new THREE.Color(0xc8b98a);
+  const cSandDry = new THREE.Color(0xddcfa0);
+  const cGrass = new THREE.Color(0x4a6b2a);
+  const cGrassDry = new THREE.Color(0x6a7a3a);
+  const cGrassLush = new THREE.Color(0x3a5c22);
+  const cTropical = new THREE.Color(0x2c5c1e);
+  const cForest = new THREE.Color(0x24381a);
+  const cRock = new THREE.Color(0x54545a);
+  const cSnow = new THREE.Color(0xe8eef2);
+  const tmp = new THREE.Color();
+
+  const colorBatch = 4000;
+  for (let start = 0; start < total; start += colorBatch){
+    const end = Math.min(start + colorBatch, total);
+    for (let i = start; i < end; i++){
+      const x = pos.getX(i), z = pos.getZ(i), y = pos.getY(i);
+      const slope = 1 - nrm.getY(i);
+      const moist = PERLIN.fbm(x*0.007, 0, z*0.007, 3)*0.5+0.5;
+      const vary = PERLIN2.fbm(x*0.2, 0, z*0.2, 2)*0.5+0.5;
+      if (y < WATER_LEVEL - 0.5){ tmp.copy(cOcean); }
+      else if (y < WATER_LEVEL + 0.3){ tmp.copy(cWet).lerp(cSand, clamp((y-WATER_LEVEL+0.5)*1.5,0,1)); }
+      else if (y < WATER_LEVEL + 1.6){
+        const t = clamp((y - WATER_LEVEL - 0.3)/1.3, 0, 1);
+        tmp.copy(cSand).lerp(cSandDry, t).lerp(cGrass, t*t);
+      } else {
+        tmp.copy(cGrass).lerp(cGrassLush, moist);
+        if (moist > 0.55 && y < 12) tmp.lerp(cTropical, clamp((moist-0.55)*2, 0, 0.7));
+        if (moist > 0.45 && y < 18) tmp.lerp(cForest, clamp((moist-0.45)*1.4, 0, 0.5));
+        tmp.lerp(cGrassDry, clamp((0.4-moist)*1.4, 0, 0.6));
+        tmp.lerp(cRock, clamp((slope-0.42)*3.6, 0, 1));
+        if (y > 20) tmp.lerp(cSnow, clamp((y-20)/6, 0, 1));
+        tmp.lerp(tmp.clone().offsetHSL(0, 0, 0.05), vary*0.3);
+      }
+      colors[i*3]=tmp.r; colors[i*3+1]=tmp.g; colors[i*3+2]=tmp.b;
+    }
+    setProgress(0.25 + (end/total) * 0.05, 'ОКРАШИВАНИЕ ЛАНДШАФТА...');
+    await yieldFrame();
+  }
+
+  geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  const mat = new THREE.MeshStandardMaterial({ vertexColors:true, roughness:0.96, metalness:0 });
+  terrainMesh = new THREE.Mesh(geo, mat);
+  terrainMesh.receiveShadow = true;
+  scene.add(terrainMesh);
 }
 
-function buildTree(px,pz, biome='forest'){
+async function buildWaterAsync(){
+  setProgress(0.32, 'НАПОЛНЕНИЕ ВОДОЁМОВ...');
+  await yieldFrame();
+  const geo = new THREE.PlaneGeometry(WORLD_SIZE*1.8, WORLD_SIZE*1.8, 80, 80);
+  geo.rotateX(-Math.PI/2);
+  const mat = new THREE.MeshStandardMaterial({
+    color:0x1a4a5e, roughness:0.06, metalness:0.85,
+    transparent:true, opacity:0.82, envMapIntensity:1.6,
+  });
+  waterUniforms = { uTime:{value:0} };
+  mat.onBeforeCompile = (shader) => {
+    shader.uniforms.uTime = waterUniforms.uTime;
+    shader.vertexShader = 'uniform float uTime;\n' + shader.vertexShader;
+    shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>',
+      `#include <begin_vertex>
+       float w = sin(position.x*0.28 + uTime*1.1)*0.18
+               + sin(position.z*0.24 - uTime*0.9)*0.14
+               + sin((position.x+position.z)*0.42 + uTime*1.9)*0.06;
+       transformed.y += w;
+      `);
+  };
+  waterMesh = new THREE.Mesh(geo, mat);
+  waterMesh.position.y = WATER_LEVEL;
+  waterMesh.renderOrder = 1;
+  scene.add(waterMesh);
+  await yieldFrame();
+}
+
+async function buildTreesAsync(){
+  setProgress(0.36, 'ВЫРАЩИВАНИЕ ЛЕСА...');
+  await yieldFrame();
+
+  const nTrees = settings.quality >= 2 ? 180 : (settings.quality >= 1 ? 120 : 70);
+  let placed = 0, tries = 0;
+  const maxTries = nTrees*30;
+
+  while (placed < nTrees && tries < maxTries){
+    tries++;
+    if (tries % 20 === 0){
+      setProgress(0.36 + (placed/nTrees)*0.14, `ВЫРАЩИВАНИЕ ЛЕСА... ${placed}/${nTrees}`);
+      await yieldFrame();
+    }
+    const a = Math.random()*Math.PI*2;
+    const r = 10 + Math.sqrt(Math.random())*190;
+    const x = Math.cos(a)*r, z = Math.sin(a)*r;
+    const y = terrainHeight(x,z);
+    if (y < WATER_LEVEL + 1.2 || y > 20) continue;
+    if (terrainNormal(x,z).y < 0.80) continue;
+    if (isBeach(x,z)) continue;
+    const biome = biomeAt(x,z);
+    if (biome === 'ocean' || biome === 'beach' || biome === 'snow') continue;
+    buildTreeSync(x, z, biome);
+    placed++;
+  }
+  await yieldFrame();
+}
+
+function buildTreeSync(px, pz, biome='forest'){
   const group = new THREE.Group();
   const baseY = terrainHeight(px,pz);
   group.position.set(px, baseY, pz);
@@ -864,13 +1241,13 @@ function buildTree(px,pz, biome='forest'){
     new THREE.Vector3(bendX*0.72+rnd(-.3,.3), H*0.82, bendZ*0.72+rnd(-.3,.3)),
     new THREE.Vector3(bendX*0.95, H, bendZ*0.95),
   ]);
-  const trunkGeo = tubeFromCurve(spine, t=>rBase*(1-t*0.78)*(1+Math.sin(t*9)*0.045), 22, 14, 0.012, 5.5);
+  const trunkGeo = tubeFromCurve(spine, t=>rBase*(1-t*0.78)*(1+Math.sin(t*9)*0.045), 18, 12, 0.012, 5.5);
   const trunk = new THREE.Mesh(trunkGeo, barkMat);
   trunk.castShadow = true; trunk.receiveShadow = true;
   group.add(trunk);
 
   const branchTips = [];
-  const nB = isTropical ? 6 : 8 + (Math.random()*5|0);
+  const nB = isTropical ? 6 : 7 + (Math.random()*5|0);
   for (let i=0;i<nB;i++){
     const t0 = isTropical ? (0.72 + i*0.05) : (0.36 + (i/nB)*0.58);
     const p0 = spine.getPointAt(clamp(t0,0,1));
@@ -883,7 +1260,7 @@ function buildTree(px,pz, biome='forest'){
       p0.clone().addScaledVector(dir, len*0.42).add(new THREE.Vector3(rnd(-.3,.3),rnd(-.1,.3),rnd(-.3,.3))),
       p0.clone().addScaledVector(dir, len).add(new THREE.Vector3(rnd(-.5,.5),rnd(-.3,.4),rnd(-.5,.5))),
     ]);
-    const bGeo = tubeFromCurve(bSpine, t=>(0.09*(1-t*0.72))*(1-t0*0.4), 10, 7, 0.008, 7);
+    const bGeo = tubeFromCurve(bSpine, t=>(0.09*(1-t*0.72))*(1-t0*0.4), 8, 6, 0.008, 7);
     const bMesh = new THREE.Mesh(bGeo, barkMat);
     bMesh.castShadow = true; bMesh.receiveShadow = true;
     group.add(bMesh);
@@ -893,7 +1270,7 @@ function buildTree(px,pz, biome='forest'){
   group.updateMatrixWorld(true);
   const tips = branchTips.map(v=>v.clone().applyMatrix4(group.matrixWorld));
   const crownCenter = new THREE.Vector3(px, baseY + H*0.86, pz);
-  const leafCount = settings.quality >= 2 ? 220 : (settings.quality >= 1 ? 150 : 90);
+  const leafCount = settings.quality >= 2 ? 120 : (settings.quality >= 1 ? 80 : 50);
   for (const tip of tips){
     const count = (leafCount*0.7|0);
     const R = rnd(0.9,1.6);
@@ -916,23 +1293,36 @@ function buildTree(px,pz, biome='forest'){
             crownCenter.z + r*Math.sin(ph)*Math.sin(th),
             rnd(0.40,0.66), rnd(-0.8,0.8));
   }
-
   scene.add(group);
   harvestables.push({ object:trunk, root:group, type:'tree', hp:5, maxHp:5 });
   treeCanopies.push({ x:px, z:pz, r: Math.max(2.8, H*0.35) });
 }
 
-/* ============================================================================
-   11. ROCKS
-   ========================================================================== */
-function buildRock(px,pz,scale){
-  const geo = new THREE.IcosahedronGeometry(1,3);
+async function buildRocksAsync(){
+  setProgress(0.52, 'РАЗБРАСЫВАНИЕ КАМНЕЙ...');
+  await yieldFrame();
+  const nRocks = settings.quality >= 2 ? 90 : (settings.quality >= 1 ? 60 : 35);
+  for (let i=0;i<nRocks;i++){
+    if (i % 10 === 0){
+      setProgress(0.52 + (i/nRocks)*0.05, `КАМНИ... ${i}/${nRocks}`);
+      await yieldFrame();
+    }
+    const a = Math.random()*Math.PI*2;
+    const r = 6 + Math.sqrt(Math.random())*200;
+    const x = Math.cos(a)*r, z = Math.sin(a)*r;
+    const y = terrainHeight(x,z);
+    if (y < WATER_LEVEL + 0.3) continue;
+    buildRockSync(x,z, rnd(0.35, 1.4));
+  }
+}
+function buildRockSync(px,pz,scale){
+  const geo = new THREE.IcosahedronGeometry(1,2);
   const pos = geo.attributes.position;
   const v = new THREE.Vector3();
   const seed = Math.random()*100;
   for (let i=0;i<pos.count;i++){
     v.fromBufferAttribute(pos,i);
-    const n1 = PERLIN.fbm(v.x*1.4+seed, v.y*1.4, v.z*1.4, 4);
+    const n1 = PERLIN.fbm(v.x*1.4+seed, v.y*1.4, v.z*1.4, 3);
     const n2 = PERLIN2.fbm(v.x*4.2+seed, v.y*4.2, v.z*4.2, 2);
     v.multiplyScalar(1 + n1*0.34 + n2*0.11);
     if (v.y < 0) v.y *= 0.62;
@@ -949,15 +1339,49 @@ function buildRock(px,pz,scale){
   harvestables.push({ object:mesh, root:mesh, type:'rock', hp:4, maxHp:4 });
 }
 
-/* ============================================================================
-   12. GRASS + FERNS
-   ========================================================================== */
-let grassMesh = null, fernMesh = null;
+function addLeaf(x,y,z,scale,tilt){
+  _e.set(tilt+rnd(-0.5,0.5), rnd(0,Math.PI*2), rnd(-0.5,0.5));
+  _q.setFromEuler(_e);
+  _v3.set(x,y,z);
+  _s3.set(scale,scale,scale);
+  _m4.compose(_v3,_q,_s3);
+  leafInstances.push(_m4.clone());
+}
 
-function buildGrass(){
+async function buildLeafInstancedAsync(){
+  setProgress(0.58, 'РАСПУСКАНИЕ ЛИСТВЫ...');
+  await yieldFrame();
+  const leafGeo = new THREE.PlaneGeometry(1,1,1,1);
+  const mat = new THREE.MeshStandardMaterial({
+    map:LEAF_TEX, transparent:true, alphaTest:0.42,
+    side:THREE.DoubleSide, roughness:0.86, color:0xffffff,
+  });
+  applyWind(mat, 0.10, 1.55);
+  leafInstancedMesh = new THREE.InstancedMesh(leafGeo, mat, leafInstances.length);
+  leafInstancedMesh.castShadow = false;
+  leafInstancedMesh.receiveShadow = true;
+  const BATCH = 1000;
+  for (let i=0;i<leafInstances.length;i++){
+    leafInstancedMesh.setMatrixAt(i, leafInstances[i]);
+    if (i % BATCH === 0){
+      setProgress(0.58 + (i/leafInstances.length)*0.05, `ЛИСТВА... ${i}/${leafInstances.length}`);
+      await yieldFrame();
+    }
+  }
+  leafInstancedMesh.instanceMatrix.needsUpdate = true;
+  leafInstancedMesh.frustumCulled = false;
+  scene.add(leafInstancedMesh);
+  // Free memory
+  leafInstances.length = 0;
+}
+
+async function buildGrassAsync(){
+  setProgress(0.66, 'ПОСЕВ ТРАВ...');
+  await yieldFrame();
+
   const bladeGeo = new THREE.BufferGeometry();
   const verts = [], uvs = [], idx = [];
-  const SEG = 6;
+  const SEG = 5;
   for (let i=0;i<=SEG;i++){
     const t = i/SEG;
     const w = (1-t*0.85)*0.06;
@@ -981,18 +1405,22 @@ function buildGrass(){
   });
   applyWind(gMat, 0.09, 1.9);
 
-  const COUNT = settings.quality >= 2 ? 12000 : (settings.quality >= 1 ? 6500 : 2800);
+  const COUNT = settings.quality >= 2 ? 8000 : (settings.quality >= 1 ? 4500 : 2000);
   grassMesh = new THREE.InstancedMesh(bladeGeo, gMat, COUNT);
   grassMesh.receiveShadow = true;
 
   const m=new THREE.Matrix4(), q=new THREE.Quaternion(), e=new THREE.Euler();
   const p=new THREE.Vector3(), s=new THREE.Vector3();
   let placed=0, tries=0;
-  const maxR = 220;
-  while (placed<COUNT && tries<COUNT*6){
+  const maxTries = COUNT * 8;
+  while (placed<COUNT && tries<maxTries){
     tries++;
+    if (tries % 500 === 0){
+      setProgress(0.66 + (placed/COUNT)*0.08, `ТРАВЫ... ${placed}/${COUNT}`);
+      await yieldFrame();
+    }
     const a = Math.random()*Math.PI*2;
-    const r = Math.sqrt(Math.random())*maxR;
+    const r = Math.sqrt(Math.random())*200;
     const x = Math.cos(a)*r, z = Math.sin(a)*r;
     const y = terrainHeight(x,z);
     if (y < WATER_LEVEL + 0.7 || y > 22) continue;
@@ -1020,14 +1448,15 @@ function buildGrass(){
   });
   applyWind(fernMat, 0.13, 1.4);
 
-  const FCOUNT = settings.quality >= 2 ? 1200 : (settings.quality >= 1 ? 700 : 300);
+  const FCOUNT = settings.quality >= 2 ? 800 : (settings.quality >= 1 ? 400 : 200);
   fernMesh = new THREE.InstancedMesh(fernGeo, fernMat, FCOUNT);
   fernMesh.receiveShadow = true;
   placed=0; tries=0;
-  while (placed<FCOUNT && tries<FCOUNT*8){
+  while (placed<FCOUNT && tries<FCOUNT*10){
     tries++;
+    if (tries % 200 === 0) await yieldFrame();
     const a = Math.random()*Math.PI*2;
-    const r = 4 + Math.sqrt(Math.random())*190;
+    const r = 4 + Math.sqrt(Math.random())*180;
     const x = Math.cos(a)*r, z = Math.sin(a)*r;
     const y = terrainHeight(x,z);
     if (y < WATER_LEVEL + 0.9 || y > 20) continue;
@@ -1046,37 +1475,31 @@ function buildGrass(){
   fernMesh.count = placed;
   fernMesh.instanceMatrix.needsUpdate = true;
   scene.add(fernMesh);
-}
-
-function buildLeafInstancedMesh(){
-  const leafGeo = new THREE.PlaneGeometry(1,1,1,1);
-  const mat = new THREE.MeshStandardMaterial({
-    map:LEAF_TEX, transparent:true, alphaTest:0.42,
-    side:THREE.DoubleSide, roughness:0.86, color:0xffffff,
-  });
-  applyWind(mat, 0.10, 1.55);
-  const mesh = new THREE.InstancedMesh(leafGeo, mat, leafInstances.length);
-  mesh.castShadow = false;
-  mesh.receiveShadow = true;
-  for (let i=0;i<leafInstances.length;i++) mesh.setMatrixAt(i, leafInstances[i]);
-  mesh.instanceMatrix.needsUpdate = true;
-  mesh.frustumCulled = false;
-  scene.add(mesh);
+  await yieldFrame();
 }
 
 /* ============================================================================
-   13. HANDS + TOOLS (axe, pickaxe)
+   12. HANDS, TOOLS, CAMPFIRE, ANIMALS — all defined
    ========================================================================== */
+let handsRoot, rightHandGroup, leftHandGroup, rightHand, leftHand;
+let axeMesh, pickaxeMesh, spearMesh, torchMesh, meatMesh, cookedMeatMesh;
+const RIGHT_BASE = new THREE.Vector3(0.235, -0.215, -0.42);
+const LEFT_BASE  = new THREE.Vector3(-0.245, -0.245, -0.44);
+const RIGHT_ROT  = new THREE.Euler(0.10, -0.18, 0.22);
+const LEFT_ROT   = new THREE.Euler(0.05,  0.20, -0.15);
+const handState = { swayX:0, swayY:0, targetSwayX:0, targetSwayY:0,
+  swingActive:false, swingT:0, usePulse:0, swimStroke:0 };
+
 const skinMat = new THREE.MeshStandardMaterial({ color:0xa87a5a, roughness:0.72 });
 const nailMat = new THREE.MeshStandardMaterial({ color:0xd8c4b0, roughness:0.45 });
 const leatherMat = new THREE.MeshStandardMaterial({ color:0x3a2416, roughness:0.88 });
 const steelMat = new THREE.MeshStandardMaterial({ color:0x8a8a92, roughness:0.35, metalness:0.92 });
-const steelDark = new THREE.MeshStandardMaterial({ color:0x5a5a64, roughness:0.55, metalness:0.85, flatShading:false });
+const steelDark = new THREE.MeshStandardMaterial({ color:0x5a5a64, roughness:0.55, metalness:0.85 });
 const rustMat = new THREE.MeshStandardMaterial({ color:0x8a4a28, roughness:0.85, metalness:0.35, flatShading:true });
 const ironMat = new THREE.MeshStandardMaterial({ color:0x3a3a42, roughness:0.65, metalness:0.75 });
 
 function fingerSegment(len, r, mat){
-  const geo = new THREE.CylinderGeometry(r*0.94, r, len, 8, 2);
+  const geo = new THREE.CylinderGeometry(r*0.94, r, len, 6, 2);
   const pos = geo.attributes.position;
   const v = new THREE.Vector3();
   for (let i=0;i<pos.count;i++){
@@ -1097,7 +1520,7 @@ function buildFinger(len, r, curl, mat){
   const s2 = fingerSegment(l2, r*0.88, mat); s2.position.y = -l2/2; j2.add(s2);
   const j3 = new THREE.Group(); j3.position.y = -l2; j3.rotation.x = curl*0.85; j2.add(j3);
   const s3 = fingerSegment(l3, r*0.78, mat); s3.position.y = -l3/2; j3.add(s3);
-  const nailGeo = new THREE.SphereGeometry(r*0.62, 8, 6);
+  const nailGeo = new THREE.SphereGeometry(r*0.62, 6, 5);
   nailGeo.scale(1, 0.5, 1.5);
   const nail = new THREE.Mesh(nailGeo, nailMat);
   nail.position.set(0, -l3 - r*0.15, -r*0.35);
@@ -1106,7 +1529,7 @@ function buildFinger(len, r, curl, mat){
 }
 function buildHand(mirror=1){
   const hand = new THREE.Group();
-  const palmGeo = new THREE.BoxGeometry(0.088, 0.032, 0.11, 5, 3, 5);
+  const palmGeo = new THREE.BoxGeometry(0.088, 0.032, 0.11, 4, 2, 4);
   const pos = palmGeo.attributes.position;
   const v = new THREE.Vector3();
   for (let i=0;i<pos.count;i++){
@@ -1136,10 +1559,8 @@ function buildHand(mirror=1){
   return hand;
 }
 
-/** ТОПОР — детализированный, кованое трапециевидное лезвие. */
 function buildAxe(){
   const g = new THREE.Group();
-  // Изогнутое древко
   const shaftSpine = new THREE.CatmullRomCurve3([
     new THREE.Vector3(0,-0.36,0),
     new THREE.Vector3(0.008,-0.18,0.004),
@@ -1147,46 +1568,29 @@ function buildAxe(){
     new THREE.Vector3(-0.005,0.18,-0.004),
     new THREE.Vector3(0.003,0.34,0),
   ]);
-  const shaft = new THREE.Mesh(tubeFromCurve(shaftSpine, t=>0.0175 + Math.sin(t*3.14)*0.004, 20, 10, 0.001, 5), woodMat);
+  const shaft = new THREE.Mesh(tubeFromCurve(shaftSpine, t=>0.0175 + Math.sin(t*3.14)*0.004, 16, 8, 0.001, 5), woodMat);
   shaft.castShadow = true;
   g.add(shaft);
-
-  // Обмотка кожей — серия колец с наклоном
   for (let i=0;i<9;i++){
     const y = -0.28 + i*0.026;
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.0205, 0.0042, 6, 12), leatherMat);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.0205, 0.0042, 5, 10), leatherMat);
     ring.geometry.rotateX(Math.PI/2);
     ring.position.y = y;
     ring.rotation.y = i*0.4;
     g.add(ring);
   }
-  // Кожаная "шнуровка"
-  for (let i=0;i<4;i++){
-    const strap = new THREE.Mesh(new THREE.BoxGeometry(0.048, 0.006, 0.012), leatherMat);
-    strap.position.y = -0.24 + i*0.08;
-    strap.rotation.y = i*0.5;
-    g.add(strap);
-  }
-
-  // ЛЕЗВИЕ — трапеция с фаской
   const shape = new THREE.Shape();
-  // Обух (у рукояти) — узкий
   shape.moveTo(-0.022, -0.030);
-  shape.lineTo(-0.010, -0.062);          // нижний край у рукояти
-  // Нижняя грань — расширяется к лезвию
+  shape.lineTo(-0.010, -0.062);
   shape.lineTo(0.060, -0.095);
-  shape.bezierCurveTo(0.110, -0.105, 0.155, -0.098, 0.185, -0.078); // нижний угол лезвия
-  // Остриё лезвия (вертикаль)
+  shape.bezierCurveTo(0.110, -0.105, 0.155, -0.098, 0.185, -0.078);
   shape.bezierCurveTo(0.210, -0.055, 0.210, 0.020, 0.185, 0.042);
-  // Верхний угол
   shape.bezierCurveTo(0.155, 0.062, 0.110, 0.068, 0.060, 0.058);
   shape.lineTo(-0.010, 0.025);
   shape.closePath();
-
   const bladeGeo = new THREE.ExtrudeGeometry(shape, {
-    depth: 0.026, bevelEnabled: true,
-    bevelThickness: 0.006, bevelSize: 0.008,
-    bevelSegments: 3, steps: 1, curveSegments: 14,
+    depth: 0.026, bevelEnabled: true, bevelThickness: 0.006,
+    bevelSize: 0.008, bevelSegments: 2, steps: 1, curveSegments: 8,
   });
   bladeGeo.translate(-0.030, 0, -0.013);
   bladeGeo.computeVertexNormals();
@@ -1194,95 +1598,66 @@ function buildAxe(){
   blade.castShadow = true;
   blade.position.set(0, 0.30, 0);
   g.add(blade);
-
-  // Фаска по режущей кромке — светлая полоса
-  const edge = new THREE.Mesh(bladeGeo.clone(), new THREE.MeshStandardMaterial({
-    color:0xd8d8dc, roughness:0.15, metalness:0.95,
-  }));
-  edge.scale.set(0.94, 0.94, 1.0);
-  edge.position.set(0.006, 0.30, 0.001);
-  edge.visible = false; // отключена, оставлено для будущего
-  g.add(edge);
-
-  // Ржавая накладка
-  const rustGeo = new THREE.ExtrudeGeometry(shape, { depth:0.004, bevelEnabled:false, curveSegments:10 });
+  const rustGeo = new THREE.ExtrudeGeometry(shape, { depth:0.004, bevelEnabled:false, curveSegments:6 });
   rustGeo.translate(-0.030, 0, 0.012);
   const rust = new THREE.Mesh(rustGeo, rustMat);
   rust.position.set(0, 0.30, 0);
   rust.scale.setScalar(0.75);
-  rust.rotation.z = 0.02;
   g.add(rust);
-
-  // Обойма (металлическое кольцо у основания лезвия)
-  const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.026, 0.024, 0.035, 12), ironMat);
+  const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.026, 0.024, 0.035, 10), ironMat);
   collar.position.y = 0.272;
   collar.castShadow = true;
   g.add(collar);
-
   return g;
 }
 
-/** КИРКА — двусторонняя головка. */
 function buildPickaxe(){
   const g = new THREE.Group();
-  // Прямое древко
-  const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.017, 0.019, 0.72, 12, 6), woodMat);
+  const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.017, 0.019, 0.72, 10, 4), woodMat);
   shaft.castShadow = true;
   g.add(shaft);
-  // Обмотка
   for (let i=0;i<7;i++){
     const y = -0.30 + i*0.026;
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.0205, 0.0038, 6, 12), leatherMat);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.0205, 0.0038, 5, 10), leatherMat);
     ring.geometry.rotateX(Math.PI/2);
     ring.position.y = y;
     ring.rotation.y = i*0.4;
     g.add(ring);
   }
-  // Обойма у головки
   const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.020, 0.05, 10), ironMat);
   collar.position.y = 0.32;
-  collar.castShadow = true;
   g.add(collar);
-
-  // Головка — металлическая, с двумя остриями
   const head = new THREE.Group();
   head.position.y = 0.35;
-  // Центральный блок
-  const center = new THREE.Mesh(new THREE.BoxGeometry(0.038, 0.045, 0.050, 2, 2, 3), steelMat);
+  const center = new THREE.Mesh(new THREE.BoxGeometry(0.038, 0.045, 0.050, 2, 2, 2), steelMat);
   center.castShadow = true;
   head.add(center);
-  // Два заострённых конца
   for (const sx of [-1, 1]){
     const tip = new THREE.Mesh(new THREE.ConeGeometry(0.018, 0.14, 6), steelMat);
     tip.position.set(sx*0.088, 0, 0);
     tip.rotation.z = sx * Math.PI/2;
     tip.castShadow = true;
     head.add(tip);
-    // Утолщение у основания острия
     const b = new THREE.Mesh(new THREE.CylinderGeometry(0.020, 0.017, 0.040, 8), steelDark);
     b.position.set(sx*0.038, 0, 0);
     b.rotation.z = Math.PI/2;
     head.add(b);
   }
   g.add(head);
-
   return g;
 }
 
-/** Копьё. */
 function buildSpear(){
   const g = new THREE.Group();
-  const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.013, 1.10, 10, 6), woodMat);
+  const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.013, 1.10, 8, 3), woodMat);
   shaft.castShadow = true;
   g.add(shaft);
-  // Обмотка
   for (let i=0;i<5;i++){
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.013, 0.0025, 5, 10), leatherMat);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.013, 0.0025, 4, 8), leatherMat);
     ring.geometry.rotateX(Math.PI/2);
     ring.position.y = -0.15 + i*0.035;
     g.add(ring);
   }
-  // Наконечник
   const tip = new THREE.Mesh(new THREE.ConeGeometry(0.016, 0.11, 6), steelMat);
   tip.position.y = 0.60;
   tip.castShadow = true;
@@ -1290,7 +1665,6 @@ function buildSpear(){
   return g;
 }
 
-/** Факел. */
 function buildTorch(){
   const g = new THREE.Group();
   const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.014, 0.40, 8, 3), woodMat);
@@ -1299,7 +1673,6 @@ function buildTorch(){
   const wrap = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.020, 0.09, 8), new THREE.MeshStandardMaterial({ color:0x2a1a10, roughness:0.95 }));
   wrap.position.y = 0.22;
   g.add(wrap);
-  // Огонь
   const flame = new THREE.Mesh(new THREE.ConeGeometry(0.045, 0.13, 8, 1, true),
     new THREE.MeshBasicMaterial({ color:0xff8030, transparent:true, opacity:0.85,
       blending:THREE.AdditiveBlending, depthWrite:false }));
@@ -1311,10 +1684,9 @@ function buildTorch(){
   return g;
 }
 
-/** Сырое и жареное мясо. */
 function buildMeat(cooked=false){
   const g = new THREE.Group();
-  const geo = new THREE.IcosahedronGeometry(0.075, 3);
+  const geo = new THREE.IcosahedronGeometry(0.075, 2);
   const pos = geo.attributes.position;
   const v = new THREE.Vector3();
   for (let i=0;i<pos.count;i++){
@@ -1331,85 +1703,182 @@ function buildMeat(cooked=false){
   const m = new THREE.Mesh(geo, mat);
   m.castShadow = true;
   g.add(m);
-  if (cooked){
-    const crustGeo = geo.clone();
-    crustGeo.scale(1.02,1.02,1.02);
-    g.add(new THREE.Mesh(crustGeo, new THREE.MeshStandardMaterial({
-      color:0x3a1a0c, roughness:0.95, transparent:true, opacity:0.4
-    })));
-  }
   return g;
 }
 
-// Hands root
-const handsRoot = new THREE.Group();
-camera.add(handsRoot);
-scene.add(camera);
+function initHands(){
+  handsRoot = new THREE.Group();
+  camera.add(handsRoot);
+  scene.add(camera);
 
-const rightHandGroup = new THREE.Group();
-const leftHandGroup = new THREE.Group();
-handsRoot.add(rightHandGroup, leftHandGroup);
+  rightHandGroup = new THREE.Group();
+  leftHandGroup = new THREE.Group();
+  handsRoot.add(rightHandGroup, leftHandGroup);
 
-// Right hand + current tool
-const rightHand = buildHand(1);
-rightHand.rotation.set(-0.15, 0.05, 0);
-rightHandGroup.add(rightHand);
+  rightHand = buildHand(1);
+  rightHand.rotation.set(-0.15, 0.05, 0);
+  rightHandGroup.add(rightHand);
 
-// Tools — swap based on equipped tool
-const axeMesh = buildAxe();
-axeMesh.position.set(0.0, -0.055, -0.02);
-axeMesh.rotation.set(-0.30, 0.0, 0.10);
-rightHandGroup.add(axeMesh);
+  axeMesh = buildAxe();
+  axeMesh.position.set(0.0, -0.055, -0.02);
+  axeMesh.rotation.set(-0.30, 0.0, 0.10);
+  rightHandGroup.add(axeMesh);
 
-const pickaxeMesh = buildPickaxe();
-pickaxeMesh.position.set(0.0, -0.055, -0.02);
-pickaxeMesh.rotation.set(-0.30, 0.0, 0.10);
-pickaxeMesh.visible = false;
-rightHandGroup.add(pickaxeMesh);
+  pickaxeMesh = buildPickaxe();
+  pickaxeMesh.position.set(0.0, -0.055, -0.02);
+  pickaxeMesh.rotation.set(-0.30, 0.0, 0.10);
+  pickaxeMesh.visible = false;
+  rightHandGroup.add(pickaxeMesh);
 
-const spearMesh = buildSpear();
-spearMesh.position.set(0.0, 0.0, -0.06);
-spearMesh.rotation.set(1.2, 0.0, 0.0);
-spearMesh.visible = false;
-rightHandGroup.add(spearMesh);
+  spearMesh = buildSpear();
+  spearMesh.position.set(0.0, 0.0, -0.06);
+  spearMesh.rotation.set(1.2, 0.0, 0.0);
+  spearMesh.visible = false;
+  rightHandGroup.add(spearMesh);
 
-const torchMesh = buildTorch();
-torchMesh.position.set(0.0, -0.10, -0.02);
-torchMesh.rotation.set(-0.20, 0.0, 0.10);
-torchMesh.visible = false;
-rightHandGroup.add(torchMesh);
+  torchMesh = buildTorch();
+  torchMesh.position.set(0.0, -0.10, -0.02);
+  torchMesh.rotation.set(-0.20, 0.0, 0.10);
+  torchMesh.visible = false;
+  rightHandGroup.add(torchMesh);
 
-// Left hand + meat
-const leftHand = buildHand(-1);
-leftHand.rotation.set(-0.10, -0.05, 0);
-leftHandGroup.add(leftHand);
+  leftHand = buildHand(-1);
+  leftHand.rotation.set(-0.10, -0.05, 0);
+  leftHandGroup.add(leftHand);
 
-const meatMesh = buildMeat(false);
-const cookedMeatMesh = buildMeat(true);
-meatMesh.position.set(0, -0.10, -0.06);
-cookedMeatMesh.position.set(0, -0.10, -0.06);
-meatMesh.visible = false; cookedMeatMesh.visible = false;
-leftHandGroup.add(meatMesh);
-leftHandGroup.add(cookedMeatMesh);
+  meatMesh = buildMeat(false);
+  cookedMeatMesh = buildMeat(true);
+  meatMesh.position.set(0, -0.10, -0.06);
+  cookedMeatMesh.position.set(0, -0.10, -0.06);
+  meatMesh.visible = false; cookedMeatMesh.visible = false;
+  leftHandGroup.add(meatMesh);
+  leftHandGroup.add(cookedMeatMesh);
 
-const RIGHT_BASE = new THREE.Vector3(0.235, -0.215, -0.42);
-const LEFT_BASE  = new THREE.Vector3(-0.245, -0.245, -0.44);
-const RIGHT_ROT  = new THREE.Euler(0.10, -0.18, 0.22);
-const LEFT_ROT   = new THREE.Euler(0.05,  0.20, -0.15);
-rightHandGroup.position.copy(RIGHT_BASE);
-rightHandGroup.rotation.copy(RIGHT_ROT);
-leftHandGroup.position.copy(LEFT_BASE);
-leftHandGroup.rotation.copy(LEFT_ROT);
+  rightHandGroup.position.copy(RIGHT_BASE);
+  rightHandGroup.rotation.copy(RIGHT_ROT);
+  leftHandGroup.position.copy(LEFT_BASE);
+  leftHandGroup.rotation.copy(LEFT_ROT);
+}
 
-const handState = { swayX:0, swayY:0, targetSwayX:0, targetSwayY:0,
-  swingActive:false, swingT:0, usePulse:0, swimStroke:0 };
+/* ---- CAMPFIRE ---- */
+class Campfire {
+  constructor(x,z){
+    this.group = new THREE.Group();
+    const y = terrainHeight(x,z);
+    this.group.position.set(x,y,z);
+    for (let i=0;i<11;i++){
+      const a = (i/11)*Math.PI*2;
+      const g = erodeGeometry(new THREE.IcosahedronGeometry(rnd(0.13,0.20),1), 0.28, 6, i*7);
+      const s = new THREE.Mesh(g, rockMat);
+      s.position.set(Math.cos(a)*0.62, 0.06, Math.sin(a)*0.62);
+      s.rotation.set(rnd(0,1),rnd(0,3),rnd(0,1));
+      s.castShadow = true; s.receiveShadow = true;
+      this.group.add(s);
+    }
+    for (let i=0;i<6;i++){
+      const a = (i/6)*Math.PI*2 + 0.3;
+      const g = new THREE.CylinderGeometry(0.055,0.07,0.85,7,1);
+      const m = new THREE.Mesh(g, woodMat.clone());
+      m.material.color.setHex(0x3a2a1c);
+      m.position.set(Math.cos(a)*0.16, 0.24, Math.sin(a)*0.16);
+      m.rotation.set(Math.cos(a)*0.62, 0, -Math.sin(a)*0.62);
+      m.castShadow = true; m.receiveShadow = true;
+      this.group.add(m);
+    }
+    const emberGeo = new THREE.CircleGeometry(0.42,16); emberGeo.rotateX(-Math.PI/2);
+    this.emberMat = new THREE.MeshBasicMaterial({ color:0xff5a10, transparent:true, opacity:0.85,
+      blending:THREE.AdditiveBlending, depthWrite:false });
+    this.embers = new THREE.Mesh(emberGeo, this.emberMat);
+    this.embers.position.y = 0.06;
+    this.group.add(this.embers);
+    this.light = new THREE.PointLight(0xff8c30, 6.5, 26, 2);
+    this.light.position.set(0,1.0,0);
+    this.light.castShadow = settings.quality > 0;
+    this.light.shadow.mapSize.set(512,512);
+    this.group.add(this.light);
+    // Sparks
+    this.sparkCount = 120;
+    this.sparkPos = new Float32Array(this.sparkCount*3);
+    this.sparkVel = new Float32Array(this.sparkCount*3);
+    this.sparkLife = new Float32Array(this.sparkCount);
+    this.sparkSize = new Float32Array(this.sparkCount);
+    for (let i=0;i<this.sparkCount;i++) this.resetSpark(i, true);
+    const sGeo = new THREE.BufferGeometry();
+    sGeo.setAttribute('position', new THREE.BufferAttribute(this.sparkPos,3));
+    sGeo.setAttribute('aSize', new THREE.BufferAttribute(this.sparkSize,1));
+    sGeo.setAttribute('aLife', new THREE.BufferAttribute(this.sparkLife,1));
+    this.sparkMat = new THREE.ShaderMaterial({
+      transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
+      uniforms:{ uPR:{value:renderer.getPixelRatio()} },
+      vertexShader:`attribute float aSize;attribute float aLife;varying float vL;uniform float uPR;
+        void main(){vL=aLife;vec4 mv=modelViewMatrix*vec4(position,1.0);gl_Position=projectionMatrix*mv;
+        gl_PointSize=aSize*uPR*300.0/max(-mv.z,0.001);}`,
+      fragmentShader:`varying float vL;
+        void main(){vec2 uv=gl_PointCoord-0.5;float d=length(uv);if(d>0.5)discard;
+        float c=smoothstep(0.5,0.0,d);vec3 hot=mix(vec3(1.0,0.28,0.03),vec3(1.0,0.92,0.55),pow(c,2.0));
+        gl_FragColor=vec4(hot,c*vL);}`
+    });
+    this.sparks = new THREE.Points(sGeo, this.sparkMat);
+    this.sparks.frustumCulled = false;
+    this.group.add(this.sparks);
+    scene.add(this.group);
+    this.cookSlots = [null, null, null];
+    this.time = 0;
+  }
+  resetSpark(i, init){
+    const a = Math.random()*Math.PI*2, r = Math.random()*0.28;
+    this.sparkPos[i*3]=Math.cos(a)*r;
+    this.sparkPos[i*3+1]= init ? Math.random()*2.4 : 0.22;
+    this.sparkPos[i*3+2]=Math.sin(a)*r;
+    this.sparkVel[i*3]=rnd(-0.28,0.28);
+    this.sparkVel[i*3+1]=rnd(0.9,2.3);
+    this.sparkVel[i*3+2]=rnd(-0.28,0.28);
+    this.sparkLife[i]= init ? Math.random() : 1;
+    this.sparkSize[i]=rnd(0.35,1.15);
+  }
+  update(dt, t){
+    this.time += dt;
+    const f = 0.78 + Math.sin(t*11.3)*0.09 + Math.sin(t*23.7)*0.06 + Math.sin(t*3.1)*0.07;
+    this.light.intensity = 6.2*f;
+    this.light.color.setHSL(0.075+Math.sin(t*4.1)*0.012, 0.95, 0.52+f*0.06);
+    this.emberMat.opacity = 0.55 + f*0.35;
+    this.embers.scale.setScalar(0.92 + f*0.12);
+    const sp=this.sparkPos, sv=this.sparkVel, sl=this.sparkLife;
+    for (let i=0;i<this.sparkCount;i++){
+      const ix=i*3;
+      sl[i] -= dt*0.65;
+      if (sl[i]<=0){ this.resetSpark(i,false); continue; }
+      sv[ix]+=Math.sin(t*4+i)*dt*0.55;
+      sv[ix+2]+=Math.cos(t*4+i*1.4)*dt*0.55;
+      sv[ix+1]-=dt*0.35;
+      sp[ix]+=sv[ix]*dt; sp[ix+1]+=sv[ix+1]*dt; sp[ix+2]+=sv[ix+2]*dt;
+    }
+    this.sparks.geometry.attributes.position.needsUpdate = true;
+    this.sparks.geometry.attributes.aLife.needsUpdate = true;
+    for (let i=0;i<3;i++){
+      const slot = this.cookSlots[i];
+      if (slot && slot.cooking){
+        slot.progress += dt / 12;
+        if (slot.progress >= 1){
+          slot.item = 'cooked_meat';
+          slot.cooking = false;
+          slot.progress = 0;
+          addToast('МЯСО ГОТОВО', 'good');
+        }
+      }
+    }
+  }
+}
+function placeCampfire(x,z){
+  if (!isLand(x,z)) return false;
+  if (campfire) scene.remove(campfire.group);
+  campfire = new Campfire(x,z);
+  return true;
+}
 
-/* ============================================================================
-   14. ANIMALS — base class + Chicken, Rabbit, Sheep, Boar, Wolf
-   ========================================================================== */
+/* ---- ANIMALS ---- */
 const furBrown = new THREE.MeshStandardMaterial({ color:0x6a4a32, roughness:0.92 });
 const furWhite = new THREE.MeshStandardMaterial({ color:0xd8d0b8, roughness:0.9 });
-const furBlack = new THREE.MeshStandardMaterial({ color:0x2a2a30, roughness:0.94 });
 const furGrey = new THREE.MeshStandardMaterial({ color:0x8a8a92, roughness:0.92 });
 const furWolf = new THREE.MeshStandardMaterial({ color:0x4a4a52, roughness:0.94 });
 const furWolfDark = new THREE.MeshStandardMaterial({ color:0x2a2a30, roughness:0.96 });
@@ -1421,7 +1890,7 @@ const eyeGlowMat = new THREE.MeshStandardMaterial({ color:0xffb020, emissive:0xf
 const teethMat = new THREE.MeshStandardMaterial({ color:0xe8e2d0, roughness:0.35 });
 const tuskMat = new THREE.MeshStandardMaterial({ color:0xf0e0c0, roughness:0.4 });
 
-function bodyFromSpine(spine, radiusFn, segs=24, radial=12){
+function bodyFromSpine(spine, radiusFn, segs=20, radial=10){
   const positions=[], indices=[];
   for (let i=0;i<=segs;i++){
     const t = i/segs;
@@ -1431,8 +1900,6 @@ function bodyFromSpine(spine, radiusFn, segs=24, radial=12){
       const a = (j/radial)*Math.PI*2;
       const cx = Math.cos(a), cy = Math.sin(a);
       let px = p.x + cx*r, py = p.y + cy*r*0.92, pz = p.z;
-      const n = PERLIN.fbm(px*6, py*6, pz*6, 2)*0.008;
-      px += cx*n; py += cy*n;
       positions.push(px,py,pz);
     }
   }
@@ -1446,13 +1913,12 @@ function bodyFromSpine(spine, radiusFn, segs=24, radial=12){
   g.computeVertexNormals();
   return g;
 }
-
 function buildSimpleLeg(len, r, mat){
   const root = new THREE.Group();
-  const upper = new THREE.Mesh(new THREE.CylinderGeometry(r*0.7, r, len, 7, 2), mat);
+  const upper = new THREE.Mesh(new THREE.CylinderGeometry(r*0.7, r, len, 6, 1), mat);
   upper.position.y = -len/2; upper.castShadow = true; root.add(upper);
   const knee = new THREE.Group(); knee.position.y = -len; root.add(knee);
-  const lower = new THREE.Mesh(new THREE.CylinderGeometry(r*0.5, r*0.55, len*0.9, 6, 2), mat);
+  const lower = new THREE.Mesh(new THREE.CylinderGeometry(r*0.5, r*0.55, len*0.9, 6, 1), mat);
   lower.position.y = -len*0.45; lower.castShadow = true; knee.add(lower);
   const foot = new THREE.Mesh(new THREE.BoxGeometry(r*1.6, r*0.7, r*2.4), mat);
   foot.position.set(0, -len*0.92, r*0.6); foot.castShadow = true;
@@ -1460,7 +1926,6 @@ function buildSimpleLeg(len, r, mat){
   return { root, knee };
 }
 
-// ==== ANIMAL BASE ====
 class Animal {
   constructor(x, z, opts){
     this.opts = opts;
@@ -1471,7 +1936,6 @@ class Animal {
     this.bodyGroup.position.y = opts.legHeight;
     this.root.add(this.bodyGroup);
     this.hp = opts.hp;
-    this.maxHp = opts.hp;
     this.state = 'wander';
     this.wanderAngle = Math.random()*Math.PI*2;
     this.speed = 0;
@@ -1484,8 +1948,8 @@ class Animal {
     this.buildBody();
     scene.add(this.root);
   }
-  buildBody(){ /* override */ }
-  buildLegs(count, positions, legLen, r){ 
+  buildBody(){}
+  buildLegs(count, positions, legLen, r){
     this.legs = [];
     for (const p of positions){
       const leg = buildSimpleLeg(legLen, r, this.opts.furMat);
@@ -1497,8 +1961,7 @@ class Animal {
   update(dt, playerPos, t){
     if (this.dead){
       this.deathT += dt;
-      const targetRoll = Math.PI/2 * 0.85;
-      this.root.rotation.z = lerp(this.root.rotation.z, targetRoll, dt*2.2);
+      this.root.rotation.z = lerp(this.root.rotation.z, Math.PI/2 * 0.85, dt*2.2);
       this.bodyGroup.position.y = lerp(this.bodyGroup.position.y, this.opts.legHeight*0.35, dt*2);
       const gy = terrainHeight(this.root.position.x, this.root.position.z);
       this.root.position.y = lerp(this.root.position.y, gy, dt*3);
@@ -1511,12 +1974,10 @@ class Animal {
       this._flashMat.color.setRGB(0.4+f*0.7, 0.3+f*0.4, 0.3+f*0.4);
       this.bodyGroup.traverse(o => { if (o.isMesh && o.material === this.opts.furMat) o.material = this._flashMat; });
     }
-
     const toPlayer = new THREE.Vector3().subVectors(playerPos, this.root.position);
     toPlayer.y = 0;
     const dist = toPlayer.length();
 
-    // AI
     if (this.opts.aggressive){
       if (dist < this.opts.aggroRange && dist > this.opts.attackDist*0.8) this.state = 'chase';
       else if (dist <= this.opts.attackDist*0.8) this.state = 'attack';
@@ -1528,22 +1989,16 @@ class Animal {
 
     let moveDir = new THREE.Vector3();
     let targetSpeed = 0;
-
-    if (this.state === 'chase'){
-      moveDir.copy(toPlayer).normalize();
-      targetSpeed = this.opts.chaseSpeed || 4;
-    } else if (this.state === 'attack'){
-      moveDir.copy(toPlayer).normalize();
-      targetSpeed = 0.4;
+    if (this.state === 'chase'){ moveDir.copy(toPlayer).normalize(); targetSpeed = this.opts.chaseSpeed || 4; }
+    else if (this.state === 'attack'){
+      moveDir.copy(toPlayer).normalize(); targetSpeed = 0.4;
       this.attackCd -= dt;
       if (this.attackCd <= 0){
         this.attackCd = 1.6;
-        if (typeof onAnimalAttack === 'function') onAnimalAttack(this);
+        onAnimalAttack(this);
       }
-    } else if (this.state === 'flee'){
-      moveDir.copy(toPlayer).normalize().negate();
-      targetSpeed = this.opts.fleeSpeed || 4.5;
-    } else {
+    } else if (this.state === 'flee'){ moveDir.copy(toPlayer).normalize().negate(); targetSpeed = this.opts.fleeSpeed || 4.5; }
+    else {
       this.wanderAngle += rnd(-1.6,1.6)*dt;
       moveDir.set(Math.cos(this.wanderAngle), 0, Math.sin(this.wanderAngle));
       targetSpeed = 1.0;
@@ -1552,9 +2007,8 @@ class Animal {
     this.speed = lerp(this.speed, targetSpeed, dt*3.2);
     const nx = this.root.position.x + moveDir.x*this.speed*dt;
     const nz = this.root.position.z + moveDir.z*this.speed*dt;
-    const R = 240;
+    const R = 200;
     if (Math.hypot(nx,nz) < R){
-      // Проверка: не заходим глубоко в воду
       const gh = terrainHeight(nx, nz);
       if (gh > WATER_LEVEL - 0.3){
         this.root.position.x = nx;
@@ -1562,11 +2016,9 @@ class Animal {
       } else this.wanderAngle += Math.PI;
     } else this.wanderAngle += Math.PI;
 
-    // Ground snap
     const gy = terrainHeight(this.root.position.x, this.root.position.z);
     this.root.position.y = lerp(this.root.position.y, Math.max(gy, WATER_LEVEL-0.2), dt*8);
 
-    // Facing — local +Z
     if (this.speed > 0.2){
       const targetYaw = Math.atan2(moveDir.x, moveDir.z);
       let d = targetYaw - this.root.rotation.y;
@@ -1575,7 +2027,6 @@ class Animal {
       this.root.rotation.y += d*Math.min(1, dt*5.5);
     }
 
-    // Walk animation
     this.phase += dt * this.speed * 3.2;
     const s = Math.sin(this.phase);
     const amp = clamp(this.speed/3.5, 0, 1)*0.85 + 0.05;
@@ -1591,16 +2042,14 @@ class Animal {
 
     if (this.tail){
       this.tail.rotation.x = (this.opts.tailBase || 0.3) - this.speed*0.06;
-      for (let i=0;i<this.tailSegs.length;i++){
+      if (this.tailSegs) for (let i=0;i<this.tailSegs.length;i++){
         this.tailSegs[i].rotation.y = Math.sin(t*3.4 + i*0.55)*0.18;
       }
     }
     if (this.headNode){
       this.headNode.rotation.x = Math.sin(t*0.7)*0.06;
       this.headNode.rotation.y = Math.sin(t*0.5)*0.08;
-      if (this.state === 'chase' || this.state === 'attack'){
-        this.headNode.rotation.x = -0.08;
-      }
+      if (this.state === 'chase' || this.state === 'attack') this.headNode.rotation.x = -0.08;
     }
   }
   takeDamage(amount){
@@ -1614,7 +2063,6 @@ class Animal {
   }
 }
 
-// ============ CHICKEN ============
 class Chicken extends Animal {
   buildBody(){
     const spine = new THREE.CatmullRomCurve3([
@@ -1623,54 +2071,30 @@ class Chicken extends Animal {
       new THREE.Vector3(0, 0.05, 0.06),
       new THREE.Vector3(0, 0.08, 0.18),
     ]);
-    const body = new THREE.Mesh(bodyFromSpine(spine, t=> 0.055 + Math.sin(t*Math.PI)*0.06, 16, 10), furChicken);
+    const body = new THREE.Mesh(bodyFromSpine(spine, t=> 0.055 + Math.sin(t*Math.PI)*0.06, 14, 8), furChicken);
     body.castShadow = true;
     this.bodyGroup.add(body);
-    // Head
     const head = new THREE.Group();
     head.position.set(0, 0.11, 0.20);
     this.bodyGroup.add(head);
-    const hb = new THREE.Mesh(new THREE.IcosahedronGeometry(0.045, 2), furChicken);
+    const hb = new THREE.Mesh(new THREE.IcosahedronGeometry(0.045, 1), furChicken);
     head.add(hb);
-    // Beak
     const beak = new THREE.Mesh(new THREE.ConeGeometry(0.012, 0.030, 5), beakMat);
     beak.position.set(0, -0.006, 0.045);
     beak.rotation.x = Math.PI/2;
     head.add(beak);
-    // Comb
     const comb = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.020, 0.045), furChickenRed);
     comb.position.set(0, 0.045, 0.006);
     head.add(comb);
-    // Wattle
-    const wattle = new THREE.Mesh(new THREE.SphereGeometry(0.010, 6, 6), furChickenRed);
-    wattle.position.set(0, -0.030, 0.030);
-    head.add(wattle);
-    // Eyes
     for (const sx of [-1,1]){
-      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.006, 6, 6), eyeBlackMat);
+      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.006, 5, 5), eyeBlackMat);
       eye.position.set(sx*0.024, 0.010, 0.030);
       head.add(eye);
     }
     this.headNode = head;
-    // Tail feathers
-    const tail = new THREE.Group();
-    tail.position.set(0, 0.05, -0.18);
-    this.bodyGroup.add(tail);
-    for (let i=0;i<3;i++){
-      const f = new THREE.Mesh(new THREE.ConeGeometry(0.014, 0.075, 5), furWhite);
-      f.rotation.set(-Math.PI/2 + rnd(-0.2,0.2), (i-1)*0.35, rnd(-0.1,0.1));
-      f.position.set((i-1)*0.015, 0.02, -0.03);
-      f.castShadow = true;
-      tail.add(f);
-    }
-    this.tail = tail;
-    this.tailSegs = [];
-    // Legs
     this.buildLegs(2, [{x:-0.028, z:0}, {x:0.028, z:0}], 0.10, 0.006);
   }
 }
-
-// ============ RABBIT ============
 class Rabbit extends Animal {
   buildBody(){
     const spine = new THREE.CatmullRomCurve3([
@@ -1678,47 +2102,33 @@ class Rabbit extends Animal {
       new THREE.Vector3(0, 0.03, 0.0),
       new THREE.Vector3(0, 0.03, 0.13),
     ]);
-    const body = new THREE.Mesh(bodyFromSpine(spine, t=>0.055 + Math.sin(t*Math.PI)*0.045, 14, 10), furGrey);
+    const body = new THREE.Mesh(bodyFromSpine(spine, t=>0.055 + Math.sin(t*Math.PI)*0.045, 12, 8), furGrey);
     body.castShadow = true;
     this.bodyGroup.add(body);
     const head = new THREE.Group();
     head.position.set(0, 0.03, 0.14);
     this.bodyGroup.add(head);
-    const hb = new THREE.Mesh(new THREE.IcosahedronGeometry(0.042, 2), furGrey);
+    const hb = new THREE.Mesh(new THREE.IcosahedronGeometry(0.042, 1), furGrey);
     head.add(hb);
-    // Ears
     for (const sx of [-1,1]){
-      const ear = new THREE.Mesh(new THREE.CapsuleGeometry(0.010, 0.06, 4, 6), furGrey);
+      const ear = new THREE.Mesh(new THREE.CapsuleGeometry(0.010, 0.06, 3, 6), furGrey);
       ear.position.set(sx*0.018, 0.055, -0.005);
       ear.rotation.x = -0.25;
       ear.rotation.z = sx*0.12;
       head.add(ear);
     }
-    // Nose
-    const nose = new THREE.Mesh(new THREE.SphereGeometry(0.008, 6, 6), eyeBlackMat);
-    nose.position.set(0, -0.005, 0.040);
-    head.add(nose);
-    // Eyes
     for (const sx of [-1,1]){
-      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.008, 6, 6), eyeBlackMat);
+      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.008, 5, 5), eyeBlackMat);
       eye.position.set(sx*0.022, 0.008, 0.030);
       head.add(eye);
     }
     this.headNode = head;
-    // Tail
-    const tail = new THREE.Mesh(new THREE.SphereGeometry(0.020, 8, 6), furWhite);
-    tail.position.set(0, 0.02, -0.16);
-    this.bodyGroup.add(tail);
-    // Legs
     this.buildLegs(4, [{x:-0.030,z:0.08},{x:0.030,z:0.08},{x:-0.032,z:-0.08},{x:0.032,z:-0.08}], 0.075, 0.008);
   }
 }
-
-// ============ SHEEP ============
 class Sheep extends Animal {
   buildBody(){
-    // Wooly body — deformed sphere
-    const geo = new THREE.IcosahedronGeometry(0.28, 3);
+    const geo = new THREE.IcosahedronGeometry(0.28, 2);
     const pos = geo.attributes.position;
     const v = new THREE.Vector3();
     for (let i=0;i<pos.count;i++){
@@ -1732,41 +2142,20 @@ class Sheep extends Animal {
     const body = new THREE.Mesh(geo, furWhite);
     body.castShadow = true;
     this.bodyGroup.add(body);
-    // Head
     const head = new THREE.Group();
     head.position.set(0, 0.06, 0.38);
     this.bodyGroup.add(head);
-    const hb = new THREE.Mesh(new THREE.IcosahedronGeometry(0.085, 2), furBlack);
-    hb.castShadow = true;
+    const hb = new THREE.Mesh(new THREE.IcosahedronGeometry(0.085, 1), furGrey);
     head.add(hb);
-    // Snout
-    const snout = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.045, 0.06), furBlack);
-    snout.position.set(0, -0.02, 0.06);
-    head.add(snout);
-    // Ears
     for (const sx of [-1,1]){
-      const ear = new THREE.Mesh(new THREE.BoxGeometry(0.040, 0.012, 0.030), furBlack);
-      ear.position.set(sx*0.075, 0.020, -0.010);
-      ear.rotation.z = sx*0.4;
-      head.add(ear);
-    }
-    // Eyes
-    for (const sx of [-1,1]){
-      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.011, 6, 6), eyeBlackMat);
+      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.011, 5, 5), eyeBlackMat);
       eye.position.set(sx*0.035, 0.015, 0.055);
       head.add(eye);
     }
     this.headNode = head;
-    // Tail
-    const tail = new THREE.Mesh(new THREE.SphereGeometry(0.035, 8, 6), furWhite);
-    tail.position.set(0, 0.12, -0.42);
-    this.bodyGroup.add(tail);
-    // Legs
     this.buildLegs(4, [{x:-0.13,z:0.20},{x:0.13,z:0.20},{x:-0.13,z:-0.20},{x:0.13,z:-0.20}], 0.28, 0.026);
   }
 }
-
-// ============ BOAR ============
 class Boar extends Animal {
   buildBody(){
     const spine = new THREE.CatmullRomCurve3([
@@ -1776,61 +2165,33 @@ class Boar extends Animal {
       new THREE.Vector3(0, 0.07, 0.34),
       new THREE.Vector3(0, 0.05, 0.46),
     ]);
-    const body = new THREE.Mesh(bodyFromSpine(spine, t=> 0.16 + Math.sin(t*Math.PI)*0.10, 20, 12), furBrown);
+    const body = new THREE.Mesh(bodyFromSpine(spine, t=> 0.16 + Math.sin(t*Math.PI)*0.10, 18, 10), furBrown);
     body.castShadow = true;
     this.bodyGroup.add(body);
-    // Head — bigger snout
     const head = new THREE.Group();
     head.position.set(0, 0.06, 0.48);
     this.bodyGroup.add(head);
-    const hb = new THREE.Mesh(new THREE.IcosahedronGeometry(0.13, 2), furBrown);
-    hb.castShadow = true;
+    const hb = new THREE.Mesh(new THREE.IcosahedronGeometry(0.13, 1), furBrown);
     head.add(hb);
-    const snout = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.075, 0.10, 8), furBrown);
+    const snout = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.075, 0.10, 6), furBrown);
     snout.position.set(0, -0.045, 0.10);
     snout.rotation.x = Math.PI/2;
     head.add(snout);
-    // Nose disc
-    const nose = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.052, 0.010, 10), new THREE.MeshStandardMaterial({ color:0x4a3020, roughness:0.7 }));
-    nose.position.set(0, -0.045, 0.155);
-    nose.rotation.x = Math.PI/2;
-    head.add(nose);
-    // Tusks
     for (const sx of [-1,1]){
-      const tusk = new THREE.Mesh(new THREE.ConeGeometry(0.012, 0.055, 5), tuskMat);
+      const tusk = new THREE.Mesh(new THREE.ConeGeometry(0.012, 0.055, 4), tuskMat);
       tusk.position.set(sx*0.055, -0.055, 0.13);
       tusk.rotation.set(-0.7, 0, sx*0.15);
       head.add(tusk);
     }
-    // Ears
     for (const sx of [-1,1]){
-      const ear = new THREE.Mesh(new THREE.ConeGeometry(0.038, 0.06, 4), furBrown);
-      ear.position.set(sx*0.10, 0.10, -0.02);
-      ear.rotation.set(0.3, 0, sx*0.4);
-      head.add(ear);
-    }
-    // Eyes
-    for (const sx of [-1,1]){
-      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.012, 6, 6), eyeBlackMat);
+      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.012, 5, 5), eyeBlackMat);
       eye.position.set(sx*0.060, 0.035, 0.085);
       head.add(eye);
     }
     this.headNode = head;
-    // Tail
-    const tail = new THREE.Group();
-    tail.position.set(0, 0.15, -0.36);
-    this.bodyGroup.add(tail);
-    const tailMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.006, 0.11, 5), furBrown);
-    tailMesh.position.y = -0.055;
-    tail.add(tailMesh);
-    this.tail = tail;
-    this.tailSegs = [];
-    // Legs — short and stocky
     this.buildLegs(4, [{x:-0.14,z:0.26},{x:0.14,z:0.26},{x:-0.14,z:-0.24},{x:0.14,z:-0.24}], 0.28, 0.034);
   }
 }
-
-// ============ WOLF ============
 class Wolf extends Animal {
   buildBody(){
     const spine = new THREE.CatmullRomCurve3([
@@ -1845,140 +2206,127 @@ class Wolf extends Animal {
       let r = 0.085 + Math.sin(t*Math.PI)*0.135 + Math.sin(t*Math.PI*3)*0.012;
       if (t > 0.82) r *= 1 - (t-0.82)*1.6;
       return r;
-    }, 26, 14), furWolf);
+    }, 22, 12), furWolf);
     body.castShadow = true;
     this.bodyGroup.add(body);
-    // Head
     const head = new THREE.Group();
     head.position.set(0, 0.15, 0.68);
     this.bodyGroup.add(head);
-    const skull = new THREE.Mesh(erodeGeometry(new THREE.IcosahedronGeometry(0.11,3), 0.14, 9, 3), furWolf);
+    const skull = new THREE.Mesh(erodeGeometry(new THREE.IcosahedronGeometry(0.11,2), 0.14, 9, 3), furWolf);
     skull.scale.set(1, 0.9, 1.15);
     skull.castShadow = true;
     head.add(skull);
-    // Snout
     const snoutSpine = new THREE.CatmullRomCurve3([
       new THREE.Vector3(0, -0.010, 0.06),
       new THREE.Vector3(0, -0.030, 0.14),
       new THREE.Vector3(0, -0.045, 0.22),
     ]);
-    const snout = new THREE.Mesh(tubeFromCurve(snoutSpine, t=>0.056*(1-t*0.42), 10, 10, 0.003, 8), furWolf);
+    const snout = new THREE.Mesh(tubeFromCurve(snoutSpine, t=>0.056*(1-t*0.42), 8, 8, 0.003, 8), furWolf);
     head.add(snout);
-    const nose = new THREE.Mesh(new THREE.IcosahedronGeometry(0.026, 2), eyeBlackMat);
+    const nose = new THREE.Mesh(new THREE.IcosahedronGeometry(0.026, 1), eyeBlackMat);
     nose.position.set(0, -0.045, 0.235);
     head.add(nose);
-    // Eyes
     for (const sx of [-1,1]){
-      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.015, 8, 6), eyeGlowMat);
+      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.015, 6, 5), eyeGlowMat);
       eye.position.set(sx*0.055, 0.020, 0.088);
       head.add(eye);
     }
-    // Ears
     for (const sx of [-1,1]){
-      const ear = new THREE.Mesh(new THREE.ConeGeometry(0.038, 0.115, 6, 1), furWolfDark);
+      const ear = new THREE.Mesh(new THREE.ConeGeometry(0.038, 0.115, 5, 1), furWolfDark);
       ear.position.set(sx*0.060, 0.105, -0.010);
       ear.rotation.set(0.20, 0, sx*0.28);
       ear.castShadow = true;
       head.add(ear);
     }
-    // Fangs
     for (const sx of [-1,1]){
-      for (let i=0;i<3;i++){
-        const fang = new THREE.Mesh(new THREE.ConeGeometry(0.006, 0.018, 5), teethMat);
-        fang.position.set(sx*(0.014+i*0.011), -0.058, 0.19+i*0.013);
+      for (let i=0;i<2;i++){
+        const fang = new THREE.Mesh(new THREE.ConeGeometry(0.006, 0.018, 4), teethMat);
+        fang.position.set(sx*(0.014+i*0.014), -0.058, 0.19+i*0.014);
         fang.rotation.x = Math.PI;
         head.add(fang);
       }
     }
     this.headNode = head;
-    // Legs
     this.buildLegs(4, [{x:-0.105,z:0.38},{x:0.105,z:0.38},{x:-0.118,z:-0.34},{x:0.118,z:-0.34}], 0.30, 0.040);
-    // Tail
-    const tail = new THREE.Group();
-    tail.position.set(0, 0.10, -0.60);
-    this.bodyGroup.add(tail);
-    let parent = tail;
-    this.tailSegs = [];
-    for (let i=0;i<5;i++){
-      const seg = new THREE.Group();
-      seg.position.z = i===0 ? 0 : -0.10;
-      const g = new THREE.CylinderGeometry(0.028-i*0.004, 0.034-i*0.004, 0.10, 7);
-      g.rotateX(Math.PI/2);
-      const m = new THREE.Mesh(g, i>2 ? furWolfDark : furWolf);
-      m.position.z = -0.05; m.castShadow = true;
-      seg.add(m);
-      parent.add(seg);
-      parent = seg;
-      this.tailSegs.push(seg);
-    }
-    this.tail = tail;
   }
 }
 
-const animals = [];
-
 function spawnAnimal(kind, x, z){
   let a;
-  if (kind === 'chicken') a = new Chicken(x, z, {
-    kind:'chicken', hp:20, legHeight:0.16, furMat:furChicken,
-    aggressive:false, fleeRange:5, fleeSpeed:3.8,
-    drops:[{id:'raw_meat', n:1}, {id:'feather', n:2}]
-  });
-  else if (kind === 'rabbit') a = new Rabbit(x, z, {
-    kind:'rabbit', hp:15, legHeight:0.13, furMat:furGrey,
-    aggressive:false, fleeRange:6, fleeSpeed:5.5,
-    drops:[{id:'raw_meat', n:1}, {id:'hide', n:1}]
-  });
-  else if (kind === 'sheep') a = new Sheep(x, z, {
-    kind:'sheep', hp:45, legHeight:0.42, furMat:furWhite,
-    aggressive:false, fleeRange:7, fleeSpeed:4.2,
-    drops:[{id:'raw_meat', n:2}, {id:'wool', n:2}, {id:'hide', n:1}]
-  });
-  else if (kind === 'boar') a = new Boar(x, z, {
-    kind:'boar', hp:80, legHeight:0.42, furMat:furBrown,
-    aggressive:true, aggroRange:11, attackDist:1.6, chaseSpeed:5.0,
-    drops:[{id:'raw_meat', n:3}, {id:'hide', n:1}, {id:'tusk', n:1}]
-  });
-  else if (kind === 'wolf') a = new Wolf(x, z, {
-    kind:'wolf', hp:70, legHeight:0.50, furMat:furWolf,
-    aggressive:true, aggroRange:20, attackDist:1.7, chaseSpeed:5.2,
-    drops:[{id:'raw_meat', n:2}, {id:'hide', n:2}]
-  });
+  if (kind === 'chicken') a = new Chicken(x, z, { kind:'chicken', hp:20, legHeight:0.16, furMat:furChicken, aggressive:false, fleeRange:5, fleeSpeed:3.8, drops:[{id:'raw_meat', n:1}, {id:'feather', n:2}] });
+  else if (kind === 'rabbit') a = new Rabbit(x, z, { kind:'rabbit', hp:15, legHeight:0.13, furMat:furGrey, aggressive:false, fleeRange:6, fleeSpeed:5.5, drops:[{id:'raw_meat', n:1}, {id:'hide', n:1}] });
+  else if (kind === 'sheep') a = new Sheep(x, z, { kind:'sheep', hp:45, legHeight:0.42, furMat:furWhite, aggressive:false, fleeRange:7, fleeSpeed:4.2, drops:[{id:'raw_meat', n:2}, {id:'wool', n:2}, {id:'hide', n:1}] });
+  else if (kind === 'boar') a = new Boar(x, z, { kind:'boar', hp:80, legHeight:0.42, furMat:furBrown, aggressive:true, aggroRange:11, attackDist:1.6, chaseSpeed:5.0, drops:[{id:'raw_meat', n:3}, {id:'hide', n:1}, {id:'tusk', n:1}] });
+  else if (kind === 'wolf') a = new Wolf(x, z, { kind:'wolf', hp:70, legHeight:0.50, furMat:furWolf, aggressive:true, aggroRange:20, attackDist:1.7, chaseSpeed:5.2, drops:[{id:'raw_meat', n:2}, {id:'hide', n:2}] });
   if (a) animals.push(a);
   return a;
 }
 
+async function buildAnimalsAsync(){
+  setProgress(0.76, 'ПРОБУЖДЕНИЕ ЖИВОТНЫХ...');
+  await yieldFrame();
+  const counts = {
+    chicken: settings.quality >= 2 ? 10 : 6,
+    rabbit:  settings.quality >= 2 ? 8 : 5,
+    sheep:   settings.quality >= 2 ? 5 : 3,
+    boar:    settings.quality >= 2 ? 4 : 2,
+    wolf:    settings.quality >= 2 ? 4 : 2,
+  };
+  const kinds = Object.keys(counts);
+  for (let k = 0; k < kinds.length; k++){
+    const kind = kinds[k];
+    const count = counts[kind];
+    let spawned = 0, t = 0;
+    while (spawned < count && t < 150){
+      t++;
+      const a = Math.random()*Math.PI*2;
+      const r = 25 + Math.random()*150;
+      const x = Math.cos(a)*r, z = Math.sin(a)*r;
+      if (!isLand(x,z)) continue;
+      const y = terrainHeight(x,z);
+      if (y < WATER_LEVEL + 1.5 || y > 18) continue;
+      if (isBeach(x,z) && kind !== 'wolf' && kind !== 'boar') continue;
+      spawnAnimal(kind, x, z);
+      spawned++;
+    }
+    setProgress(0.76 + ((k+1)/kinds.length)*0.06, `ЖИВОТНЫЕ (${kind})...`);
+    await yieldFrame();
+  }
+}
+
 /* ============================================================================
-   15. PARTICLES
+   13. PARTICLES + RAIN
    ========================================================================== */
-const PART_MAX = 500;
-const partGeo = new THREE.BufferGeometry();
+const PART_MAX = 400;
+let partGeo, partMat, particles;
 const partPos = new Float32Array(PART_MAX*3);
 const partCol = new Float32Array(PART_MAX*3);
 const partSize = new Float32Array(PART_MAX);
 const partLife = new Float32Array(PART_MAX);
 const partVel = new Float32Array(PART_MAX*3);
 let partCursor = 0;
-partGeo.setAttribute('position', new THREE.BufferAttribute(partPos,3));
-partGeo.setAttribute('aColor', new THREE.BufferAttribute(partCol,3));
-partGeo.setAttribute('aSize', new THREE.BufferAttribute(partSize,1));
-partGeo.setAttribute('aLife', new THREE.BufferAttribute(partLife,1));
 
-const partMat = new THREE.ShaderMaterial({
-  transparent:true, depthWrite:false,
-  uniforms:{ uPR:{value:renderer.getPixelRatio()} },
-  vertexShader:`attribute float aSize;attribute float aLife;attribute vec3 aColor;
-    varying float vL;varying vec3 vC;uniform float uPR;
-    void main(){vL=aLife;vC=aColor;vec4 mv=modelViewMatrix*vec4(position,1.0);
-    gl_Position=projectionMatrix*mv;gl_PointSize=aSize*uPR*260.0/max(-mv.z,0.001);}`,
-  fragmentShader:`varying float vL;varying vec3 vC;
-    void main(){vec2 uv=gl_PointCoord-0.5;float d=length(uv);if(d>0.5)discard;
-    float a=smoothstep(0.5,0.12,d)*vL;gl_FragColor=vec4(vC,a);}`
-});
-const particles = new THREE.Points(partGeo, partMat);
-particles.frustumCulled = false;
-scene.add(particles);
-
+function initParticles(){
+  partGeo = new THREE.BufferGeometry();
+  partGeo.setAttribute('position', new THREE.BufferAttribute(partPos,3));
+  partGeo.setAttribute('aColor', new THREE.BufferAttribute(partCol,3));
+  partGeo.setAttribute('aSize', new THREE.BufferAttribute(partSize,1));
+  partGeo.setAttribute('aLife', new THREE.BufferAttribute(partLife,1));
+  partMat = new THREE.ShaderMaterial({
+    transparent:true, depthWrite:false,
+    uniforms:{ uPR:{value:renderer.getPixelRatio()} },
+    vertexShader:`attribute float aSize;attribute float aLife;attribute vec3 aColor;
+      varying float vL;varying vec3 vC;uniform float uPR;
+      void main(){vL=aLife;vC=aColor;vec4 mv=modelViewMatrix*vec4(position,1.0);
+      gl_Position=projectionMatrix*mv;gl_PointSize=aSize*uPR*260.0/max(-mv.z,0.001);}`,
+    fragmentShader:`varying float vL;varying vec3 vC;
+      void main(){vec2 uv=gl_PointCoord-0.5;float d=length(uv);if(d>0.5)discard;
+      float a=smoothstep(0.5,0.12,d)*vL;gl_FragColor=vec4(vC,a);}`
+  });
+  particles = new THREE.Points(partGeo, partMat);
+  particles.frustumCulled = false;
+  scene.add(particles);
+}
 function spawnParticle(x,y,z,vx,vy,vz,r,g,b,size){
   const i = partCursor;
   partCursor = (partCursor+1)%PART_MAX;
@@ -1988,21 +2336,21 @@ function spawnParticle(x,y,z,vx,vy,vz,r,g,b,size){
   partCol[ix]=r; partCol[ix+1]=g; partCol[ix+2]=b;
   partSize[i]=size; partLife[i]=1;
 }
-function spawnBloodBurst(x,y,z,n=18){
+function spawnBloodBurst(x,y,z,n=14){
   for (let i=0;i<n;i++) spawnParticle(x,y,z,
     rnd(-2.2,2.2), rnd(1.0,3.6), rnd(-2.2,2.2), 0.55,0.05,0.05, rnd(0.10,0.26));
 }
-function spawnWoodChips(x,y,z,n=16){
+function spawnWoodChips(x,y,z,n=14){
   for (let i=0;i<n;i++) spawnParticle(x,y,z,
     rnd(-2.6,2.6), rnd(1.4,4.2), rnd(-2.6,2.6),
     rnd(0.42,0.65), rnd(0.28,0.42), rnd(0.12,0.22), rnd(0.07,0.16));
 }
-function spawnStoneChips(x,y,z,n=16){
+function spawnStoneChips(x,y,z,n=14){
   for (let i=0;i<n;i++) spawnParticle(x,y,z,
     rnd(-2.8,2.8), rnd(1.2,4.0), rnd(-2.8,2.8),
     rnd(0.42,0.62), rnd(0.42,0.62), rnd(0.44,0.66), rnd(0.06,0.14));
 }
-function spawnSplash(x,y,z,n=26){
+function spawnSplash(x,y,z,n=22){
   for (let i=0;i<n;i++) spawnParticle(x, y, z,
     rnd(-3.2,3.2), rnd(2.5,5.5), rnd(-3.2,3.2),
     0.75,0.88,0.95, rnd(0.10,0.28));
@@ -2020,52 +2368,47 @@ function updateParticles(dt){
     partPos[ix+1] += partVel[ix+1]*dt;
     partPos[ix+2] += partVel[ix+2]*dt;
   }
+  if (!partGeo) return;
   partGeo.attributes.position.needsUpdate = true;
   partGeo.attributes.aLife.needsUpdate = true;
   partGeo.attributes.aColor.needsUpdate = true;
   partGeo.attributes.aSize.needsUpdate = true;
 }
 
-/* ============================================================================
-   16. RAIN
-   ========================================================================== */
-const RAIN_MAX = 900;
-const rainSegGeo = new THREE.BufferGeometry();
+let rainLines;
+let rainIntensity = 0, rainTarget = 0, rainTimer = 8;
+const RAIN_MAX = 600;
 const rainSegPos = new Float32Array(RAIN_MAX * 6);
 const rainSegAlpha = new Float32Array(RAIN_MAX * 2);
-rainSegGeo.setAttribute('position', new THREE.BufferAttribute(rainSegPos, 3));
-rainSegGeo.setAttribute('aAlpha', new THREE.BufferAttribute(rainSegAlpha, 1));
-const rainSegMat = new THREE.ShaderMaterial({
-  transparent:true, depthWrite:false, fog:false,
-  uniforms:{ uOpacity:{value:0.0} },
-  vertexShader:`attribute float aAlpha;varying float vA;uniform float uOpacity;
-    void main(){vA = aAlpha * uOpacity;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);}`,
-  fragmentShader:`varying float vA;
-    void main(){gl_FragColor = vec4(vec3(0.75,0.82,0.92), vA*0.42);}`
-});
-const rainLines = new THREE.LineSegments(rainSegGeo, rainSegMat);
-rainLines.frustumCulled = false;
-scene.add(rainLines);
-
 const rainPos = new Float32Array(RAIN_MAX*3);
 const rainVel = new Float32Array(RAIN_MAX);
 const rainLen = new Float32Array(RAIN_MAX);
-for (let i=0;i<RAIN_MAX;i++) rainLen[i] = rnd(0.20, 0.40);
-
-let rainIntensity = 0;
-let rainTarget = 0;
-let rainTimer = 5;
-
+function initRain(){
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(rainSegPos, 3));
+  geo.setAttribute('aAlpha', new THREE.BufferAttribute(rainSegAlpha, 1));
+  for (let i=0;i<RAIN_MAX;i++) rainLen[i] = rnd(0.20, 0.40);
+  const mat = new THREE.ShaderMaterial({
+    transparent:true, depthWrite:false, fog:false,
+    uniforms:{ uOpacity:{value:0.0} },
+    vertexShader:`attribute float aAlpha;varying float vA;uniform float uOpacity;
+      void main(){vA = aAlpha * uOpacity;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);}`,
+    fragmentShader:`varying float vA;
+      void main(){gl_FragColor = vec4(vec3(0.75,0.82,0.92), vA*0.42);}`
+  });
+  rainLines = new THREE.LineSegments(geo, mat);
+  rainLines.frustumCulled = false;
+  scene.add(rainLines);
+}
 function updateRain(dt, t){
+  if (!rainLines) return;
   rainTimer -= dt;
   if (rainTimer <= 0){
     rainTimer = rnd(25, 70);
     rainTarget = Math.random() < 0.5 ? rnd(0.5, 1.0) : 0;
   }
   rainIntensity = lerp(rainIntensity, rainTarget, dt*0.35);
-
-  // Shelter check
   let sheltered = false;
   if (player.pos.y < WATER_LEVEL + 0.2) sheltered = true;
   for (const c of treeCanopies){
@@ -2073,14 +2416,11 @@ function updateRain(dt, t){
     if (dx*dx + dz*dz < c.r*c.r) { sheltered = true; break; }
   }
   const effectiveRain = sheltered ? rainIntensity * 0.12 : rainIntensity;
-  rainSegMat.uniforms.uOpacity.value = effectiveRain;
-
+  rainLines.material.uniforms.uOpacity.value = effectiveRain;
   if (effectiveRain < 0.02) return;
-
   const camPos = camera.position;
   const windX = Math.sin(t*0.3)*3.5;
   const windZ = Math.cos(t*0.4)*2.5;
-
   for (let i=0;i<RAIN_MAX;i++){
     if (i / RAIN_MAX > rainIntensity){
       rainSegPos[i*6+1] = -1000;
@@ -2097,7 +2437,6 @@ function updateRain(dt, t){
     rainPos[i*3+1] -= rainVel[i] * dt;
     rainPos[i*3]   += windX * dt;
     rainPos[i*3+2] += windZ * dt;
-
     const L = rainLen[i] * (1 + rainVel[i]*0.02);
     rainSegPos[i*6+0] = rainPos[i*3];
     rainSegPos[i*6+1] = rainPos[i*3+1];
@@ -2107,16 +2446,15 @@ function updateRain(dt, t){
     rainSegPos[i*6+5] = rainPos[i*3+2] - windZ*0.02;
     rainSegAlpha[i*2] = 1.0; rainSegAlpha[i*2+1] = 0.0;
   }
-  rainSegGeo.attributes.position.needsUpdate = true;
-  rainSegGeo.attributes.aAlpha.needsUpdate = true;
+  rainLines.geometry.attributes.position.needsUpdate = true;
+  rainLines.geometry.attributes.aAlpha.needsUpdate = true;
   $('#wet').style.opacity = String(sheltered ? 0 : effectiveRain * 0.30);
 }
 
 /* ============================================================================
-   17. AUDIO
+   14. AUDIO
    ========================================================================== */
 let audioCtx = null, masterGain = null, ambientGain = null;
-
 function initAudio(){
   if (audioCtx) return;
   try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){ return; }
@@ -2126,7 +2464,6 @@ function initAudio(){
   ambientGain = audioCtx.createGain();
   ambientGain.gain.value = 0.4;
   ambientGain.connect(masterGain);
-
   const bufSize = 2 * audioCtx.sampleRate;
   const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
   const data = buf.getChannelData(0);
@@ -2197,260 +2534,42 @@ function playWolfHowl(distance){
   g.gain.exponentialRampToValueAtTime(0.001, now+1.9);
   o.connect(g).connect(masterGain); o.start(); o.stop(now+2.0);
 }
-
-/* ============================================================================
-   18. CAMPFIRE with cooking
-   ========================================================================== */
-class Campfire {
-  constructor(x,z){
-    this.group = new THREE.Group();
-    const y = terrainHeight(x,z);
-    this.group.position.set(x,y,z);
-    for (let i=0;i<11;i++){
-      const a = (i/11)*Math.PI*2;
-      const g = erodeGeometry(new THREE.IcosahedronGeometry(rnd(0.13,0.20),1), 0.28, 6, i*7);
-      const s = new THREE.Mesh(g, rockMat);
-      s.position.set(Math.cos(a)*0.62, 0.06, Math.sin(a)*0.62);
-      s.rotation.set(rnd(0,1),rnd(0,3),rnd(0,1));
-      s.castShadow = true; s.receiveShadow = true;
-      this.group.add(s);
-    }
-    for (let i=0;i<6;i++){
-      const a = (i/6)*Math.PI*2 + 0.3;
-      const g = new THREE.CylinderGeometry(0.055,0.07,0.85,7,1);
-      const m = new THREE.Mesh(g, woodMat.clone());
-      m.material.color.setHex(0x3a2a1c);
-      m.position.set(Math.cos(a)*0.16, 0.24, Math.sin(a)*0.16);
-      m.rotation.set(Math.cos(a)*0.62, 0, -Math.sin(a)*0.62);
-      m.castShadow = true; m.receiveShadow = true;
-      this.group.add(m);
-    }
-    const emberGeo = new THREE.CircleGeometry(0.42,20); emberGeo.rotateX(-Math.PI/2);
-    this.emberMat = new THREE.MeshBasicMaterial({ color:0xff5a10, transparent:true, opacity:0.85,
-      blending:THREE.AdditiveBlending, depthWrite:false });
-    this.embers = new THREE.Mesh(emberGeo, this.emberMat);
-    this.embers.position.y = 0.06;
-    this.group.add(this.embers);
-    this.light = new THREE.PointLight(0xff8c30, 6.5, 26, 2);
-    this.light.position.set(0,1.0,0);
-    this.light.castShadow = true;
-    this.light.shadow.mapSize.set(512,512);
-    this.light.shadow.bias = -0.004;
-    this.group.add(this.light);
-
-    // Sparks
-    this.sparkCount = 240;
-    this.sparkPos = new Float32Array(this.sparkCount*3);
-    this.sparkVel = new Float32Array(this.sparkCount*3);
-    this.sparkLife = new Float32Array(this.sparkCount);
-    this.sparkSize = new Float32Array(this.sparkCount);
-    for (let i=0;i<this.sparkCount;i++) this.resetSpark(i, true);
-    const sGeo = new THREE.BufferGeometry();
-    sGeo.setAttribute('position', new THREE.BufferAttribute(this.sparkPos,3));
-    sGeo.setAttribute('aSize', new THREE.BufferAttribute(this.sparkSize,1));
-    sGeo.setAttribute('aLife', new THREE.BufferAttribute(this.sparkLife,1));
-    this.sparkMat = new THREE.ShaderMaterial({
-      transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
-      uniforms:{ uPR:{value:renderer.getPixelRatio()} },
-      vertexShader:`attribute float aSize;attribute float aLife;varying float vL;uniform float uPR;
-        void main(){vL=aLife;vec4 mv=modelViewMatrix*vec4(position,1.0);gl_Position=projectionMatrix*mv;
-        gl_PointSize=aSize*uPR*300.0/max(-mv.z,0.001);}`,
-      fragmentShader:`varying float vL;
-        void main(){vec2 uv=gl_PointCoord-0.5;float d=length(uv);if(d>0.5)discard;
-        float c=smoothstep(0.5,0.0,d);vec3 hot=mix(vec3(1.0,0.28,0.03),vec3(1.0,0.92,0.55),pow(c,2.0));
-        gl_FragColor=vec4(hot,c*vL);}`
-    });
-    this.sparks = new THREE.Points(sGeo, this.sparkMat);
-    this.sparks.frustumCulled = false;
-    this.group.add(this.sparks);
-
-    // Smoke
-    this.smokeCount = 100;
-    this.smokePos = new Float32Array(this.smokeCount*3);
-    this.smokeVel = new Float32Array(this.smokeCount*3);
-    this.smokeLife = new Float32Array(this.smokeCount);
-    this.smokeSize = new Float32Array(this.smokeCount);
-    for (let i=0;i<this.smokeCount;i++) this.resetSmoke(i, true);
-    const smGeo = new THREE.BufferGeometry();
-    smGeo.setAttribute('position', new THREE.BufferAttribute(this.smokePos,3));
-    smGeo.setAttribute('aSize', new THREE.BufferAttribute(this.smokeSize,1));
-    smGeo.setAttribute('aLife', new THREE.BufferAttribute(this.smokeLife,1));
-    this.smokeMat = new THREE.ShaderMaterial({
-      transparent:true, depthWrite:false,
-      uniforms:{ uPR:{value:renderer.getPixelRatio()} },
-      vertexShader:`attribute float aSize;attribute float aLife;varying float vL;uniform float uPR;
-        void main(){vL=aLife;vec4 mv=modelViewMatrix*vec4(position,1.0);gl_Position=projectionMatrix*mv;
-        gl_PointSize=aSize*uPR*300.0/max(-mv.z,0.001);}`,
-      fragmentShader:`varying float vL;
-        void main(){vec2 uv=gl_PointCoord-0.5;float d=length(uv);if(d>0.5)discard;
-        float a=smoothstep(0.5,0.05,d)*vL*0.35;gl_FragColor=vec4(vec3(0.22,0.21,0.20),a);}`
-    });
-    this.smoke = new THREE.Points(smGeo, this.smokeMat);
-    this.smoke.frustumCulled = false;
-    this.group.add(this.smoke);
-
-    // Cooking slots (3)
-    this.cookSlots = [null, null, null];
-
-    scene.add(this.group);
-    this.time = 0;
-  }
-  resetSpark(i, init){
-    const a = Math.random()*Math.PI*2, r = Math.random()*0.28;
-    this.sparkPos[i*3]=Math.cos(a)*r;
-    this.sparkPos[i*3+1]= init ? Math.random()*2.4 : 0.22;
-    this.sparkPos[i*3+2]=Math.sin(a)*r;
-    this.sparkVel[i*3]=rnd(-0.28,0.28);
-    this.sparkVel[i*3+1]=rnd(0.9,2.3);
-    this.sparkVel[i*3+2]=rnd(-0.28,0.28);
-    this.sparkLife[i]= init ? Math.random() : 1;
-    this.sparkSize[i]=rnd(0.35,1.15);
-  }
-  resetSmoke(i, init){
-    const a = Math.random()*Math.PI*2, r = Math.random()*0.3;
-    this.smokePos[i*3]=Math.cos(a)*r;
-    this.smokePos[i*3+1]= init ? Math.random()*4 : 0.3;
-    this.smokePos[i*3+2]=Math.sin(a)*r;
-    this.smokeVel[i*3]=rnd(-0.14,0.14);
-    this.smokeVel[i*3+1]=rnd(0.5,1.1);
-    this.smokeVel[i*3+2]=rnd(-0.14,0.14);
-    this.smokeLife[i]= init ? Math.random() : 1;
-    this.smokeSize[i]=rnd(1.0,2.4);
-  }
-  update(dt, t){
-    this.time += dt;
-    const f = 0.78 + Math.sin(t*11.3)*0.09 + Math.sin(t*23.7)*0.06 + Math.sin(t*3.1)*0.07;
-    this.light.intensity = 6.2*f;
-    this.light.color.setHSL(0.075+Math.sin(t*4.1)*0.012, 0.95, 0.52+f*0.06);
-    this.emberMat.opacity = 0.55 + f*0.35;
-    this.embers.scale.setScalar(0.92 + f*0.12);
-
-    const sp=this.sparkPos, sv=this.sparkVel, sl=this.sparkLife;
-    for (let i=0;i<this.sparkCount;i++){
-      const ix=i*3;
-      sl[i] -= dt*0.65;
-      if (sl[i]<=0){ this.resetSpark(i,false); continue; }
-      sv[ix]+=Math.sin(t*4+i)*dt*0.55;
-      sv[ix+2]+=Math.cos(t*4+i*1.4)*dt*0.55;
-      sv[ix+1]-=dt*0.35;
-      sp[ix]+=sv[ix]*dt; sp[ix+1]+=sv[ix+1]*dt; sp[ix+2]+=sv[ix+2]*dt;
-    }
-    this.sparks.geometry.attributes.position.needsUpdate = true;
-    this.sparks.geometry.attributes.aLife.needsUpdate = true;
-
-    const mp=this.smokePos, mv=this.smokeVel, ml=this.smokeLife;
-    for (let i=0;i<this.smokeCount;i++){
-      const ix=i*3;
-      ml[i]-=dt*0.20;
-      if (ml[i]<=0){ this.resetSmoke(i,false); continue; }
-      mv[ix]+=Math.sin(t*0.8+i*0.7)*dt*0.22;
-      mv[ix+2]+=Math.cos(t*0.7+i*0.9)*dt*0.22;
-      mp[ix]+=mv[ix]*dt; mp[ix+1]+=mv[ix+1]*dt; mp[ix+2]+=mv[ix+2]*dt;
-    }
-    this.smoke.geometry.attributes.position.needsUpdate = true;
-    this.smoke.geometry.attributes.aLife.needsUpdate = true;
-
-    // Cooking progress
-    for (let i=0;i<3;i++){
-      const slot = this.cookSlots[i];
-      if (slot && slot.cooking){
-        slot.progress += dt / 12;
-        if (slot.progress >= 1){
-          // Done!
-          slot.item = 'cooked_meat';
-          slot.cooking = false;
-          slot.progress = 0;
-          addToast('МЯСО ГОТОВО', 'good');
-        }
-      }
-    }
-  }
-}
-
-let campfire = null;
-function placeCampfire(x,z){
-  if (!isLand(x,z)) return false;
-  if (campfire) scene.remove(campfire.group);
-  campfire = new Campfire(x,z);
-  return true;
+function playReadyChime(){
+  if (!audioCtx) return;
+  const now = audioCtx.currentTime;
+  [523.25, 659.25, 783.99].forEach((freq, i) => {
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'sine';
+    o.frequency.value = freq;
+    g.gain.setValueAtTime(0.001, now + i*0.09);
+    g.gain.linearRampToValueAtTime(0.14, now + i*0.09 + 0.05);
+    g.gain.exponentialRampToValueAtTime(0.001, now + i*0.09 + 0.9);
+    o.connect(g).connect(masterGain);
+    o.start(now + i*0.09);
+    o.stop(now + i*0.09 + 1.0);
+  });
 }
 
 /* ============================================================================
-   19. PLAYER
+   15. INVENTORY
    ========================================================================== */
-const player = {
-  pos: new THREE.Vector3(0,0,0),
-  vel: new THREE.Vector3(),
-  yaw: 0, pitch: 0,
-  onGround: true,
-  inWater: false,
-  submerged: false,
-  height: 1.68,
-  speed: 3.4,
-  sprintSpeed: 6.2,
-  stamina: 100, health: 100, food: 100, water: 100, warmth: 100, air: 100,
-  alive: true,
-  walkPhase: 0, bobAmount: 0,
-  breath: 0,
-};
-
-/* ============================================================================
-   20. INVENTORY + CRAFTING
-   ========================================================================== */
-const ITEMS = {
-  wood:       { name:'Древесина', weight:1.5, cat:'resource', color:'#c8a45c' },
-  stone:      { name:'Камень',    weight:2.5, cat:'resource', color:'#9aa4ae' },
-  fiber:      { name:'Волокно',   weight:0.1, cat:'resource', color:'#a0c080' },
-  raw_meat:   { name:'Сырое мясо',weight:0.8, cat:'food',     color:'#c06a5a', spoilRate:0.0055 },
-  cooked_meat:{ name:'Жареное',   weight:0.7, cat:'food',     color:'#8a4a20', spoilRate:0.0018 },
-  hide:       { name:'Шкура',     weight:0.7, cat:'resource', color:'#8a6a4a' },
-  wool:       { name:'Шерсть',    weight:0.3, cat:'resource', color:'#e0d8c0' },
-  feather:    { name:'Перо',      weight:0.05,cat:'resource', color:'#f0e8d8' },
-  tusk:       { name:'Клык',      weight:0.4, cat:'resource', color:'#f0e0c0' },
-  axe:        { name:'Топор',     weight:3.0, cat:'tool',     color:'#c0c0c8' },
-  pickaxe:    { name:'Кирка',     weight:3.5, cat:'tool',     color:'#a0a0a8' },
-  spear:      { name:'Копьё',     weight:2.5, cat:'tool',     color:'#c0b0a0' },
-  torch:      { name:'Факел',     weight:1.0, cat:'tool',     color:'#ffa040' },
-  bandage:    { name:'Бинт',      weight:0.1, cat:'med',      color:'#f0e8d8' },
-};
-
-const RECIPES = [
-  { id:'pickaxe', name:'Кирка',    reqs:{wood:5, stone:5},        cat:'tool' },
-  { id:'spear',   name:'Копьё',    reqs:{wood:4, stone:2},        cat:'tool' },
-  { id:'torch',   name:'Факел',    reqs:{wood:1, fiber:2},        cat:'tool' },
-  { id:'campfire',name:'Костёр',   reqs:{wood:5, stone:3},        cat:'build' },
-  { id:'bandage', name:'Бинт',     reqs:{fiber:3},                cat:'med' },
-];
-
-const invGrid = $('#inv-grid');
-const INVENTORY_SIZE = 24;
-const MAX_WEIGHT = 40;
-
-const inventory = {
-  slots: new Array(INVENTORY_SIZE).fill(null).map(() => ({ id: null, count: 0, spoil: 0 })),
-  selected: -1,
-};
-
 function addItem(id, n=1){
   const item = ITEMS[id];
   if (!item) return false;
   let remaining = n;
-  // Stack with existing
   for (let i=0;i<INVENTORY_SIZE && remaining > 0;i++){
     const s = inventory.slots[i];
     if (s.id === id && s.count < 99){
       const add = Math.min(remaining, 99 - s.count);
-      s.count += add;
-      remaining -= add;
+      s.count += add; remaining -= add;
     }
   }
-  // New slots
   for (let i=0;i<INVENTORY_SIZE && remaining > 0;i++){
     const s = inventory.slots[i];
     if (!s.id){
       s.id = id;
       s.count = Math.min(remaining, 99);
-      s.spoil = item.spoilRate ? 0 : 0;
       remaining -= s.count;
     }
   }
@@ -2463,8 +2582,7 @@ function removeItem(id, n=1){
     const s = inventory.slots[i];
     if (s.id === id){
       const take = Math.min(remaining, s.count);
-      s.count -= take;
-      remaining -= take;
+      s.count -= take; remaining -= take;
       if (s.count <= 0){ s.id = null; s.count = 0; s.spoil = 0; }
     }
   }
@@ -2481,9 +2599,9 @@ function totalWeight(){
   for (const s of inventory.slots) if (s.id) w += (ITEMS[s.id].weight || 0) * s.count;
   return w;
 }
-
+const invGrid = $('#inv-grid');
 function updateInvUI(){
-  // Grid
+  if (!invGrid) return;
   invGrid.innerHTML = '';
   for (let i=0;i<INVENTORY_SIZE;i++){
     const s = inventory.slots[i];
@@ -2492,9 +2610,9 @@ function updateInvUI(){
     el.dataset.i = i;
     if (s.id){
       const it = ITEMS[s.id];
-      el.innerHTML = `<div class="ic" style="background:${it.color};border-radius:4px;box-shadow:inset 0 0 8px rgba(0,0,0,0.5)"></div>
+      el.innerHTML = `<div class="ic" style="background:${it.color};box-shadow:inset 0 0 8px rgba(0,0,0,0.5)"></div>
         <div class="cnt">${s.count}</div>`;
-      if (it.spoilRate && s.spoil > 0.5) el.innerHTML += `<div class="spoil" title="Портится"></div>`;
+      if (it.spoilRate && s.spoil > 0.5) el.innerHTML += `<div class="spoil"></div>`;
     }
     el.addEventListener('click', () => {
       inventory.selected = (inventory.selected === i) ? -1 : i;
@@ -2502,13 +2620,11 @@ function updateInvUI(){
     });
     invGrid.appendChild(el);
   }
-  // Weight
   const w = totalWeight();
   $('#weight-val').textContent = `${w.toFixed(1)} / ${MAX_WEIGHT.toFixed(1)}`;
   $('#weight-badge').innerHTML = `<span>${w.toFixed(1)} кг</span>`;
   if (w > MAX_WEIGHT) $('#weight-badge').style.color = '#ff9080';
   else $('#weight-badge').style.color = '';
-  // Quick counters
   let wood=0, stone=0, meat=0;
   for (const s of inventory.slots){
     if (s.id === 'wood') wood += s.count;
@@ -2518,13 +2634,12 @@ function updateInvUI(){
   $('#c-wood').textContent = wood;
   $('#c-stone').textContent = stone;
   $('#c-meat').textContent = meat;
-  // Recipes
   renderRecipes();
 }
-
 let currentRecipeCat = 'all';
 function renderRecipes(){
   const list = $('#recipe-list');
+  if (!list) return;
   list.innerHTML = '';
   for (const r of RECIPES){
     if (currentRecipeCat !== 'all' && r.cat !== currentRecipeCat) continue;
@@ -2535,7 +2650,7 @@ function renderRecipes(){
       const has = hasItem(id,n);
       return `<span class="${has?'':'miss'}">${ITEMS[id].name} ${n}</span>`;
     }).join(', ');
-    el.innerHTML = `<div class="ic" style="background:${ITEMS[r.id].color};border-radius:4px"></div>
+    el.innerHTML = `<div class="ic" style="background:${ITEMS[r.id].color}"></div>
       <div class="name">${r.name}</div>
       <div class="reqs">${reqsHtml}</div>`;
     el.addEventListener('click', () => {
@@ -2558,51 +2673,44 @@ function renderRecipes(){
     list.appendChild(el);
   }
 }
-
-// Tabs
-$$('.tabs [data-tab]').forEach(t => t.addEventListener('click', () => {
-  $$('.tabs [data-tab]').forEach(x => x.classList.remove('on'));
-  t.classList.add('on');
-  const tab = t.dataset.tab;
-  $('#tab-items').style.display = tab === 'items' ? '' : 'none';
-  $('#tab-craft').style.display = tab === 'craft' ? '' : 'none';
-}));
-$$('.tabs [data-cat]').forEach(t => t.addEventListener('click', () => {
-  $$('.tabs [data-cat]').forEach(x => x.classList.remove('on'));
-  t.classList.add('on');
-  currentRecipeCat = t.dataset.cat;
-  renderRecipes();
-}));
-
-// Food spoilage tick
 let spoilTick = 0;
 function updateSpoilage(dt){
   spoilTick += dt;
   if (spoilTick < 1) return;
   spoilTick = 0;
+  let changed = false;
   for (const s of inventory.slots){
     if (!s.id) continue;
     const it = ITEMS[s.id];
     if (it.spoilRate){
       s.spoil = clamp(s.spoil + it.spoilRate, 0, 1.5);
-      if (s.spoil >= 1.5){
-        // Gone
-        s.id = null; s.count = 0; s.spoil = 0;
-      }
+      if (s.spoil >= 1.5){ s.id = null; s.count = 0; s.spoil = 0; }
+      changed = true;
     }
   }
-  updateInvUI();
+  if (changed) updateInvUI();
 }
 
 /* ============================================================================
-   21. INPUT
+   16. UI (toasts, hints, actions)
+   ========================================================================== */
+function addToast(text, type=''){
+  const el = document.createElement('div');
+  el.className = 'toast' + (type ? ' '+type : '');
+  el.textContent = text;
+  $('#toasts').appendChild(el);
+  setTimeout(() => { el.classList.add('fade'); setTimeout(() => el.remove(), 420); }, 1500);
+}
+function flashHit(){ $('#flash').style.opacity = '0.55'; hitFlashTimer = 0.25; }
+
+/* ============================================================================
+   17. INPUT
    ========================================================================== */
 const keys = Object.create(null);
 const moveInput = { x:0, y:0 };
 let attackRequested = false, useRequested = false, jumpRequested = false,
     eatRequested = false, craftRequested = false, invRequested = false,
     menuRequested = false;
-let gameActive = false, paused = false;
 
 addEventListener('keydown', (e) => {
   keys[e.code] = true;
@@ -2616,147 +2724,143 @@ addEventListener('keydown', (e) => {
 addEventListener('keyup', (e) => { keys[e.code] = false; });
 
 let pointerLocked = false;
-renderer.domElement.addEventListener('click', () => {
-  if (!IS_TOUCH && !pointerLocked && gameActive && !paused) renderer.domElement.requestPointerLock();
-});
-document.addEventListener('pointerlockchange', () => {
-  pointerLocked = document.pointerLockElement === renderer.domElement;
-});
-document.addEventListener('mousemove', (e) => {
-  if (!pointerLocked) return;
-  const sens = 0.0018 * settings.sensitivity;
-  player.yaw   -= e.movementX * sens;
-  player.pitch -= e.movementY * sens;
-  player.pitch = clamp(player.pitch, -1.45, 1.45);
-  handState.targetSwayX = clamp(handState.targetSwayX - e.movementX*0.0012, -0.04, 0.04);
-  handState.targetSwayY = clamp(handState.targetSwayY + e.movementY*0.0012, -0.04, 0.04);
-});
-document.addEventListener('mousedown', (e) => {
-  if (e.button === 0 && pointerLocked && gameActive && !paused) attackRequested = true;
-});
+function attachInputHandlers(){
+  renderer.domElement.addEventListener('click', () => {
+    if (!IS_TOUCH && !pointerLocked && gameActive && !paused) renderer.domElement.requestPointerLock();
+  });
+  document.addEventListener('pointerlockchange', () => {
+    pointerLocked = document.pointerLockElement === renderer.domElement;
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (!pointerLocked) return;
+    const sens = 0.0018 * settings.sensitivity;
+    player.yaw   -= e.movementX * sens;
+    player.pitch -= e.movementY * sens;
+    player.pitch = clamp(player.pitch, -1.45, 1.45);
+    handState.targetSwayX = clamp(handState.targetSwayX - e.movementX*0.0012, -0.04, 0.04);
+    handState.targetSwayY = clamp(handState.targetSwayY + e.movementY*0.0012, -0.04, 0.04);
+  });
+  document.addEventListener('mousedown', (e) => {
+    if (e.button === 0 && pointerLocked && gameActive && !paused) attackRequested = true;
+  });
 
-// Touch
-const touches = new Map();
-let moveTouchId = null, lookTouchId = null, lookLastX = 0, lookLastY = 0;
-const canvasEl = renderer.domElement;
+  const canvasEl = renderer.domElement;
+  const touches = new Map();
+  let moveTouchId = null, lookTouchId = null, lookLastX = 0, lookLastY = 0;
 
-canvasEl.addEventListener('touchstart', (e) => {
-  if (!gameActive || paused) return;
-  for (const t of e.changedTouches){
-    const X = t.clientX;
-    const isLeft = X < innerWidth * 0.42;
-    if (isLeft && moveTouchId === null){
-      moveTouchId = t.identifier;
-      joyActivate(X, t.clientY);
-      touches.set(t.identifier, { type:'move' });
-    } else if (!isLeft && lookTouchId === null){
-      lookTouchId = t.identifier;
-      lookLastX = X; lookLastY = t.clientY;
-      touches.set(t.identifier, { type:'look' });
+  canvasEl.addEventListener('touchstart', (e) => {
+    if (!gameActive || paused) return;
+    for (const t of e.changedTouches){
+      const X = t.clientX;
+      const isLeft = X < innerWidth * 0.42;
+      if (isLeft && moveTouchId === null){
+        moveTouchId = t.identifier;
+        joyActivate(X, t.clientY);
+        touches.set(t.identifier, { type:'move' });
+      } else if (!isLeft && lookTouchId === null){
+        lookTouchId = t.identifier;
+        lookLastX = X; lookLastY = t.clientY;
+        touches.set(t.identifier, { type:'look' });
+      }
     }
-  }
-  e.preventDefault();
-}, { passive:false });
-
-canvasEl.addEventListener('touchmove', (e) => {
-  for (const t of e.changedTouches){
-    const info = touches.get(t.identifier);
-    if (!info) continue;
-    if (info.type === 'move') joyMove(t.clientX, t.clientY);
-    else if (info.type === 'look'){
-      const dx = t.clientX - lookLastX;
-      const dy = t.clientY - lookLastY;
-      lookLastX = t.clientX; lookLastY = t.clientY;
-      const baseSens = 0.0032;
-      const sens = baseSens * settings.sensitivity;
-      player.yaw   -= dx * sens;
-      player.pitch -= dy * sens;
-      player.pitch = clamp(player.pitch, -1.45, 1.45);
-      handState.targetSwayX = clamp(handState.targetSwayX - dx*0.0015, -0.05, 0.05);
-      handState.targetSwayY = clamp(handState.targetSwayY + dy*0.0015, -0.05, 0.05);
+    e.preventDefault();
+  }, { passive:false });
+  canvasEl.addEventListener('touchmove', (e) => {
+    for (const t of e.changedTouches){
+      const info = touches.get(t.identifier);
+      if (!info) continue;
+      if (info.type === 'move') joyMove(t.clientX, t.clientY);
+      else if (info.type === 'look'){
+        const dx = t.clientX - lookLastX;
+        const dy = t.clientY - lookLastY;
+        lookLastX = t.clientX; lookLastY = t.clientY;
+        const baseSens = 0.0032;
+        const sens = baseSens * settings.sensitivity;
+        player.yaw   -= dx * sens;
+        player.pitch -= dy * sens;
+        player.pitch = clamp(player.pitch, -1.45, 1.45);
+        handState.targetSwayX = clamp(handState.targetSwayX - dx*0.0015, -0.05, 0.05);
+        handState.targetSwayY = clamp(handState.targetSwayY + dy*0.0015, -0.05, 0.05);
+      }
     }
-  }
-  e.preventDefault();
-}, { passive:false });
-
-const touchEnd = (e) => {
-  for (const t of e.changedTouches){
-    const info = touches.get(t.identifier);
-    if (!info) continue;
-    if (info.type === 'move'){ moveTouchId = null; joyReset(); }
-    else if (info.type === 'look'){ lookTouchId = null; }
-    touches.delete(t.identifier);
-  }
-};
-canvasEl.addEventListener('touchend', touchEnd, { passive:true });
-canvasEl.addEventListener('touchcancel', touchEnd, { passive:true });
-
-const joyBase = $('#joy-base');
-const joyKnob = $('#joy-knob');
-let joyCenter = { x:0, y:0 };
-let joyActive = false;
-let joyBaseHome = null;
-const JOY_RADIUS = 50;
-
-function joyActivate(cx, cy){
-  if (!joyBaseHome){
-    joyBaseHome = { left: joyBase.style.left, bottom: joyBase.style.bottom, top: joyBase.style.top };
-  }
-  const r = joyBase.getBoundingClientRect();
-  const prefX = r.left + r.width/2;
-  const prefY = r.top + r.height/2;
-  if (Math.hypot(cx - prefX, cy - prefY) > 70){
-    joyBase.style.left = (cx - r.width/2) + 'px';
-    joyBase.style.top = (cy - r.height/2) + 'px';
-    joyBase.style.bottom = 'auto';
-    joyCenter.x = cx; joyCenter.y = cy;
-  } else { joyCenter.x = prefX; joyCenter.y = prefY; }
-  joyActive = true;
-  joyBase.classList.add('active');
-}
-function joyMove(cx, cy){
-  if (!joyActive) return;
-  let dx = cx - joyCenter.x, dy = cy - joyCenter.y;
-  const d = Math.hypot(dx, dy);
-  if (d > JOY_RADIUS){ dx = dx/d*JOY_RADIUS; dy = dy/d*JOY_RADIUS; }
-  joyKnob.style.transform = `translate(${dx}px, ${dy}px)`;
-  moveInput.x = dx / JOY_RADIUS;
-  moveInput.y = dy / JOY_RADIUS;
-}
-function joyReset(){
-  joyActive = false;
-  joyKnob.style.transform = 'translate(0,0)';
-  moveInput.x = 0; moveInput.y = 0;
-  joyBase.classList.remove('active');
-  if (joyBaseHome){
-    joyBase.style.left = joyBaseHome.left || '';
-    joyBase.style.bottom = joyBaseHome.bottom || '';
-    joyBase.style.top = joyBaseHome.top || '';
-  }
-}
-
-document.querySelectorAll('.btn[data-act]').forEach(btn => {
-  const act = btn.dataset.act;
-  const fire = (e) => {
-    e.preventDefault(); e.stopPropagation();
-    if (paused && act !== 'menu') return;
-    btn.classList.add('press');
-    if (act === 'attack') attackRequested = true;
-    if (act === 'use')    useRequested = true;
-    if (act === 'jump')   jumpRequested = true;
-    if (act === 'eat')    eatRequested = true;
-    if (act === 'craft')  craftRequested = true;
-    if (act === 'inv')    invRequested = true;
-    if (act === 'menu')   menuRequested = true;
-    setTimeout(() => btn.classList.remove('press'), 100);
+    e.preventDefault();
+  }, { passive:false });
+  const touchEnd = (e) => {
+    for (const t of e.changedTouches){
+      const info = touches.get(t.identifier);
+      if (!info) continue;
+      if (info.type === 'move'){ moveTouchId = null; joyReset(); }
+      else if (info.type === 'look'){ lookTouchId = null; }
+      touches.delete(t.identifier);
+    }
   };
-  btn.addEventListener('touchstart', fire, { passive:false });
-  btn.addEventListener('touchend', e => e.preventDefault(), { passive:false });
-  btn.addEventListener('mousedown', fire);
-});
+  canvasEl.addEventListener('touchend', touchEnd, { passive:true });
+  canvasEl.addEventListener('touchcancel', touchEnd, { passive:true });
+
+  const joyBase = $('#joy-base');
+  const joyKnob = $('#joy-knob');
+  let joyCenter = { x:0, y:0 };
+  let joyActive = false;
+  let joyBaseHome = null;
+  const JOY_RADIUS = 50;
+
+  window.joyActivate = function(cx, cy){
+    if (!joyBaseHome) joyBaseHome = { left: joyBase.style.left, bottom: joyBase.style.bottom, top: joyBase.style.top };
+    const r = joyBase.getBoundingClientRect();
+    const prefX = r.left + r.width/2, prefY = r.top + r.height/2;
+    if (Math.hypot(cx - prefX, cy - prefY) > 70){
+      joyBase.style.left = (cx - r.width/2) + 'px';
+      joyBase.style.top = (cy - r.height/2) + 'px';
+      joyBase.style.bottom = 'auto';
+      joyCenter.x = cx; joyCenter.y = cy;
+    } else { joyCenter.x = prefX; joyCenter.y = prefY; }
+    joyActive = true;
+    joyBase.classList.add('active');
+  };
+  window.joyMove = function(cx, cy){
+    if (!joyActive) return;
+    let dx = cx - joyCenter.x, dy = cy - joyCenter.y;
+    const d = Math.hypot(dx, dy);
+    if (d > JOY_RADIUS){ dx = dx/d*JOY_RADIUS; dy = dy/d*JOY_RADIUS; }
+    joyKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+    moveInput.x = dx / JOY_RADIUS;
+    moveInput.y = dy / JOY_RADIUS;
+  };
+  window.joyReset = function(){
+    joyActive = false;
+    joyKnob.style.transform = 'translate(0,0)';
+    moveInput.x = 0; moveInput.y = 0;
+    joyBase.classList.remove('active');
+    if (joyBaseHome){
+      joyBase.style.left = joyBaseHome.left || '';
+      joyBase.style.bottom = joyBaseHome.bottom || '';
+      joyBase.style.top = joyBaseHome.top || '';
+    }
+  };
+
+  document.querySelectorAll('.btn[data-act]').forEach(btn => {
+    const act = btn.dataset.act;
+    const fire = (e) => {
+      e.preventDefault(); e.stopPropagation();
+      if (paused && act !== 'menu') return;
+      btn.classList.add('press');
+      if (act === 'attack') attackRequested = true;
+      if (act === 'use')    useRequested = true;
+      if (act === 'jump')   jumpRequested = true;
+      if (act === 'eat')    eatRequested = true;
+      if (act === 'craft')  craftRequested = true;
+      if (act === 'inv')    invRequested = true;
+      if (act === 'menu')   menuRequested = true;
+      setTimeout(() => btn.classList.remove('press'), 100);
+    };
+    btn.addEventListener('touchstart', fire, { passive:false });
+    btn.addEventListener('touchend', e => e.preventDefault(), { passive:false });
+    btn.addEventListener('mousedown', fire);
+  });
+}
 
 /* ============================================================================
-   22. INTERACTION
+   18. GAMEPLAY LOGIC (interaction, movement, survival, animation)
    ========================================================================== */
 const raycaster = new THREE.Raycaster();
 raycaster.far = 5.5;
@@ -2771,32 +2875,26 @@ function findTarget(){
   const hits = raycaster.intersectObjects(list, true);
   if (hits.length === 0) return null;
   let obj = hits[0].object;
-  // Traverse up to find the right reference
   while (obj.parent){
-    for (const h of harvestables){
-      if (h.object === obj) return { kind:h.type, ref:h, point:hits[0].point };
-    }
+    for (const h of harvestables) if (h.object === obj) return { kind:h.type, ref:h, point:hits[0].point };
     if (campfire && obj === campfire.group) return { kind:'fire', ref:campfire, point:hits[0].point };
-    for (const a of animals){
-      if (obj === a.root) return { kind:'animal', ref:a, point:hits[0].point };
-    }
+    for (const a of animals) if (obj === a.root) return { kind:'animal', ref:a, point:hits[0].point };
     obj = obj.parent;
     if (!obj || obj === scene) break;
   }
   return null;
 }
-
 function equippedTool(){
-  // Check inventory for tools; prefer best
   if (hasItem('axe')) return 'axe';
   if (hasItem('pickaxe')) return 'pickaxe';
   return 'axe';
 }
 function updateToolVisibility(){
+  if (!axeMesh) return;
   const tool = equippedTool();
   axeMesh.visible = tool === 'axe';
   pickaxeMesh.visible = tool === 'pickaxe';
-  spearMesh.visible = hasItem('spear') && tool === 'spear';
+  spearMesh.visible = hasItem('spear');
   torchMesh.visible = hasItem('torch');
   const raw = hasItem('raw_meat');
   const cooked = hasItem('cooked_meat');
@@ -2820,7 +2918,6 @@ function performAttack(){
       if (target.ref.hp <= 0){
         scene.remove(target.ref.root);
         target.ref.destroyed = true;
-        inventory.slots[0];
         addItem('wood', 6);
         addToast('+6 ДРЕВЕСИНЫ', 'good');
       } else addItem('wood', 1);
@@ -2836,111 +2933,210 @@ function performAttack(){
       } else addItem('stone', 1);
     } else if (target.kind === 'animal'){
       target.ref.takeDamage(34);
-      if (target.ref.dead){
-        addToast('УБИТО: ' + target.ref.kind.toUpperCase(), 'good');
-      }
+      if (target.ref.dead) addToast('УБИТО: ' + target.ref.kind.toUpperCase(), 'good');
     }
   }, 140);
 }
-
 function performUse(){
   const target = findTarget();
   handState.usePulse = 1;
   if (!target){ addToast('НЕЧЕГО ИСПОЛЬЗОВАТЬ', 'warn'); return; }
-  if (target.kind === 'tree'){
-    addItem('wood', 1);
-    spawnWoodChips(target.point.x, target.point.y, target.point.z, 6);
-  } else if (target.kind === 'rock'){
-    addItem('stone', 1);
-    spawnStoneChips(target.point.x, target.point.y, target.point.z, 6);
-  } else if (target.kind === 'fire'){
+  if (target.kind === 'tree'){ addItem('wood', 1); spawnWoodChips(target.point.x, target.point.y, target.point.z, 6); }
+  else if (target.kind === 'rock'){ addItem('stone', 1); spawnStoneChips(target.point.x, target.point.y, target.point.z, 6); }
+  else if (target.kind === 'fire'){
     player.warmth = Math.min(100, player.warmth + 32);
-    // Try to add raw meat to cooking
     if (hasItem('raw_meat')){
       for (let i=0;i<3;i++){
-        if (!campfire.cookSlots[i]) continue;
-        if (campfire.cookSlots[i].cooking) continue;
-        if (campfire.cookSlots[i].item === 'cooked_meat') continue;
-        campfire.cookSlots[i].cooking = true;
-        campfire.cookSlots[i].progress = 0;
-        removeItem('raw_meat', 1);
-        addToast('МЯСО НА ОГНЕ', 'good');
-        updateCookUI();
-        return;
-      }
-      // All slots empty → fill first
-      for (let i=0;i<3;i++){
-        if (!campfire.cookSlots[i]){
-          campfire.cookSlots[i] = { item:'cooked_meat', cooking:true, progress:0 };
-          removeItem('raw_meat', 1);
-          addToast('МЯСО НА ОГНЕ', 'good');
-          updateCookUI();
-          return;
-        }
+        const s = campfire.cookSlots[i];
+        if (!s){ campfire.cookSlots[i] = { item:'cooked_meat', cooking:true, progress:0 }; removeItem('raw_meat', 1); addToast('МЯСО НА ОГНЕ', 'good'); updateCookUI(); return; }
+        if (!s.cooking && s.item === 'cooked_meat'){ s.cooking = true; s.progress = 0; removeItem('raw_meat', 1); addToast('МЯСО НА ОГНЕ', 'good'); updateCookUI(); return; }
       }
       addToast('ВСЕ МЕСТА ЗАНЯТЫ', 'warn');
-    } else {
-      addToast('ТЕПЛО У КОСТРА', 'good');
-    }
-  } else if (target.kind === 'animal'){
-    if (target.ref.dead){
-      // Skin it
-      const drops = target.ref.opts.drops || [];
-      for (const d of drops) addItem(d.id, d.n);
-      addToast('РАЗДЕЛАНО', 'good');
-      scene.remove(target.ref.root);
-      const i = animals.indexOf(target.ref);
-      if (i >= 0) animals.splice(i,1);
-    } else {
-      addToast('ЖИВОТНОЕ НЕ УБИТО', 'warn');
-    }
-  }
+    } else addToast('ТЕПЛО У КОСТРА', 'good');
+  } else if (target.kind === 'animal' && target.ref.dead){
+    const drops = target.ref.opts.drops || [];
+    for (const d of drops) addItem(d.id, d.n);
+    addToast('РАЗДЕЛАНО', 'good');
+    scene.remove(target.ref.root);
+    const i = animals.indexOf(target.ref);
+    if (i >= 0) animals.splice(i,1);
+  } else addToast('ЖИВОТНОЕ НЕ УБИТО', 'warn');
 }
-
 function performEat(){
-  if (hasItem('cooked_meat')){
-    removeItem('cooked_meat', 1);
-    player.food = Math.min(100, player.food + 45);
-    player.health = Math.min(100, player.health + 8);
-    addToast('СЪЕДЕНО: ЖАРЕНОЕ МЯСО', 'good');
-  } else if (hasItem('raw_meat')){
-    removeItem('raw_meat', 1);
-    player.food = Math.min(100, player.food + 20);
-    player.health -= 6;
-    addToast('СЫРОЕ МЯСО — ВЫ ЗАБОЛЕЛИ', 'warn');
-  } else if (hasItem('bandage')){
-    removeItem('bandage', 1);
-    player.health = Math.min(100, player.health + 30);
-    addToast('РАНЫ ПЕРЕВЯЗАНЫ', 'good');
-  } else addToast('НЕЧЕГО ЕСТЬ', 'warn');
+  if (hasItem('cooked_meat')){ removeItem('cooked_meat', 1); player.food = Math.min(100, player.food + 45); player.health = Math.min(100, player.health + 8); addToast('СЪЕДЕНО: ЖАРЕНОЕ МЯСО', 'good'); }
+  else if (hasItem('raw_meat')){ removeItem('raw_meat', 1); player.food = Math.min(100, player.food + 20); player.health -= 6; addToast('СЫРОЕ МЯСО — ВЫ ЗАБОЛЕЛИ', 'warn'); }
+  else if (hasItem('bandage')){ removeItem('bandage', 1); player.health = Math.min(100, player.health + 30); addToast('РАНЫ ПЕРЕВЯЗАНЫ', 'good'); }
+  else addToast('НЕЧЕГО ЕСТЬ', 'warn');
   handState.usePulse = 1.6;
 }
-
-function performCraft(){ openInventory('craft'); }
-
 function updateCookUI(){
   const panel = $('#cook-panel');
-  panel.classList.toggle('on', !!campfire);
+  if (!panel) return;
+  panel.classList.toggle('on', !!campfire && gameActive && !paused);
   if (!campfire) return;
   for (let i=0;i<3;i++){
     const el = panel.querySelector(`.cslot[data-i="${i}"]`);
     const s = campfire.cookSlots[i];
     if (!s){ el.innerHTML = '+'; }
-    else if (s.item === 'cooked_meat' && s.cooking){
-      el.innerHTML = `🔥<div class="prog"><i style="width:${(s.progress*100).toFixed(0)}%"></i></div>`;
-    } else if (s.item === 'cooked_meat'){
-      el.innerHTML = '🥩';
-    } else {
-      el.innerHTML = '+';
-    }
+    else if (s.cooking){ el.innerHTML = `🔥<div class="prog"><i style="width:${(s.progress*100).toFixed(0)}%"></i></div>`; }
+    else el.innerHTML = '🥩';
   }
 }
 
-/* ============================================================================
-   23. SURVIVAL + SWIMMING (fixed)
-   ========================================================================== */
-let dayLight = 1;
-let gameTime = 6*60;
+function updatePlayer(dt){
+  let ix = moveInput.x, iy = moveInput.y;
+  if (keys['KeyW'] || keys['ArrowUp'])    iy -= 1;
+  if (keys['KeyS'] || keys['ArrowDown'])  iy += 1;
+  if (keys['KeyA'] || keys['ArrowLeft'])  ix -= 1;
+  if (keys['KeyD'] || keys['ArrowRight']) ix += 1;
+  const mag = Math.hypot(ix, iy);
+  if (mag > 1){ ix /= mag; iy /= mag; }
+
+  const sy = Math.sin(player.yaw), cy = Math.cos(player.yaw);
+  const fwd = -iy, rgt = ix;
+  const wx = fwd * (-sy) + rgt * cy;
+  const wz = fwd * (-cy) + rgt * (-sy);
+
+  const weightRatio = totalWeight() / MAX_WEIGHT;
+  const overload = weightRatio > 1 ? (1 - Math.min(0.55, (weightRatio - 1) * 0.4)) : 1;
+  const sprinting = (keys['ShiftLeft'] || keys['ShiftRight']) && player.stamina > 5 && !player.inWater;
+  const baseSpeed = (player.inWater ? 1.8 : (sprinting ? player.sprintSpeed : player.speed)) * overload;
+
+  if (jumpRequested){
+    if (player.inWater) player.vel.y = Math.max(player.vel.y, 3.2);
+    else if (player.onGround){ player.vel.y = 5.4; player.onGround = false; }
+  }
+  jumpRequested = false;
+  player.vel.y -= 16.5 * dt;
+
+  const groundY = terrainHeight(player.pos.x, player.pos.z);
+  const depth = WATER_LEVEL - groundY;
+  const isOverWater = depth > 0.25;
+  const isInWater = isOverWater && player.pos.y < WATER_LEVEL + 0.15;
+
+  if (isInWater){
+    const floatY = WATER_LEVEL - 0.55;
+    player.vel.y += (floatY - player.pos.y) * 24 * dt;
+    player.vel.y *= Math.pow(0.10, dt);
+    player.vel.x *= Math.pow(0.55, dt);
+    player.vel.z *= Math.pow(0.55, dt);
+    if (Math.hypot(player.vel.x, player.vel.z) > 0.3) handState.swimStroke += dt * 3.4;
+    player.stamina = Math.max(0, player.stamina - dt*2.5);
+  }
+
+  const accel = player.onGround ? 14 : (isInWater ? 6 : 4.5);
+  player.vel.x = lerp(player.vel.x, wx*baseSpeed, Math.min(1, dt*accel));
+  player.vel.z = lerp(player.vel.z, wz*baseSpeed, Math.min(1, dt*accel));
+
+  player.pos.x += player.vel.x * dt;
+  player.pos.z += player.vel.z * dt;
+  player.pos.y += player.vel.y * dt;
+
+  const R = 220;
+  const rad = Math.hypot(player.pos.x, player.pos.z);
+  if (rad > R){ player.pos.x = player.pos.x/rad*R; player.pos.z = player.pos.z/rad*R; }
+
+  const gy = terrainHeight(player.pos.x, player.pos.z);
+  if (player.pos.y < gy){ player.pos.y = gy; if (player.vel.y < 0) player.vel.y = 0; player.onGround = true; }
+  else player.onGround = false;
+
+  const depthNow = WATER_LEVEL - gy;
+  player.inWater = depthNow > 0.2 && player.pos.y < WATER_LEVEL + 0.1 && player.pos.y > gy + 0.05;
+  player.submerged = (player.pos.y + player.height * 0.9) < WATER_LEVEL - 0.1;
+
+  if (player.inWater && !player._wasInWater){
+    playSplash();
+    spawnSplash(player.pos.x, WATER_LEVEL + 0.05, player.pos.z, 30);
+  }
+  if (!player.inWater && player._wasInWater && gy < WATER_LEVEL) spawnSplash(player.pos.x, WATER_LEVEL + 0.05, player.pos.z, 16);
+  player._wasInWater = player.inWater;
+
+  const hSpeed = Math.hypot(player.vel.x, player.vel.z);
+  if ((player.onGround || player.inWater) && hSpeed > 0.3){
+    player.walkPhase += dt * hSpeed * 2.35;
+    player.bobAmount = lerp(player.bobAmount, clamp(hSpeed/player.sprintSpeed, 0, 1), dt*6);
+  } else player.bobAmount = lerp(player.bobAmount, 0, dt*6);
+
+  const bobY = Math.sin(player.walkPhase*2) * 0.042 * player.bobAmount;
+  const bobX = Math.cos(player.walkPhase) * 0.030 * player.bobAmount;
+  const breathe = Math.sin(performance.now()*0.0012) * 0.006;
+  const waveBob = player.inWater ? Math.sin(elapsed*2.0)*0.09 : 0;
+  camera.position.set(
+    player.pos.x + bobX*Math.cos(player.yaw),
+    player.pos.y + player.height + bobY + breathe + waveBob,
+    player.pos.z - bobX*Math.sin(player.yaw)
+  );
+  const roll = Math.cos(player.walkPhase) * 0.012 * player.bobAmount + (player.inWater ? Math.sin(elapsed*1.8)*0.02 : 0);
+  const pitchBob = Math.sin(player.walkPhase*2) * 0.008 * player.bobAmount;
+  camera.rotation.set(0,0,0);
+  camera.rotation.order = 'YXZ';
+  camera.rotation.y = player.yaw;
+  camera.rotation.x = player.pitch + pitchBob;
+  camera.rotation.z = roll;
+
+  if (sprinting && hSpeed > 4){
+    player.food = Math.max(0, player.food - dt*0.4);
+    player.water = Math.max(0, player.water - dt*0.5);
+    player.stamina = Math.max(0, player.stamina - dt*16);
+  } else player.stamina = Math.min(100, player.stamina + dt*9);
+
+  sun.target.position.copy(player.pos);
+}
+
+function updateHands(dt, t){
+  handState.targetSwayX = lerp(handState.targetSwayX, 0, dt*3.5);
+  handState.targetSwayY = lerp(handState.targetSwayY, 0, dt*3.5);
+  handState.swayX = lerp(handState.swayX, handState.targetSwayX, dt*8);
+  handState.swayY = lerp(handState.swayY, handState.targetSwayY, dt*8);
+  const bobX = Math.cos(player.walkPhase) * 0.030 * player.bobAmount;
+  const bobY = Math.sin(player.walkPhase*2) * 0.026 * player.bobAmount;
+  const idleY = Math.sin(t*1.35) * 0.005;
+  const idleX = Math.cos(t*1.05) * 0.004;
+  const swimPhase = player.inWater ? Math.sin(handState.swimStroke) : 0;
+
+  let swingRotX = 0, swingRotZ = 0, swingPosY = 0, swingPosZ = 0;
+  if (handState.swingActive){
+    handState.swingT += dt / 0.42;
+    const p = handState.swingT;
+    if (p >= 1){ handState.swingActive = false; handState.swingT = 0; }
+    else {
+      const wind = clamp(p/0.32, 0, 1);
+      const strike = clamp((p-0.32)/0.34, 0, 1);
+      const recover = clamp((p-0.66)/0.34, 0, 1);
+      const windE = Math.sin(wind*Math.PI*0.5);
+      const strikeE = strike*strike*(3-2*strike);
+      const recoverE = 1 - Math.cos(recover*Math.PI*0.5);
+      swingRotX = -1.15*windE + 2.15*strikeE - 1.0*recoverE;
+      swingRotZ = 0.42*windE - 0.72*strikeE + 0.30*recoverE;
+      swingPosY = -0.055*windE + 0.045*strikeE - 0.02*recoverE;
+      swingPosZ = 0.09*windE - 0.16*strikeE + 0.05*recoverE;
+    }
+  }
+  if (handState.usePulse > 0) handState.usePulse = Math.max(0, handState.usePulse - dt*3.2);
+  const useP = handState.usePulse;
+
+  rightHandGroup.position.set(
+    RIGHT_BASE.x + bobX + handState.swayX + idleX - useP*0.035,
+    RIGHT_BASE.y + bobY + handState.swayY + idleY - useP*0.02 + swingPosY - swimPhase*0.06,
+    RIGHT_BASE.z + swingPosZ - swimPhase*0.15
+  );
+  rightHandGroup.rotation.set(
+    RIGHT_ROT.x + handState.swayY*4 + swingRotX - useP*0.35 - swimPhase*0.7,
+    RIGHT_ROT.y + handState.swayX*3,
+    RIGHT_ROT.z + handState.swayX*3 + swingRotZ
+  );
+  leftHandGroup.position.set(
+    LEFT_BASE.x + bobX*0.85 + handState.swayX*0.9 + idleX*1.2,
+    LEFT_BASE.y + bobY*0.85 + handState.swayY*0.9 + idleY*1.2 - useP*0.09 + swimPhase*0.06,
+    LEFT_BASE.z + useP*0.05 - swimPhase*0.15
+  );
+  leftHandGroup.rotation.set(
+    LEFT_ROT.x + handState.swayY*4 - useP*0.9 + swimPhase*0.7,
+    LEFT_ROT.y + handState.swayX*3,
+    LEFT_ROT.z + handState.swayX*3 + useP*0.4
+  );
+  if (useP > 0.3) leftHandGroup.position.y -= (useP-0.3)*0.5;
+}
 
 function updateSurvival(dt){
   if (!player.alive) return;
@@ -2991,225 +3187,18 @@ function updateSurvival(dt){
   }
 }
 
-let hitFlashTimer = 0;
-function flashHit(){ $('#flash').style.opacity = '0.55'; hitFlashTimer = 0.25; }
-
-/* ============================================================================
-   24. PLAYER MOVEMENT — с корректной физикой берега
-   ========================================================================== */
-function updatePlayer(dt){
-  let ix = moveInput.x, iy = moveInput.y;
-  if (keys['KeyW'] || keys['ArrowUp'])    iy -= 1;
-  if (keys['KeyS'] || keys['ArrowDown'])  iy += 1;
-  if (keys['KeyA'] || keys['ArrowLeft'])  ix -= 1;
-  if (keys['KeyD'] || keys['ArrowRight']) ix += 1;
-  const mag = Math.hypot(ix, iy);
-  if (mag > 1){ ix /= mag; iy /= mag; }
-
-  const sy = Math.sin(player.yaw), cy = Math.cos(player.yaw);
-  const fwd = -iy;
-  const rgt = ix;
-  let wx = fwd * (-sy) + rgt * cy;
-  let wz = fwd * (-cy) + rgt * (-sy);
-
-  // Ограничение скорости при перегрузе
-  const weightRatio = totalWeight() / MAX_WEIGHT;
-  const overload = weightRatio > 1 ? (1 - Math.min(0.55, (weightRatio - 1) * 0.4)) : 1;
-
-  const sprinting = (keys['ShiftLeft'] || keys['ShiftRight']) && player.stamina > 5 && !player.inWater;
-  const baseSpeed = (player.inWater ? 1.8 : (sprinting ? player.sprintSpeed : player.speed)) * overload;
-
-  if (jumpRequested){
-    if (player.inWater) player.vel.y = Math.max(player.vel.y, 3.2);
-    else if (player.onGround){ player.vel.y = 5.4; player.onGround = false; }
-  }
-  jumpRequested = false;
-
-  // Gravity
-  player.vel.y -= 16.5 * dt;
-
-  // Water state — определяем глубину
-  const groundY = terrainHeight(player.pos.x, player.pos.z);
-  const depth = WATER_LEVEL - groundY;
-  const playerFeetY = player.pos.y;
-  const isOverWater = depth > 0.25;
-  const isInWater = isOverWater && playerFeetY < WATER_LEVEL + 0.15;
-
-  if (isInWater){
-    // Buoyancy to WATER_LEVEL - 0.55
-    const floatY = WATER_LEVEL - 0.55;
-    player.vel.y += (floatY - playerFeetY) * 24 * dt;
-    player.vel.y *= Math.pow(0.10, dt); // strong drag
-    // Horizontal drag
-    player.vel.x *= Math.pow(0.55, dt);
-    player.vel.z *= Math.pow(0.55, dt);
-    // Swim animation
-    if (Math.hypot(player.vel.x, player.vel.z) > 0.3){
-      handState.swimStroke += dt * 3.4;
-    }
-    // Stamina drain in water
-    player.stamina = Math.max(0, player.stamina - dt*2.5);
-  }
-
-  // Horizontal acceleration
-  const accel = player.onGround ? 14 : (isInWater ? 6 : 4.5);
-  player.vel.x = lerp(player.vel.x, wx*baseSpeed, Math.min(1, dt*accel));
-  player.vel.z = lerp(player.vel.z, wz*baseSpeed, Math.min(1, dt*accel));
-
-  // Apply movement
-  player.pos.x += player.vel.x * dt;
-  player.pos.z += player.vel.z * dt;
-  player.pos.y += player.vel.y * dt;
-
-  // Bounds
-  const R = 250;
-  const rad = Math.hypot(player.pos.x, player.pos.z);
-  if (rad > R){ player.pos.x = player.pos.x/rad*R; player.pos.z = player.pos.z/rad*R; }
-
-  // === CRITICAL: ALWAYS clamp to ground ===
-  const gy = terrainHeight(player.pos.x, player.pos.z);
-  if (player.pos.y < gy){
-    player.pos.y = gy;
-    if (player.vel.y < 0) player.vel.y = 0;
-    player.onGround = true;
-  } else {
-    player.onGround = false;
-  }
-
-  // Update flags
-  const depthNow = WATER_LEVEL - gy;
-  player.inWater = depthNow > 0.2 && player.pos.y < WATER_LEVEL + 0.1 && player.pos.y > gy + 0.05;
-  player.submerged = (player.pos.y + player.height * 0.9) < WATER_LEVEL - 0.1;
-
-  // Splash
-  if (player.inWater && !player._wasInWater){
-    playSplash();
-    spawnSplash(player.pos.x, WATER_LEVEL + 0.05, player.pos.z, 30);
-  }
-  if (!player.inWater && player._wasInWater && gy < WATER_LEVEL){
-    spawnSplash(player.pos.x, WATER_LEVEL + 0.05, player.pos.z, 16);
-  }
-  player._wasInWater = player.inWater;
-
-  // Walk bob
-  const hSpeed = Math.hypot(player.vel.x, player.vel.z);
-  if ((player.onGround || player.inWater) && hSpeed > 0.3){
-    player.walkPhase += dt * hSpeed * 2.35;
-    player.bobAmount = lerp(player.bobAmount, clamp(hSpeed/player.sprintSpeed, 0, 1), dt*6);
-  } else {
-    player.bobAmount = lerp(player.bobAmount, 0, dt*6);
-  }
-
-  // Camera
-  const bobY = Math.sin(player.walkPhase*2) * 0.042 * player.bobAmount;
-  const bobX = Math.cos(player.walkPhase) * 0.030 * player.bobAmount;
-  const breathe = Math.sin(performance.now()*0.0012) * 0.006;
-  const waveBob = player.inWater ? Math.sin(elapsed*2.0)*0.09 : 0;
-
-  camera.position.set(
-    player.pos.x + bobX*Math.cos(player.yaw),
-    player.pos.y + player.height + bobY + breathe + waveBob,
-    player.pos.z - bobX*Math.sin(player.yaw)
-  );
-  const roll = Math.cos(player.walkPhase) * 0.012 * player.bobAmount
-             + (player.inWater ? Math.sin(elapsed*1.8)*0.02 : 0);
-  const pitchBob = Math.sin(player.walkPhase*2) * 0.008 * player.bobAmount;
-  camera.rotation.set(0,0,0);
-  camera.rotation.order = 'YXZ';
-  camera.rotation.y = player.yaw;
-  camera.rotation.x = player.pitch + pitchBob;
-  camera.rotation.z = roll;
-
-  // Sprint drains
-  if (sprinting && hSpeed > 4){
-    player.food = Math.max(0, player.food - dt*0.4);
-    player.water = Math.max(0, player.water - dt*0.5);
-    player.stamina = Math.max(0, player.stamina - dt*16);
-  } else {
-    player.stamina = Math.min(100, player.stamina + dt*9);
-  }
-
-  sun.target.position.copy(player.pos);
-}
-
-/* ============================================================================
-   25. HAND ANIMATION
-   ========================================================================== */
-function updateHands(dt, t){
-  handState.targetSwayX = lerp(handState.targetSwayX, 0, dt*3.5);
-  handState.targetSwayY = lerp(handState.targetSwayY, 0, dt*3.5);
-  handState.swayX = lerp(handState.swayX, handState.targetSwayX, dt*8);
-  handState.swayY = lerp(handState.swayY, handState.targetSwayY, dt*8);
-
-  const bobX = Math.cos(player.walkPhase) * 0.030 * player.bobAmount;
-  const bobY = Math.sin(player.walkPhase*2) * 0.026 * player.bobAmount;
-  const idleY = Math.sin(t*1.35) * 0.005;
-  const idleX = Math.cos(t*1.05) * 0.004;
-
-  const swimPhase = player.inWater ? Math.sin(handState.swimStroke) : 0;
-
-  let swingRotX = 0, swingRotZ = 0, swingPosY = 0, swingPosZ = 0;
-  if (handState.swingActive){
-    handState.swingT += dt / 0.42;
-    const p = handState.swingT;
-    if (p >= 1){ handState.swingActive = false; handState.swingT = 0; }
-    else {
-      const wind = clamp(p/0.32, 0, 1);
-      const strike = clamp((p-0.32)/0.34, 0, 1);
-      const recover = clamp((p-0.66)/0.34, 0, 1);
-      const windE = Math.sin(wind*Math.PI*0.5);
-      const strikeE = strike*strike*(3-2*strike);
-      const recoverE = 1 - Math.cos(recover*Math.PI*0.5);
-      swingRotX = -1.15*windE + 2.15*strikeE - 1.0*recoverE;
-      swingRotZ = 0.42*windE - 0.72*strikeE + 0.30*recoverE;
-      swingPosY = -0.055*windE + 0.045*strikeE - 0.02*recoverE;
-      swingPosZ = 0.09*windE - 0.16*strikeE + 0.05*recoverE;
-    }
-  }
-  if (handState.usePulse > 0) handState.usePulse = Math.max(0, handState.usePulse - dt*3.2);
-  const useP = handState.usePulse;
-
-  rightHandGroup.position.set(
-    RIGHT_BASE.x + bobX + handState.swayX + idleX - useP*0.035,
-    RIGHT_BASE.y + bobY + handState.swayY + idleY - useP*0.02 + swingPosY - swimPhase*0.06,
-    RIGHT_BASE.z + swingPosZ - swimPhase*0.15
-  );
-  rightHandGroup.rotation.set(
-    RIGHT_ROT.x + handState.swayY*4 + swingRotX - useP*0.35 - swimPhase*0.7,
-    RIGHT_ROT.y + handState.swayX*3,
-    RIGHT_ROT.z + handState.swayX*3 + swingRotZ
-  );
-  leftHandGroup.position.set(
-    LEFT_BASE.x + bobX*0.85 + handState.swayX*0.9 + idleX*1.2,
-    LEFT_BASE.y + bobY*0.85 + handState.swayY*0.9 + idleY*1.2 - useP*0.09 + swimPhase*0.06,
-    LEFT_BASE.z + useP*0.05 - swimPhase*0.15
-  );
-  leftHandGroup.rotation.set(
-    LEFT_ROT.x + handState.swayY*4 - useP*0.9 + swimPhase*0.7,
-    LEFT_ROT.y + handState.swayX*3,
-    LEFT_ROT.z + handState.swayX*3 + useP*0.4
-  );
-  if (useP > 0.3) leftHandGroup.position.y -= (useP-0.3)*0.5;
-}
-
-/* ============================================================================
-   26. SKY
-   ========================================================================== */
-const DAY_LENGTH = 320;
 function updateSky(dt){
-  gameTime += dt * (1440/DAY_LENGTH);
+  gameTime += dt * (1440/320);
   if (gameTime >= 1440) gameTime -= 1440;
   const tNorm = gameTime / 1440;
   const sunAngle = (tNorm - 0.25) * Math.PI * 2;
   const sunY = Math.sin(sunAngle);
   const sunX = Math.cos(sunAngle);
 
-  sun.position.copy(player.pos).add(new THREE.Vector3(
-    sunX * 90, Math.max(sunY, -0.2) * 110, sunX * 28 + 45));
+  sun.position.copy(player.pos).add(new THREE.Vector3(sunX * 90, Math.max(sunY, -0.2) * 110, sunX * 28 + 45));
   sun.target.position.copy(player.pos);
 
-  sunDisk.position.copy(camera.position).add(new THREE.Vector3(
-    sunX * 500, Math.max(sunY, 0.01) * 500, sunX*0.3*500 + 150));
+  sunDisk.position.copy(camera.position).add(new THREE.Vector3(sunX * 500, Math.max(sunY, 0.01) * 500, sunX*0.3*500 + 150));
   sunHalo.position.copy(sunDisk.position);
   sunDisk.lookAt(camera.position);
   sunHalo.lookAt(camera.position);
@@ -3221,7 +3210,6 @@ function updateSky(dt){
 
   sun.intensity = 0.05 + dayLight*3.0;
   sun.color.setRGB(1.0, 0.88 + dayLight*0.08, 0.65 + dayLight*0.30);
-
   hemi.intensity = 0.12 + dayLight*1.0;
   hemi.color.setHex(dayLight > 0.4 ? 0x9fb8d0 : 0x2a3550);
   hemi.groundColor.setHex(dayLight > 0.4 ? 0x2c2a22 : 0x0a0c10);
@@ -3246,24 +3234,12 @@ function updateSky(dt){
     lerp(0.10,0.68,dayLight) - hWarm*0.10);
   scene.fog.color.copy(fogColor);
   scene.fog.density = lerp(0.016, 0.006, dayLight);
-
   renderer.toneMappingExposure = lerp(0.78, 1.02, dayLight);
   for (const u of windUniforms) u.value += dt;
 
   const hh = String(Math.floor(gameTime/60)).padStart(2,'0');
   const mm = String(Math.floor(gameTime%60)).padStart(2,'0');
   $('#clock-t').textContent = `${hh}:${mm}`;
-}
-
-/* ============================================================================
-   27. UI
-   ========================================================================== */
-function addToast(text, type=''){
-  const el = document.createElement('div');
-  el.className = 'toast' + (type ? ' '+type : '');
-  el.textContent = text;
-  $('#toasts').appendChild(el);
-  setTimeout(() => { el.classList.add('fade'); setTimeout(() => el.remove(), 420); }, 1500);
 }
 
 function updateHint(){
@@ -3295,16 +3271,14 @@ function processActions(){
   if (invRequested){    invRequested = false;    openInventory('items'); }
   if (menuRequested){
     menuRequested = false;
-    if ($('#inventory').classList.contains('on')){
-      closeInventory();
-    } else if (gameActive){
+    if ($('#inventory').classList.contains('on')) closeInventory();
+    else if (gameActive){
       paused = true;
       $('#settings').classList.add('on');
       if (document.pointerLockElement) document.exitPointerLock();
     }
   }
 }
-
 function openInventory(tab){
   paused = true;
   $('#inventory').classList.add('on');
@@ -3324,137 +3298,6 @@ function closeInventory(){
   if (!IS_TOUCH) renderer.domElement.requestPointerLock();
 }
 
-$('#btn-inv-close').addEventListener('click', closeInventory);
-$('#btn-use-item').addEventListener('click', () => {
-  if (inventory.selected < 0) return;
-  const s = inventory.slots[inventory.selected];
-  if (!s.id) return;
-  if (s.id === 'cooked_meat' || s.id === 'raw_meat'){
-    if (s.id === 'cooked_meat'){ player.food = Math.min(100, player.food + 45); }
-    else { player.food = Math.min(100, player.food + 20); player.health -= 6; }
-    removeItem(s.id, 1);
-  } else if (s.id === 'bandage'){
-    player.health = Math.min(100, player.health + 30);
-    removeItem(s.id, 1);
-  }
-});
-$('#btn-drop').addEventListener('click', () => {
-  if (inventory.selected < 0) return;
-  const s = inventory.slots[inventory.selected];
-  if (!s.id) return;
-  removeItem(s.id, 1);
-});
-
-/* ============================================================================
-   28. WORLD SPAWN
-   ========================================================================== */
-function spawnWorld(){
-  // Trees with biome
-  const nTrees = settings.quality >= 2 ? 220 : (settings.quality >= 1 ? 140 : 80);
-  let placed = 0, tries = 0;
-  while (placed < nTrees && tries < nTrees*25){
-    tries++;
-    const a = Math.random()*Math.PI*2;
-    const r = 10 + Math.sqrt(Math.random())*200;
-    const x = Math.cos(a)*r, z = Math.sin(a)*r;
-    const y = terrainHeight(x,z);
-    if (y < WATER_LEVEL + 1.2 || y > 20) continue;
-    if (terrainNormal(x,z).y < 0.80) continue;
-    if (isBeach(x,z)) continue;
-    const biome = biomeAt(x,z);
-    if (biome === 'ocean' || biome === 'beach' || biome === 'snow') continue;
-    buildTree(x,z, biome);
-    placed++;
-  }
-
-  // Rocks
-  const nRocks = settings.quality >= 2 ? 120 : (settings.quality >= 1 ? 80 : 50);
-  for (let i=0;i<nRocks;i++){
-    const a = Math.random()*Math.PI*2;
-    const r = 6 + Math.sqrt(Math.random())*205;
-    const x = Math.cos(a)*r, z = Math.sin(a)*r;
-    const y = terrainHeight(x,z);
-    if (y < WATER_LEVEL + 0.3) continue;
-    buildRock(x,z, rnd(0.35, 1.4));
-  }
-
-  // Animals
-  const animalCounts = {
-    chicken: settings.quality >= 2 ? 12 : 8,
-    rabbit:  settings.quality >= 2 ? 10 : 6,
-    sheep:   settings.quality >= 2 ? 6  : 4,
-    boar:    settings.quality >= 2 ? 4  : 3,
-    wolf:    settings.quality >= 2 ? 4  : 3,
-  };
-  for (const [kind, count] of Object.entries(animalCounts)){
-    let spawned = 0, t = 0;
-    while (spawned < count && t < 200){
-      t++;
-      const a = Math.random()*Math.PI*2;
-      const r = 25 + Math.random()*170;
-      const x = Math.cos(a)*r, z = Math.sin(a)*r;
-      if (!isLand(x,z)) continue;
-      const y = terrainHeight(x,z);
-      if (y < WATER_LEVEL + 1.5 || y > 18) continue;
-      if (isBeach(x,z) && kind !== 'wolf' && kind !== 'boar') continue;
-      spawnAnimal(kind, x, z);
-      spawned++;
-    }
-  }
-
-  // Starting campfire
-  placeCampfire(3.5, -3.0);
-
-  // Starting items
-  addItem('axe', 1);
-  addItem('wood', 5);
-  addItem('stone', 3);
-}
-
-/* ============================================================================
-   29. MAIN LOOP
-   ========================================================================== */
-const clock = new THREE.Clock();
-let elapsed = 0;
-let howlTimer = rnd(10, 25);
-
-function animate(){
-  requestAnimationFrame(animate);
-  const dt = Math.min(clock.getDelta(), 0.05);
-  elapsed += dt;
-
-  if (gameActive && !paused){
-    processActions();
-    updateSky(dt);
-    if (player.alive) updatePlayer(dt);
-    updateHands(dt, elapsed);
-    updateSurvival(dt);
-    updateHint();
-    updateRain(dt, elapsed);
-    updateSpoilage(dt);
-    updateToolVisibility();
-    updateCookUI();
-
-    // Wolf howl at night
-    howlTimer -= dt;
-    if (howlTimer <= 0 && dayLight < 0.35){
-      howlTimer = rnd(20, 50);
-      playWolfHowl(rnd(30, 90));
-    }
-  }
-  updateWater(elapsed);
-  updateParticles(dt);
-
-  if (campfire) campfire.update(dt, elapsed);
-  for (const a of animals) a.update(dt, player.pos, elapsed);
-
-  if (hitFlashTimer > 0){
-    hitFlashTimer -= dt;
-    $('#flash').style.opacity = String(Math.max(0, hitFlashTimer*2.2));
-  }
-  composer.render();
-}
-
 function onAnimalAttack(a){
   if (!player.alive) return;
   const d = Math.hypot(player.pos.x - a.root.position.x, player.pos.z - a.root.position.z);
@@ -3469,59 +3312,137 @@ function onAnimalAttack(a){
 }
 
 /* ============================================================================
-   30. BOOT
+   19. MAIN LOOP
    ========================================================================== */
-const loaderBar = $('#bar i');
-const loaderTxt = $('#ltxt');
-function setProgress(p, txt){
-  loaderBar.style.width = (p*100).toFixed(0) + '%';
-  if (txt) loaderTxt.textContent = txt;
-}
+let howlTimer = 20;
+let lastTime = 0;
+function animate(){
+  requestAnimationFrame(animate);
+  const now = performance.now();
+  let dt = (now - lastTime) / 1000;
+  lastTime = now;
+  if (dt > 0.05) dt = 0.05;
+  elapsed += dt;
 
-async function boot(){
-  await new Promise(r => setTimeout(r, 60));
-  setProgress(0.08, 'ФОРМИРОВАНИЕ ОСТРОВА...');
-  buildTerrain();
-  await new Promise(r => setTimeout(r, 30));
+  if (gameActive && !paused){
+    processActions();
+    updateSky(dt);
+    if (player.alive) updatePlayer(dt);
+    updateHands(dt, elapsed);
+    updateSurvival(dt);
+    updateHint();
+    updateRain(dt, elapsed);
+    updateSpoilage(dt);
+    updateToolVisibility();
+    updateCookUI();
 
-  setProgress(0.24, 'НАПОЛНЕНИЕ ВОДОЁМОВ...');
-  buildWater();
-  await new Promise(r => setTimeout(r, 30));
-
-  setProgress(0.44, 'ВЫРАЩИВАНИЕ ЛЕСА...');
-  spawnWorld();
-  await new Promise(r => setTimeout(r, 30));
-
-  setProgress(0.70, 'РАСПУСКАНИЕ ЛИСТВЫ...');
-  buildLeafInstancedMesh();
-  await new Promise(r => setTimeout(r, 30));
-
-  setProgress(0.84, 'ПОСЕВ ТРАВ...');
-  buildGrass();
-  await new Promise(r => setTimeout(r, 30));
-
-  setProgress(0.94, 'ПРОБУЖДЕНИЕ ЖИВОТНЫХ...');
-  // Player spawn
-  let sx = 0, sz = 0;
-  for (let i=0;i<50;i++){
-    const a = Math.random()*Math.PI*2;
-    const r = Math.random()*6;
-    const x = Math.cos(a)*r, z = Math.sin(a)*r;
-    if (isLand(x,z)){ sx = x; sz = z; break; }
+    howlTimer -= dt;
+    if (howlTimer <= 0 && dayLight < 0.35){
+      howlTimer = rnd(20, 50);
+      playWolfHowl(rnd(30, 90));
+    }
   }
-  player.pos.set(sx, terrainHeight(sx,sz)+0.05, sz);
-  camera.position.set(player.pos.x, player.pos.y + player.height, player.pos.z);
-  await new Promise(r => setTimeout(r, 60));
+  if (waterUniforms) waterUniforms.uTime.value = elapsed;
+  updateParticles(dt);
 
-  setProgress(1.0, 'ГОТОВО');
-  await new Promise(r => setTimeout(r, 280));
-  $('#loader').classList.add('gone');
-  updateInvUI();
-  animate();
+  if (campfire) campfire.update(dt, elapsed);
+  for (const a of animals) a.update(dt, player.pos, elapsed);
+
+  if (hitFlashTimer > 0){
+    hitFlashTimer -= dt;
+    $('#flash').style.opacity = String(Math.max(0, hitFlashTimer*2.2));
+  }
+  composer.render();
 }
 
 /* ============================================================================
-   31. MENU
+   20. BOOT SEQUENCE (the FIX)
+   ========================================================================== */
+async function bootAll(){
+  try {
+    // 1. Load Three.js from CDN with fallback
+    const mods = await loadModules();
+    THREE = mods.THREE;
+    EffectComposer = mods.EffectComposer;
+    RenderPass = mods.RenderPass;
+    UnrealBloomPass = mods.UnrealBloomPass;
+    OutputPass = mods.OutputPass;
+
+    // 2. Init Perlin
+    PERLIN = new Perlin(20240711);
+    PERLIN2 = new Perlin(99001);
+    PERLIN3 = new Perlin(555);
+
+    // 3. Init renderer, sky, textures
+    setProgress(0.12, 'ИНИЦИАЛИЗАЦИЯ РЕНДЕРА...');
+    await yieldFrame();
+    initRenderer();
+    initSky();
+    initTextures();
+    initHands();
+    initParticles();
+    initRain();
+    attachInputHandlers();
+
+    // 4. Async world generation with progress
+    await buildTerrainAsync();
+    await buildWaterAsync();
+    await buildTreesAsync();
+    await buildRocksAsync();
+    await buildLeafInstancedAsync();
+    await buildGrassAsync();
+    await buildAnimalsAsync();
+
+    // 5. Campfire + starter items
+    setProgress(0.90, 'УСТАНОВКА КОСТРА...');
+    await yieldFrame();
+    placeCampfire(3.5, -3.0);
+    addItem('axe', 1);
+    addItem('wood', 5);
+    addItem('stone', 3);
+
+    // 6. Player spawn
+    setProgress(0.94, 'РАЗМЕЩЕНИЕ ИГРОКА...');
+    await yieldFrame();
+    let sx = 0, sz = 0;
+    for (let i=0;i<50;i++){
+      const a = Math.random()*Math.PI*2;
+      const r = Math.random()*6;
+      const x = Math.cos(a)*r, z = Math.sin(a)*r;
+      if (isLand(x,z)){ sx = x; sz = z; break; }
+    }
+    player.pos.set(sx, terrainHeight(sx,sz)+0.05, sz);
+    camera.position.set(player.pos.x, player.pos.y + player.height, player.pos.z);
+
+    // 7. Ready
+    setProgress(1.0, 'ГОТОВО');
+    await yieldFrame();
+    loaderTxt.innerHTML = '<span style="color:#bfe8a0">МИР ГОТОВ</span>';
+    startBtn.classList.add('on');
+    initAudio();
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    playReadyChime();
+
+    // Start render loop
+    lastTime = performance.now();
+    animate();
+
+  } catch (err){
+    console.error('BOOT ERROR:', err);
+    showError('Ошибка загрузки: ' + (err.message || 'неизвестная') + '. Проверьте интернет и обновите страницу.', true);
+  }
+}
+
+retryBtn.addEventListener('click', () => {
+  retryBtn.classList.remove('on');
+  errBox.classList.remove('on');
+  loaderBar.style.background = 'linear-gradient(90deg,#8a6a2c,#e2c47e,#fff3d0)';
+  loaderTxt.textContent = 'ПЕРЕЗАГРУЗКА...';
+  setTimeout(() => location.reload(), 300);
+});
+
+/* ============================================================================
+   21. MENU / SETTINGS WIRING
    ========================================================================== */
 function startGame(){
   tryLockLandscape();
@@ -3533,21 +3454,51 @@ function startGame(){
     $('#controls').classList.add('on');
     gameActive = true;
     paused = false;
-    clock.getDelta();
+    lastTime = performance.now();
     addToast('ВЫ ОЧНУЛИСЬ НА БЕРЕГУ', '');
     setTimeout(() => addToast('ОСМОТРИТЕСЬ · I — ИНВЕНТАРЬ', ''), 1900);
     setTimeout(() => addToast('РУБИТЕ ДЕРЕВЬЯ, ОХОТЬТЕСЬ, ГОТОВЬТЕ', ''), 3800);
+    if (!IS_TOUCH) renderer.domElement.requestPointerLock();
   }, 500);
 }
 
+startBtn.addEventListener('click', startGame);
 $('#btn-play').addEventListener('click', startGame);
 $('#btn-settings').addEventListener('click', () => $('#settings').classList.add('on'));
 $('#btn-settings-close').addEventListener('click', () => {
   $('#settings').classList.remove('on');
-  if (gameActive && paused) { paused = false; clock.getDelta(); if (!IS_TOUCH) renderer.domElement.requestPointerLock(); }
+  if (gameActive && paused) { paused = false; lastTime = performance.now(); if (!IS_TOUCH) renderer.domElement.requestPointerLock(); }
 });
+$('#btn-inv-close').addEventListener('click', closeInventory);
+$('#btn-use-item').addEventListener('click', () => {
+  if (inventory.selected < 0) return;
+  const s = inventory.slots[inventory.selected];
+  if (!s.id) return;
+  if (s.id === 'cooked_meat'){ player.food = Math.min(100, player.food + 45); removeItem(s.id, 1); }
+  else if (s.id === 'raw_meat'){ player.food = Math.min(100, player.food + 20); player.health -= 6; removeItem(s.id, 1); }
+  else if (s.id === 'bandage'){ player.health = Math.min(100, player.health + 30); removeItem(s.id, 1); }
+});
+$('#btn-drop').addEventListener('click', () => {
+  if (inventory.selected < 0) return;
+  const s = inventory.slots[inventory.selected];
+  if (!s.id) return;
+  removeItem(s.id, 1);
+});
+$$('.tabs [data-tab]').forEach(t => t.addEventListener('click', () => {
+  $$('.tabs [data-tab]').forEach(x => x.classList.remove('on'));
+  t.classList.add('on');
+  const tab = t.dataset.tab;
+  $('#tab-items').style.display = tab === 'items' ? '' : 'none';
+  $('#tab-craft').style.display = tab === 'craft' ? '' : 'none';
+}));
+$$('.tabs [data-cat]').forEach(t => t.addEventListener('click', () => {
+  $$('.tabs [data-cat]').forEach(x => x.classList.remove('on'));
+  t.classList.add('on');
+  currentRecipeCat = t.dataset.cat;
+  renderRecipes();
+}));
 
-/* Settings wiring */
+/* Settings */
 const sensEl = $('#s-sens'), sensVal = $('#v-sens');
 sensEl.value = Math.round(settings.sensitivity * 100);
 sensVal.textContent = settings.sensitivity.toFixed(2);
@@ -3595,9 +3546,7 @@ $('#respawn').addEventListener('click', () => {
   addToast('НОВАЯ ПОПЫТКА', '');
 });
 
-/* ============================================================================
-   32. PWA
-   ========================================================================== */
+/* PWA */
 (function setupPWA(){
   try {
     const ic = document.createElement('canvas'); ic.width = ic.height = 512;
@@ -3624,17 +3573,15 @@ $('#respawn').addEventListener('click', () => {
   } catch(e){}
 })();
 
-boot();
-
-renderer.domElement.addEventListener('webglcontextlost', (e) => {
-  e.preventDefault();
-  addToast('ПОТЕРЯ ГРАФИЧЕСКОГО КОНТЕКСТА', 'warn');
-});
-
 document.addEventListener('visibilitychange', () => {
   if (document.hidden && audioCtx) audioCtx.suspend();
   else if (!document.hidden && audioCtx && gameActive) audioCtx.resume();
 });
+
+/* ============================================================================
+   22. KICK OFF
+   ========================================================================== */
+bootAll();
 </script>
 </body>
 </html>
