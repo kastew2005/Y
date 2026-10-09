@@ -4,104 +4,158 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Apex">
 <meta name="theme-color" content="#0a0612">
+<meta name="description" content="Apex — Rifters of Aethelgard. Mobile MMORPG AAA-level.">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'><defs><radialGradient id='g' cx='50%25' cy='40%25'><stop offset='0%25' stop-color='%23ffe7b0'/><stop offset='60%25' stop-color='%23e0a94e'/><stop offset='100%25' stop-color='%23a06b20'/></radialGradient></defs><rect width='180' height='180' rx='36' fill='%230a0612'/><path d='M90 20 L120 70 L110 90 L130 160 L50 160 L70 90 L60 70 Z' fill='url(%23g)' stroke='%23ffbe72' stroke-width='2'/></svg>">
 <title>APEX — Rifters of Aethelgard</title>
 <style>
-/* ============================================================
-   APEX — Премиальные стили
-   Тёмное фэнтези + киберпанк. Стекломорфизм, золото, неон.
-   ============================================================ */
+/* ============================================================================
+   APEX — Премиальный PWA-клиент
+   ============================================================================ */
 *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+:root {
+  --sa-top: env(safe-area-inset-top, 0px);
+  --sa-bottom: env(safe-area-inset-bottom, 0px);
+  --sa-left: env(safe-area-inset-left, 0px);
+  --sa-right: env(safe-area-inset-right, 0px);
+  --gold: #ffd897;
+  --gold-deep: #a06b20;
+  --gold-light: #fff1ce;
+  --neon: #7cd9ff;
+  --neon-strong: #3d7cff;
+  --blood: #ff4d5e;
+  --magic: #b85aff;
+  --bg-0: #05030a;
+  --bg-1: #0d0818;
+  --bg-2: #1a0f2e;
+}
 html, body {
   margin: 0; padding: 0; width: 100%; height: 100%;
-  overflow: hidden; background: #05030a;
+  overflow: hidden; background: var(--bg-0); color: #e8dfd0;
   font-family: -apple-system, BlinkMacSystemFont, "Cinzel", "Segoe UI", Roboto, system-ui, sans-serif;
-  color: #e8dfd0; user-select: none; -webkit-user-select: none;
+  user-select: none; -webkit-user-select: none;
   touch-action: none; overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
 }
 canvas { display: block; outline: none; }
+button { font-family: inherit; }
 
-/* ---------- Общий фон с виньеткой ---------- */
+/* ---------- Общий фон ---------- */
 #app { position: fixed; inset: 0; overflow: hidden; }
-.bg-vignette {
+
+.vignette {
   position: absolute; inset: 0; pointer-events: none; z-index: 2;
   background:
-    radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.85) 100%),
-    linear-gradient(180deg, rgba(10,6,30,0.35) 0%, transparent 30%, transparent 70%, rgba(20,0,30,0.55) 100%);
+    radial-gradient(ellipse at center, transparent 42%, rgba(0,0,0,0.85) 100%),
+    linear-gradient(180deg, rgba(10,6,30,0.4) 0%, transparent 25%, transparent 75%, rgba(20,0,30,0.6) 100%);
 }
 .grain {
-  position: absolute; inset: -50%; pointer-events: none; z-index: 3;
+  position: absolute; inset: -30%; pointer-events: none; z-index: 3;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/></svg>");
-  opacity: 0.12; mix-blend-mode: overlay;
+  opacity: 0.1; mix-blend-mode: overlay;
   animation: grainShift 1.2s steps(4) infinite;
+  will-change: transform;
 }
 @keyframes grainShift {
-  0% { transform: translate(0,0); } 25% { transform: translate(-2%,1%); }
-  50% { transform: translate(1%,-2%); } 75% { transform: translate(-1%,2%); }
+  0% { transform: translate(0,0); }
+  25% { transform: translate(-2%,1%); }
+  50% { transform: translate(1%,-2%); }
+  75% { transform: translate(-1%,2%); }
   100% { transform: translate(2%,-1%); }
 }
 
-/* ============================================================
-   ГЛАВНОЕ МЕНЮ
-   ============================================================ */
-#menu { position: absolute; inset: 0; z-index: 10; transition: opacity 0.8s ease; }
-#menu.fade-out { opacity: 0; pointer-events: none; }
+/* ============================================================================
+   ЛОАДЕР
+   ============================================================================ */
+#loader {
+  position: absolute; inset: 0; z-index: 100;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at center, #150820 0%, #05030a 70%);
+  transition: opacity 0.8s ease;
+}
+#loader.hide { opacity: 0; pointer-events: none; }
+#loader .rune {
+  width: 96px; height: 96px; margin-bottom: 28px;
+  border-radius: 50%; border: 2px solid transparent;
+  border-top-color: var(--gold); border-right-color: rgba(255,200,120,0.3);
+  border-bottom-color: rgba(180,80,255,0.6); border-left-color: rgba(255,200,120,0.15);
+  box-shadow: 0 0 30px rgba(255,180,80,0.5), inset 0 0 30px rgba(180,80,255,0.35);
+  animation: spin 1.6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+#loader .status {
+  font-family: "Cinzel", Georgia, serif; font-size: 12px;
+  letter-spacing: 0.5em; color: #d8c7a0; text-transform: uppercase;
+  opacity: 0.85; padding: 0 20px; text-align: center;
+}
+#loader .bar {
+  width: min(340px, 70vw); height: 3px; margin-top: 18px;
+  background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden;
+}
+#loader .bar i {
+  display: block; height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--gold-deep), var(--gold-light));
+  box-shadow: 0 0 12px var(--gold);
+  transition: width 0.3s ease;
+}
 
-/* Заголовок */
+/* ============================================================================
+   ГЛАВНОЕ МЕНЮ
+   ============================================================================ */
+#menu { position: absolute; inset: 0; z-index: 10; transition: opacity 0.9s ease; }
+#menu.fade-out { opacity: 0; pointer-events: none; }
+#menuCanvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
 #logo {
-  position: absolute; top: 4%; left: 50%; transform: translateX(-50%);
+  position: absolute;
+  top: calc(3% + var(--sa-top));
+  left: 50%; transform: translateX(-50%);
   text-align: center; z-index: 12; pointer-events: none;
 }
 #logo h1 {
   margin: 0; font-family: "Cinzel", Georgia, serif;
-  font-size: clamp(38px, 7vw, 92px); letter-spacing: 0.35em;
-  font-weight: 900; color: #f5e6c8;
-  text-shadow:
-    0 0 12px rgba(255,210,140,0.9),
-    0 0 40px rgba(255,160,60,0.55),
-    0 2px 2px rgba(0,0,0,0.9),
-    0 0 90px rgba(255,90,40,0.35);
+  font-size: clamp(38px, 7vw, 90px);
+  letter-spacing: 0.35em; font-weight: 900;
+  text-shadow: 0 0 12px rgba(255,210,140,0.9), 0 0 40px rgba(255,160,60,0.55), 0 2px 2px rgba(0,0,0,0.9), 0 0 90px rgba(255,90,40,0.35);
   background: linear-gradient(180deg, #fff1ce 0%, #e8c88c 40%, #b8823a 70%, #6b4520 100%);
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 0 18px rgba(255,190,110,0.7));
 }
 #logo .sub {
-  margin-top: 6px; font-size: clamp(10px, 1.3vw, 14px);
+  margin-top: 6px; font-size: clamp(9px, 1.2vw, 13px);
   letter-spacing: 0.7em; color: #d8c7a0; opacity: 0.85;
   text-transform: uppercase; font-weight: 600;
 }
 #logo .sub span { color: #ff9c4a; text-shadow: 0 0 8px rgba(255,140,60,0.9); }
 
-/* ---------- Выбор расы (левая панель) ---------- */
+/* Панель рас */
 .race-panel {
-  position: absolute; top: 24%; left: 3%;
-  width: clamp(240px, 26vw, 340px);
-  padding: 22px 20px 26px;
+  position: absolute;
+  top: calc(22% + var(--sa-top));
+  left: calc(3% + var(--sa-left));
+  width: clamp(230px, 25vw, 340px);
+  padding: 20px 18px 24px;
   z-index: 12;
-  background:
-    linear-gradient(135deg, rgba(30,20,50,0.65), rgba(10,6,20,0.78));
+  background: linear-gradient(135deg, rgba(30,20,50,0.65), rgba(10,6,20,0.82));
   border: 1px solid rgba(180,140,80,0.55);
   border-radius: 14px;
-  box-shadow:
-    0 0 40px rgba(120,60,20,0.35),
-    0 0 0 1px rgba(255,200,120,0.15) inset,
-    0 20px 60px rgba(0,0,0,0.75),
-    0 0 100px rgba(80,20,120,0.3);
+  box-shadow: 0 0 40px rgba(120,60,20,0.35), 0 0 0 1px rgba(255,200,120,0.15) inset, 0 20px 60px rgba(0,0,0,0.75), 0 0 100px rgba(80,20,120,0.3);
   backdrop-filter: blur(18px) saturate(140%);
   -webkit-backdrop-filter: blur(18px) saturate(140%);
 }
 .race-panel::before {
   content: ""; position: absolute; inset: 4px;
-  border: 1px solid rgba(255,200,120,0.25);
-  border-radius: 10px; pointer-events: none;
-  background:
-    radial-gradient(circle at 20% 12%, rgba(255,220,150,0.1), transparent 40%),
-    radial-gradient(circle at 85% 90%, rgba(180,80,255,0.08), transparent 45%);
+  border: 1px solid rgba(255,200,120,0.25); border-radius: 10px;
+  pointer-events: none;
 }
 .race-panel h2 {
   margin: 0 0 14px; font-family: "Cinzel", Georgia, serif;
-  font-size: 16px; letter-spacing: 0.28em; color: #ffd897;
+  font-size: 14px; letter-spacing: 0.28em; color: var(--gold);
   text-transform: uppercase; text-align: center;
   text-shadow: 0 0 12px rgba(255,180,80,0.7);
 }
@@ -125,21 +179,17 @@ canvas { display: block; outline: none; }
 .race-card.active {
   border-color: #ffc879;
   background: linear-gradient(135deg, rgba(90,60,30,0.75), rgba(40,25,60,0.9));
-  box-shadow:
-    0 0 24px rgba(255,180,80,0.55),
-    0 0 0 1px rgba(255,220,160,0.5) inset,
-    0 0 40px rgba(180,80,255,0.25);
+  box-shadow: 0 0 24px rgba(255,180,80,0.55), 0 0 0 1px rgba(255,220,160,0.5) inset, 0 0 40px rgba(180,80,255,0.25);
   transform: translateX(10px);
 }
 .race-card .rc-name {
-  font-family: "Cinzel", Georgia, serif; font-size: 14px;
+  font-family: "Cinzel", Georgia, serif; font-size: 13px;
   letter-spacing: 0.14em; color: #f0dcb4; margin-bottom: 4px;
   text-transform: uppercase;
 }
 .race-card.active .rc-name { color: #ffe7b0; text-shadow: 0 0 12px rgba(255,200,120,0.9); }
 .race-card .rc-desc {
-  font-size: 11px; line-height: 1.4; color: rgba(220,200,180,0.7);
-  letter-spacing: 0.03em;
+  font-size: 10.5px; line-height: 1.4; color: rgba(220,200,180,0.72);
 }
 .race-card .rc-tag {
   display: inline-block; padding: 2px 8px; margin-top: 8px;
@@ -152,36 +202,40 @@ canvas { display: block; outline: none; }
   box-shadow: 0 0 14px rgba(255,180,80,0.6);
 }
 
-/* ---------- Правая панель — статистика и старт ---------- */
+/* Панель статистики */
 .stats-panel {
-  position: absolute; top: 24%; right: 3%;
-  width: clamp(220px, 24vw, 320px);
-  padding: 20px 18px;
+  position: absolute;
+  top: calc(22% + var(--sa-top));
+  right: calc(3% + var(--sa-right));
+  width: clamp(210px, 23vw, 320px);
+  padding: 18px 16px;
   z-index: 12;
-  background: linear-gradient(135deg, rgba(25,15,45,0.7), rgba(8,4,16,0.82));
-  border: 1px solid rgba(180,140,80,0.5);
-  border-radius: 14px;
-  box-shadow:
-    0 0 40px rgba(120,60,20,0.35),
-    0 20px 60px rgba(0,0,0,0.75),
-    0 0 100px rgba(60,20,120,0.3);
+  background: linear-gradient(135deg, rgba(25,15,45,0.7), rgba(8,4,16,0.85));
+  border: 1px solid rgba(180,140,80,0.5); border-radius: 14px;
+  box-shadow: 0 0 40px rgba(120,60,20,0.35), 0 20px 60px rgba(0,0,0,0.75), 0 0 100px rgba(60,20,120,0.3);
   backdrop-filter: blur(18px) saturate(140%);
   -webkit-backdrop-filter: blur(18px) saturate(140%);
 }
 .stats-panel h3 {
   margin: 0 0 12px; font-family: "Cinzel", Georgia, serif;
-  font-size: 13px; letter-spacing: 0.3em; color: #ffd897;
+  font-size: 12px; letter-spacing: 0.3em; color: var(--gold);
   text-align: center; text-transform: uppercase;
   text-shadow: 0 0 10px rgba(255,180,80,0.6);
 }
 .stat-row {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 7px 0; font-size: 12px;
+  padding: 6px 0; font-size: 11px;
   border-bottom: 1px dashed rgba(180,140,80,0.25);
 }
 .stat-row:last-child { border-bottom: none; }
-.stat-row .lbl { color: rgba(220,200,180,0.75); letter-spacing: 0.12em; text-transform: uppercase; font-size: 10px; }
-.stat-row .val { color: #ffe7b0; font-weight: 700; font-size: 14px; text-shadow: 0 0 8px rgba(255,180,80,0.7); }
+.stat-row .lbl {
+  color: rgba(220,200,180,0.75);
+  letter-spacing: 0.12em; text-transform: uppercase; font-size: 10px;
+}
+.stat-row .val {
+  color: #ffe7b0; font-weight: 700; font-size: 13px;
+  text-shadow: 0 0 8px rgba(255,180,80,0.7);
+}
 .stat-bar {
   height: 4px; border-radius: 2px; margin-top: 4px;
   background: rgba(0,0,0,0.55); overflow: hidden;
@@ -194,29 +248,24 @@ canvas { display: block; outline: none; }
   transition: width 0.6s cubic-bezier(0.3, 0.9, 0.3, 1);
 }
 
-/* Кнопка «ВОЙТИ В РАЗЛОМ» */
+/* Кнопка входа */
 .btn-enter {
-  position: absolute; bottom: 6%; left: 50%; transform: translateX(-50%);
-  padding: 20px 60px; z-index: 13; cursor: pointer;
-  font-family: "Cinzel", Georgia, serif;
-  font-size: clamp(14px, 1.6vw, 18px);
-  letter-spacing: 0.35em; text-transform: uppercase; font-weight: 700;
-  color: #1a0d04;
-  border: none; border-radius: 4px;
-  background: linear-gradient(180deg, #ffe4a0 0%, #e0a94e 45%, #a06b20 55%, #52330c 100%);
-  box-shadow:
-    0 0 0 1px rgba(255,220,150,0.9) inset,
-    0 0 0 3px rgba(40,20,8,0.9) inset,
-    0 0 40px rgba(255,180,80,0.7),
-    0 0 80px rgba(255,120,40,0.4),
-    0 12px 30px rgba(0,0,0,0.85);
-  transition: all 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.4);
   position: absolute;
+  bottom: calc(6% + var(--sa-bottom));
+  left: 50%; transform: translateX(-50%);
+  padding: 18px 56px; z-index: 13; cursor: pointer;
+  font-family: "Cinzel", Georgia, serif;
+  font-size: clamp(13px, 1.5vw, 17px);
+  letter-spacing: 0.35em; text-transform: uppercase; font-weight: 700;
+  color: #1a0d04; border: none; border-radius: 4px;
+  background: linear-gradient(180deg, #ffe4a0 0%, #e0a94e 45%, #a06b20 55%, #52330c 100%);
+  box-shadow: 0 0 0 1px rgba(255,220,150,0.9) inset, 0 0 0 3px rgba(40,20,8,0.9) inset, 0 0 40px rgba(255,180,80,0.7), 0 0 80px rgba(255,120,40,0.4), 0 12px 30px rgba(0,0,0,0.85);
+  transition: all 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.4);
+  overflow: visible;
 }
 .btn-enter::before, .btn-enter::after {
-  content: ""; position: absolute; left: -12px; right: -12px;
-  height: 8px; border: 1px solid rgba(255,200,120,0.6);
-  border-radius: 4px;
+  content: ""; position: absolute; left: -12px; right: -12px; height: 8px;
+  border: 1px solid rgba(255,200,120,0.6); border-radius: 4px;
 }
 .btn-enter::before { top: -8px; background: linear-gradient(90deg, transparent, rgba(255,180,80,0.5), transparent); }
 .btn-enter::after { bottom: -8px; background: linear-gradient(90deg, transparent, rgba(255,180,80,0.5), transparent); }
@@ -230,44 +279,65 @@ canvas { display: block; outline: none; }
 }
 @keyframes pulseGlow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
-/* ============================================================
+/* Верхнее меню */
+.top-menu-btns {
+  position: absolute;
+  top: calc(16px + var(--sa-top));
+  right: calc(16px + var(--sa-right));
+  z-index: 12; display: flex; gap: 8px;
+}
+.tm-btn {
+  padding: 9px 14px;
+  background: linear-gradient(135deg, rgba(40,20,60,0.8), rgba(15,8,25,0.9));
+  border: 1px solid rgba(180,140,80,0.6);
+  border-radius: 6px; font-size: 10px; letter-spacing: 0.25em;
+  color: #e0cba0; text-transform: uppercase; cursor: pointer;
+  transition: all 0.2s;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+}
+.tm-btn:hover { border-color: rgba(255,200,120,0.95); color: #ffe7b0; box-shadow: 0 0 20px rgba(255,180,80,0.5); }
+
+/* ============================================================================
    ИГРОВОЙ ЭКРАН
-   ============================================================ */
+   ============================================================================ */
 #game { position: absolute; inset: 0; z-index: 5; display: none; }
 #game.active { display: block; }
 #gameCanvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 
-/* HUD — верхняя панель */
+/* Верхняя панель */
 #topbar {
-  position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
-  display: flex; gap: 16px; align-items: center; padding: 8px 22px;
+  position: absolute;
+  top: calc(10px + var(--sa-top));
+  left: 50%; transform: translateX(-50%);
+  display: flex; gap: 14px; align-items: center;
+  padding: 7px 20px;
   background: linear-gradient(90deg, rgba(20,10,30,0.75), rgba(40,20,60,0.85), rgba(20,10,30,0.75));
-  border: 1px solid rgba(180,140,80,0.5);
-  border-radius: 999px;
-  font-size: 12px; letter-spacing: 0.15em; color: #d8c7a0;
+  border: 1px solid rgba(180,140,80,0.5); border-radius: 999px;
+  font-size: 11px; letter-spacing: 0.15em; color: #d8c7a0;
   text-transform: uppercase; z-index: 12;
   box-shadow: 0 0 25px rgba(120,60,20,0.35), inset 0 0 20px rgba(255,180,80,0.08);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  white-space: nowrap;
 }
 #topbar .val { color: #ffe7b0; font-weight: 700; text-shadow: 0 0 8px rgba(255,180,80,0.9); margin-left: 6px; }
 #topbar .sep { color: rgba(180,140,80,0.4); }
+#topbar .zone-city { color: #7cffb0; }
+#topbar .zone-wild { color: #ff9c6a; }
 
 /* Сферы HP / MANA */
 .orbs {
-  position: absolute; top: 60px; left: 20px;
-  display: flex; gap: 16px; z-index: 12;
+  position: absolute;
+  top: calc(60px + var(--sa-top));
+  left: calc(20px + var(--sa-left));
+  display: flex; gap: 14px; z-index: 12;
 }
 .orb {
-  position: relative; width: 90px; height: 90px; border-radius: 50%;
+  position: relative; width: 86px; height: 86px; border-radius: 50%;
   background:
     radial-gradient(circle at 32% 28%, rgba(255,255,255,0.35), transparent 45%),
     radial-gradient(circle at 50% 55%, rgba(0,0,0,0.55), rgba(0,0,0,0.95));
   border: 2px solid rgba(255,200,120,0.55);
-  box-shadow:
-    inset 0 0 30px rgba(0,0,0,0.9),
-    0 0 30px rgba(255,140,40,0.4),
-    0 0 60px rgba(255,140,40,0.15);
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.9), 0 0 30px rgba(255,140,40,0.4), 0 0 60px rgba(255,140,40,0.15);
   overflow: hidden;
 }
 .orb::before {
@@ -276,17 +346,17 @@ canvas { display: block; outline: none; }
   background: linear-gradient(180deg, rgba(255,220,120,0.95), rgba(220,80,40,0.85));
   transition: height 0.5s cubic-bezier(0.3,0.9,0.3,1);
   box-shadow: 0 0 30px rgba(255,160,80,0.9), inset 0 6px 20px rgba(255,220,150,0.6);
-  filter: blur(0.4px);
 }
 .orb.mana::before {
   background: linear-gradient(180deg, rgba(140,200,255,0.95), rgba(50,90,220,0.85));
   box-shadow: 0 0 30px rgba(120,180,255,0.9), inset 0 6px 20px rgba(200,225,255,0.6);
 }
 .orb .orb-lbl {
-  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-  font-family: "Cinzel", Georgia, serif; font-size: 14px; font-weight: 700;
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: "Cinzel", Georgia, serif; font-size: 13px; font-weight: 700;
   color: #fff4dd; text-shadow: 0 0 8px #000, 0 0 16px rgba(255,200,120,0.9);
-  z-index: 2; letter-spacing: 0.08em;
+  z-index: 2; letter-spacing: 0.06em;
 }
 .orb .orb-ring {
   position: absolute; inset: -6px; border-radius: 50%;
@@ -297,256 +367,418 @@ canvas { display: block; outline: none; }
 .orb.mana { border-color: rgba(140,200,255,0.6); box-shadow: inset 0 0 30px rgba(0,0,0,0.9), 0 0 30px rgba(80,140,255,0.5); }
 .orb.mana .orb-ring { border-color: rgba(140,200,255,0.4); box-shadow: 0 0 20px rgba(120,180,255,0.5); }
 
-/* Мини-карта (голографический компас) */
+/* Стамина */
+#staminaWrap {
+  position: absolute;
+  top: calc(152px + var(--sa-top));
+  left: calc(20px + var(--sa-left));
+  width: 180px; height: 8px; border-radius: 4px;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(180,140,80,0.5);
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.9);
+  overflow: hidden; z-index: 12;
+}
+#staminaWrap i {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, #ffbe72, #ffe7b0);
+  box-shadow: 0 0 12px rgba(255,200,120,0.9);
+  transition: width 0.2s linear;
+  width: 100%;
+}
+#staminaWrap .lbl {
+  position: absolute; top: -14px; left: 2px;
+  font-size: 8.5px; letter-spacing: 0.3em;
+  color: rgba(220,200,170,0.6); text-transform: uppercase;
+}
+
+/* Мини-карта */
 #minimapWrap {
-  position: absolute; top: 60px; right: 20px; z-index: 12;
-  width: 150px; height: 150px;
-  border-radius: 50%;
+  position: absolute;
+  top: calc(60px + var(--sa-top));
+  right: calc(20px + var(--sa-right));
+  z-index: 12;
+  width: 140px; height: 140px; border-radius: 50%;
   background: radial-gradient(circle at center, rgba(10,15,35,0.9), rgba(5,8,20,0.95));
   border: 1px solid rgba(120,200,255,0.5);
-  box-shadow:
-    0 0 25px rgba(60,140,255,0.5),
-    inset 0 0 30px rgba(60,140,255,0.2),
-    0 0 0 4px rgba(20,30,60,0.6);
+  box-shadow: 0 0 25px rgba(60,140,255,0.5), inset 0 0 30px rgba(60,140,255,0.2), 0 0 0 4px rgba(20,30,60,0.6);
   overflow: hidden;
 }
 #minimapWrap::after {
   content: ""; position: absolute; inset: -10px; border-radius: 50%;
-  background:
-    repeating-conic-gradient(from 0deg, rgba(120,200,255,0.28) 0deg 1deg, transparent 1deg 12deg);
+  background: repeating-conic-gradient(from 0deg, rgba(120,200,255,0.28) 0deg 1deg, transparent 1deg 12deg);
   pointer-events: none; opacity: 0.65;
   animation: rotateMinimapRing 40s linear infinite;
 }
 @keyframes rotateMinimapRing { to { transform: rotate(360deg); } }
 #minimap { width: 100%; height: 100%; }
 
-/* Всплывающие уведомления */
+/* Уведомления */
 #toasts {
-  position: absolute; bottom: 130px; left: 50%; transform: translateX(-50%);
-  z-index: 12; display: flex; flex-direction: column; gap: 8px; align-items: center;
-  pointer-events: none;
+  position: absolute;
+  bottom: calc(180px + var(--sa-bottom));
+  left: 50%; transform: translateX(-50%);
+  z-index: 12; display: flex; flex-direction: column; gap: 6px;
+  align-items: center; pointer-events: none;
 }
 .toast {
-  padding: 8px 20px; border-radius: 4px;
+  padding: 7px 18px; border-radius: 4px;
   background: linear-gradient(135deg, rgba(40,20,60,0.9), rgba(15,8,25,0.95));
   border: 1px solid rgba(255,200,120,0.7);
-  font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase;
+  font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
   color: #ffe7b0; text-shadow: 0 0 8px rgba(255,180,80,0.9);
   box-shadow: 0 0 25px rgba(255,150,60,0.5);
   animation: toastIn 0.4s cubic-bezier(0.2,0.9,0.3,1.4);
+  white-space: nowrap;
+}
+.toast.magic {
+  border-color: rgba(184,90,255,0.8);
+  color: #e0c8ff;
+  box-shadow: 0 0 25px rgba(180,80,255,0.5);
 }
 @keyframes toastIn {
   from { opacity: 0; transform: translateY(20px) scale(0.9); }
   to { opacity: 1; transform: none; }
 }
 
-/* Нижний HUD — джойстик и кнопки */
-#hint {
-  position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
-  font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
-  color: rgba(220,200,170,0.45); z-index: 11; pointer-events: none;
-  text-align: center;
-}
+/* Action Buttons */
 #actionBtns {
-  position: absolute; bottom: 30px; right: 30px; z-index: 12;
+  position: absolute;
+  bottom: calc(30px + var(--sa-bottom));
+  right: calc(30px + var(--sa-right));
+  z-index: 12;
   display: flex; flex-direction: column; gap: 12px; align-items: flex-end;
 }
 .action-btn {
-  width: 78px; height: 78px; border-radius: 50%;
+  width: 76px; height: 76px; border-radius: 50%;
   background:
     radial-gradient(circle at 32% 28%, rgba(255,220,150,0.35), transparent 45%),
     radial-gradient(circle at 50% 60%, rgba(80,40,120,0.7), rgba(15,8,25,0.95));
   border: 2px solid rgba(255,200,120,0.65);
-  box-shadow:
-    0 0 22px rgba(255,150,60,0.5),
-    inset 0 0 20px rgba(255,180,80,0.15),
-    0 6px 14px rgba(0,0,0,0.75);
+  box-shadow: 0 0 22px rgba(255,150,60,0.5), inset 0 0 20px rgba(255,180,80,0.15), 0 6px 14px rgba(0,0,0,0.75);
   display: flex; align-items: center; justify-content: center;
-  font-family: "Cinzel", Georgia, serif; font-size: 12px;
-  letter-spacing: 0.12em; text-transform: uppercase;
+  font-family: "Cinzel", Georgia, serif; font-size: 11px;
+  letter-spacing: 0.1em; text-transform: uppercase;
   color: #ffe7b0; text-shadow: 0 0 8px rgba(255,180,80,0.9);
-  cursor: pointer; user-select: none;
+  cursor: pointer; user-select: none; position: relative;
   transition: transform 0.1s ease-out, box-shadow 0.2s;
-  position: relative;
+  touch-action: none;
 }
 .action-btn::before {
   content: ""; position: absolute; inset: -4px; border-radius: 50%;
-  border: 1px solid rgba(255,200,120,0.25);
-  pointer-events: none;
+  border: 1px solid rgba(255,200,120,0.25); pointer-events: none;
 }
-.action-btn:active { transform: scale(0.9); box-shadow: 0 0 40px rgba(255,200,120,0.9), inset 0 0 30px rgba(255,180,80,0.3), 0 6px 14px rgba(0,0,0,0.75); }
-.action-btn.small { width: 62px; height: 62px; font-size: 10px; }
+.action-btn:active { transform: scale(0.9); box-shadow: 0 0 40px rgba(255,200,120,0.9), inset 0 0 30px rgba(255,180,80,0.3); }
+.action-btn.small { width: 60px; height: 60px; font-size: 9.5px; }
 .action-btn.cast {
   background:
     radial-gradient(circle at 32% 28%, rgba(180,220,255,0.4), transparent 45%),
     radial-gradient(circle at 50% 60%, rgba(40,60,140,0.75), rgba(8,10,30,0.95));
   border-color: rgba(140,200,255,0.7);
-  box-shadow: 0 0 22px rgba(80,140,255,0.6), inset 0 0 20px rgba(140,200,255,0.2), 0 6px 14px rgba(0,0,0,0.75);
+  box-shadow: 0 0 22px rgba(80,140,255,0.6), inset 0 0 20px rgba(140,200,255,0.2);
   color: #d8ecff; text-shadow: 0 0 8px rgba(140,200,255,0.9);
 }
-.action-btn.cast:active { box-shadow: 0 0 40px rgba(140,200,255,0.9), inset 0 0 30px rgba(140,200,255,0.35); }
 .action-btn.ult {
   background:
     radial-gradient(circle at 32% 28%, rgba(255,160,220,0.4), transparent 45%),
     radial-gradient(circle at 50% 60%, rgba(140,40,180,0.8), rgba(25,5,45,0.95));
   border-color: rgba(255,140,220,0.7);
-  box-shadow: 0 0 26px rgba(220,80,255,0.6), inset 0 0 24px rgba(255,140,220,0.2), 0 6px 14px rgba(0,0,0,0.75);
+  box-shadow: 0 0 26px rgba(220,80,255,0.6), inset 0 0 24px rgba(255,140,220,0.2);
   color: #ffe0f5; text-shadow: 0 0 8px rgba(255,140,220,0.9);
 }
-
-/* Лоадер */
-#loader {
-  position: absolute; inset: 0; z-index: 100;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  background: radial-gradient(ellipse at center, #150820 0%, #05030a 70%);
-  transition: opacity 0.8s ease;
-}
-#loader.hide { opacity: 0; pointer-events: none; }
-#loader .rune {
-  width: 90px; height: 90px; margin-bottom: 30px;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  border-top-color: #ffc879;
-  border-right-color: rgba(255,200,120,0.3);
-  border-bottom-color: rgba(180,80,255,0.6);
-  border-left-color: rgba(255,200,120,0.15);
-  box-shadow: 0 0 30px rgba(255,180,80,0.5), inset 0 0 30px rgba(180,80,255,0.35);
-  animation: spin 1.6s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-#loader .status {
-  font-family: "Cinzel", Georgia, serif; font-size: 12px; letter-spacing: 0.5em;
-  color: #d8c7a0; text-transform: uppercase; opacity: 0.85;
+.action-btn.camp {
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255,200,120,0.4), transparent 45%),
+    radial-gradient(circle at 50% 60%, rgba(120,60,20,0.8), rgba(30,15,5,0.95));
+  border-color: rgba(255,180,90,0.7);
+  color: #ffe0a8;
 }
 
-/* Индикатор загрузки сцены */
-#sceneLoader {
-  position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-  font-size: 10px; letter-spacing: 0.4em; color: rgba(220,200,170,0.6);
-  text-transform: uppercase; z-index: 12; pointer-events: none;
+/* Подсказка */
+#hint {
+  position: absolute;
+  bottom: calc(10px + var(--sa-bottom));
+  left: 50%; transform: translateX(-50%);
+  font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: rgba(220,200,170,0.4); z-index: 11; pointer-events: none;
+  text-align: center; max-width: 55vw; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
 }
 
-/* Кнопки в меню (в верхнем правом углу) */
-.top-menu-btns {
-  position: absolute; top: 20px; right: 20px; z-index: 12;
-  display: flex; gap: 10px;
+/* Вспышка урона */
+#dmgFlash {
+  position: fixed; inset: 0; pointer-events: none; z-index: 14;
+  background: radial-gradient(circle at 50% 50%, transparent 35%, rgba(255,30,60,0.7));
+  opacity: 0; transition: opacity 0.15s;
 }
-.tm-btn {
-  padding: 10px 16px;
-  background: linear-gradient(135deg, rgba(40,20,60,0.8), rgba(15,8,25,0.9));
+#dmgFlash.hit { opacity: 1; }
+
+/* Глитч коррупции */
+#glitch {
+  position: fixed; inset: 0; pointer-events: none; z-index: 15;
+  opacity: 0; transition: opacity 0.5s; mix-blend-mode: screen;
+  background: repeating-linear-gradient(0deg,
+    rgba(255,0,80,0.06) 0px, rgba(255,0,80,0.06) 1px,
+    transparent 1px, transparent 3px);
+}
+
+/* Окно диалога NPC */
+#dialogue {
+  position: absolute;
+  left: 50%; bottom: calc(30px + var(--sa-bottom));
+  transform: translateX(-50%) translateY(120%);
+  width: min(560px, 80vw);
+  padding: 20px;
+  z-index: 20;
+  background: linear-gradient(135deg, rgba(20,12,35,0.96), rgba(8,4,16,0.98));
   border: 1px solid rgba(180,140,80,0.6);
-  border-radius: 6px; font-size: 10px; letter-spacing: 0.25em;
-  color: #e0cba0; text-transform: uppercase; cursor: pointer;
-  transition: all 0.2s;
-  backdrop-filter: blur(10px);
+  border-radius: 14px;
+  box-shadow: 0 0 60px rgba(120,60,20,0.5), 0 20px 60px rgba(0,0,0,0.85), inset 0 0 30px rgba(255,180,80,0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: transform 0.5s cubic-bezier(0.2,0.9,0.3,1.2);
+  pointer-events: auto;
 }
-.tm-btn:hover { border-color: rgba(255,200,120,0.95); color: #ffe7b0; box-shadow: 0 0 20px rgba(255,180,80,0.5); }
+#dialogue.open { transform: translateX(-50%) translateY(0); }
+#dialogue .dlg-portrait {
+  position: absolute; left: -30px; top: -30px;
+  width: 92px; height: 92px; border-radius: 50%;
+  background: radial-gradient(circle at 40% 30%, rgba(255,220,150,0.5), rgba(60,30,80,0.9));
+  border: 2px solid rgba(255,200,120,0.9);
+  box-shadow: 0 0 30px rgba(255,180,80,0.6), inset 0 0 20px rgba(0,0,0,0.6);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 44px;
+}
+#dialogue .dlg-name {
+  margin-left: 60px; font-family: "Cinzel", Georgia, serif;
+  font-size: 14px; letter-spacing: 0.2em;
+  color: #ffe7b0; text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(255,200,120,0.7);
+}
+#dialogue .dlg-text {
+  margin: 12px 0 16px; font-size: 13px; line-height: 1.5;
+  color: #d8c9b0; font-style: italic;
+}
+#dialogue .dlg-actions {
+  display: flex; gap: 10px; flex-wrap: wrap;
+}
+#dialogue .dlg-action {
+  padding: 9px 16px; border-radius: 6px;
+  background: linear-gradient(135deg, rgba(60,30,80,0.8), rgba(20,10,35,0.9));
+  border: 1px solid rgba(255,200,120,0.6);
+  color: #ffe7b0; font-size: 11px; letter-spacing: 0.15em;
+  text-transform: uppercase; cursor: pointer;
+  transition: all 0.2s;
+}
+#dialogue .dlg-action:hover {
+  background: linear-gradient(135deg, rgba(90,50,120,0.9), rgba(40,20,60,0.95));
+  box-shadow: 0 0 20px rgba(255,180,80,0.6);
+}
 
-/* Мобильная портретная блокировка */
+/* Меню разбивки лагеря */
+#campMenu {
+  position: absolute;
+  left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0.9);
+  width: min(420px, 80vw); padding: 22px;
+  z-index: 20;
+  background: linear-gradient(135deg, rgba(25,15,10,0.96), rgba(10,5,15,0.98));
+  border: 1px solid rgba(255,180,90,0.7);
+  border-radius: 14px;
+  box-shadow: 0 0 80px rgba(255,140,40,0.5), 0 20px 60px rgba(0,0,0,0.9);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  opacity: 0; pointer-events: none;
+  transition: all 0.35s cubic-bezier(0.2,0.9,0.3,1.3);
+}
+#campMenu.open { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
+#campMenu h3 {
+  margin: 0 0 14px; font-family: "Cinzel", Georgia, serif;
+  font-size: 14px; letter-spacing: 0.3em; color: #ffbe72;
+  text-transform: uppercase; text-align: center;
+  text-shadow: 0 0 12px rgba(255,180,80,0.8);
+}
+.camp-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 12px; margin-bottom: 8px;
+  border-radius: 8px;
+  background: rgba(40,20,10,0.6);
+  border: 1px solid rgba(255,180,90,0.3);
+}
+.camp-row .camp-info { flex: 1; }
+.camp-row .camp-name {
+  font-size: 12px; letter-spacing: 0.1em; color: #ffe7b0;
+  text-transform: uppercase; margin-bottom: 3px;
+}
+.camp-row .camp-cost { font-size: 10px; color: rgba(220,200,170,0.7); }
+.camp-row .camp-btn {
+  padding: 8px 14px; border-radius: 6px;
+  background: linear-gradient(135deg, #ffb070, #d87830);
+  border: 1px solid rgba(255,220,150,0.9);
+  color: #2a1508; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer;
+  transition: all 0.2s;
+}
+.camp-row .camp-btn:active { transform: scale(0.95); }
+.camp-row .camp-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Портретная блокировка */
 #rotate-lock {
   position: fixed; inset: 0; display: none; z-index: 9999;
   align-items: center; justify-content: center;
-  background: #05030a; color: #ffd897;
+  background: var(--bg-0); color: var(--gold);
   font-family: "Cinzel", Georgia, serif; letter-spacing: 0.35em;
   text-transform: uppercase; text-align: center; padding: 40px; font-size: 14px;
 }
 @media (orientation: portrait) { #rotate-lock { display: flex; } }
-@media (orientation: portrait) { #app, #menu, #game { display: none !important; } }
+@media (orientation: portrait) { #app { display: none !important; } }
+
+/* Компакт для маленьких экранов */
+@media (max-height: 420px) {
+  .race-panel { padding: 14px; }
+  .race-card { padding: 9px 12px; }
+  .race-card .rc-desc { display: none; }
+  .orbs .orb { width: 68px; height: 68px; }
+  #minimapWrap { width: 110px; height: 110px; }
+  .action-btn { width: 64px; height: 64px; font-size: 9.5px; }
+  .action-btn.small { width: 52px; height: 52px; }
+}
 </style>
 </head>
 <body>
-  <div id="rotate-lock">Поверните устройство<br>горизонтально</div>
+<div id="rotate-lock">Поверните устройство<br>горизонтально</div>
 
-  <div id="app">
-    <!-- 3D-канвас меню -->
-    <canvas id="menuCanvas" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
-    <div class="bg-vignette"></div>
-    <div class="grain"></div>
+<div id="app">
+  <!-- 3D меню -->
+  <canvas id="menuCanvas" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+  <div class="vignette"></div>
+  <div class="grain"></div>
 
-    <!-- === ГЛАВНОЕ МЕНЮ === -->
-    <div id="menu">
-      <div id="logo">
-        <h1>APEX</h1>
-        <div class="sub">Rifters of <span>Aethelgard</span></div>
-      </div>
-
-      <div class="race-panel">
-        <h2>Выбор Расы</h2>
-        <div class="race-list" id="raceList"></div>
-      </div>
-
-      <div class="stats-panel">
-        <h3>Характеристики</h3>
-        <div class="stat-row"><span class="lbl">Сила</span><span class="val" id="statStr">8</span></div>
-        <div class="stat-bar"><i id="barStr" style="width:60%"></i></div>
-        <div class="stat-row"><span class="lbl">Ловкость</span><span class="val" id="statAgi">9</span></div>
-        <div class="stat-bar"><i id="barAgi" style="width:75%"></i></div>
-        <div class="stat-row"><span class="lbl">Интеллект</span><span class="val" id="statInt">7</span></div>
-        <div class="stat-bar"><i id="barInt" style="width:50%"></i></div>
-        <div class="stat-row"><span class="lbl">Эфир</span><span class="val" id="statEth">5</span></div>
-        <div class="stat-bar"><i id="barEth" style="width:35%"></i></div>
-      </div>
-
-      <button class="btn-enter" id="btnEnter">
-        <span class="glow"></span>
-        <span id="btnEnterText">ВОЙТИ В РАЗЛОМ</span>
-      </button>
-
-      <div class="top-menu-btns">
-        <button class="tm-btn" id="btnSettings">Настройки</button>
-        <button class="tm-btn" id="btnHelp">Помощь</button>
-      </div>
+  <!-- ================= ГЛАВНОЕ МЕНЮ ================= -->
+  <div id="menu">
+    <div id="logo">
+      <h1>APEX</h1>
+      <div class="sub">Rifters of <span>Aethelgard</span></div>
     </div>
 
-    <!-- === ИГРА === -->
-    <div id="game">
-      <canvas id="gameCanvas"></canvas>
-      <div class="bg-vignette"></div>
-
-      <div id="topbar">
-        <span>УР.<span class="val" id="uiLevel">1</span></span>
-        <span class="sep">•</span>
-        <span>ЗОНА: <span class="val" id="uiZone">Пепельная Пустошь</span></span>
-        <span class="sep">•</span>
-        <span>ВРЕМЯ: <span class="val" id="uiTime">12:00</span></span>
-      </div>
-
-      <div class="orbs">
-        <div class="orb" id="orbHp">
-          <div class="orb-ring"></div>
-          <div class="orb-lbl" id="orbHpLbl">100</div>
-        </div>
-        <div class="orb mana" id="orbMana">
-          <div class="orb-ring"></div>
-          <div class="orb-lbl" id="orbManaLbl">80</div>
-        </div>
-      </div>
-
-      <div id="minimapWrap">
-        <canvas id="minimap" width="300" height="300"></canvas>
-      </div>
-
-      <div id="actionBtns">
-        <div class="action-btn ult" id="btnUlt">УЛЬТА</div>
-        <div class="action-btn cast" id="btnCast">КАСТ</div>
-        <div class="action-btn" id="btnAttack">УДАР</div>
-      </div>
-
-      <div id="toasts"></div>
-      <div id="hint">Левый палец — движение • Правые кнопки — атака • Тап по карте — цель</div>
-      <div id="sceneLoader">Загрузка сцены…</div>
+    <div class="race-panel">
+      <h2>Выбор Расы</h2>
+      <div class="race-list" id="raceList"></div>
     </div>
 
-    <!-- === ЛОАДЕР === -->
-    <div id="loader">
-      <div class="rune"></div>
-      <div class="status" id="loaderStatus">Инициализация движка…</div>
+    <div class="stats-panel">
+      <h3>Характеристики</h3>
+      <div class="stat-row"><span class="lbl">Сила</span><span class="val" id="statStr">8</span></div>
+      <div class="stat-bar"><i id="barStr" style="width:60%"></i></div>
+      <div class="stat-row"><span class="lbl">Ловкость</span><span class="val" id="statAgi">9</span></div>
+      <div class="stat-bar"><i id="barAgi" style="width:75%"></i></div>
+      <div class="stat-row"><span class="lbl">Интеллект</span><span class="val" id="statInt">7</span></div>
+      <div class="stat-bar"><i id="barInt" style="width:50%"></i></div>
+      <div class="stat-row"><span class="lbl">Эфир</span><span class="val" id="statEth">5</span></div>
+      <div class="stat-bar"><i id="barEth" style="width:35%"></i></div>
+    </div>
+
+    <button class="btn-enter" id="btnEnter">
+      <span class="glow"></span>
+      <span id="btnEnterText">ВОЙТИ В РАЗЛОМ</span>
+    </button>
+
+    <div class="top-menu-btns">
+      <button class="tm-btn" id="btnSettings">Настройки</button>
+      <button class="tm-btn" id="btnInstall">Установить</button>
     </div>
   </div>
 
-<!-- ============================================================
-     IMPORTMAP — Three.js из CDN
-     ============================================================ -->
+  <!-- ================= ИГРА ================= -->
+  <div id="game">
+    <canvas id="gameCanvas"></canvas>
+    <div class="vignette"></div>
+
+    <div id="topbar">
+      <span>УР.<span class="val" id="uiLevel">1</span></span>
+      <span class="sep">•</span>
+      <span>ЗОНА: <span class="val zone-wild" id="uiZone">Лес Шепчущих</span></span>
+      <span class="sep">•</span>
+      <span>ВРЕМЯ: <span class="val" id="uiTime">12:00</span></span>
+      <span class="sep">•</span>
+      <span>ЗОЛОТО: <span class="val" id="uiGold">0</span></span>
+    </div>
+
+    <div class="orbs">
+      <div class="orb" id="orbHp"><div class="orb-ring"></div><div class="orb-lbl" id="orbHpLbl">100</div></div>
+      <div class="orb mana" id="orbMana"><div class="orb-ring"></div><div class="orb-lbl" id="orbManaLbl">80</div></div>
+    </div>
+
+    <div id="staminaWrap">
+      <div class="lbl">СТАМИНА</div>
+      <i id="staminaBar"></i>
+    </div>
+
+    <div id="minimapWrap">
+      <canvas id="minimap" width="300" height="300"></canvas>
+    </div>
+
+    <div id="actionBtns">
+      <div class="action-btn ult" id="btnUlt">УЛЬТА</div>
+      <div class="action-btn cast" id="btnCast">КАСТ</div>
+      <div class="action-btn camp small" id="btnCamp">ЛАГЕРЬ</div>
+      <div class="action-btn" id="btnAttack">УДАР</div>
+    </div>
+
+    <div id="toasts"></div>
+    <div id="hint">Левый палец — движение • Кнопки справа — бой • ⛺ — разбить лагерь</div>
+    <div id="dmgFlash"></div>
+    <div id="glitch"></div>
+
+    <!-- Диалог NPC -->
+    <div id="dialogue">
+      <div class="dlg-portrait" id="dlgPortrait">🧙</div>
+      <div class="dlg-name" id="dlgName">Торговец</div>
+      <div class="dlg-text" id="dlgText">Приветствую, странник.</div>
+      <div class="dlg-actions" id="dlgActions"></div>
+    </div>
+
+    <!-- Меню лагеря -->
+    <div id="campMenu">
+      <h3>Разбить Лагерь</h3>
+      <div class="camp-row">
+        <div class="camp-info">
+          <div class="camp-name">🔥 Костёр</div>
+          <div class="camp-cost">Восстановить 60 HP / 40 MP</div>
+        </div>
+        <button class="camp-btn" data-action="fire">Разжечь</button>
+      </div>
+      <div class="camp-row">
+        <div class="camp-info">
+          <div class="camp-name">🛠 Наковальня</div>
+          <div class="camp-cost">Починить броню (+20 HP макс.)</div>
+        </div>
+        <button class="camp-btn" data-action="forge">Починить</button>
+      </div>
+      <div class="camp-row">
+        <div class="camp-info">
+          <div class="camp-name">🧪 Алхимия</div>
+          <div class="camp-cost">Скрафтить зелье (нужно 3 руны)</div>
+        </div>
+        <button class="camp-btn" data-action="alchemy">Скрафтить</button>
+      </div>
+      <div class="camp-row">
+        <div class="camp-info">
+          <div class="camp-name">😴 Отдохнуть</div>
+          <div class="camp-cost">Полное восстановление (20 сек)</div>
+        </div>
+        <button class="camp-btn" data-action="rest">Отдохнуть</button>
+      </div>
+      <button class="tm-btn" id="closeCamp" style="position:absolute;right:14px;top:14px;">✕</button>
+    </div>
+  </div>
+
+  <!-- ================= ЛОАДЕР ================= -->
+  <div id="loader">
+    <div class="rune"></div>
+    <div class="status" id="loaderStatus">Инициализация движка…</div>
+    <div class="bar"><i id="loaderBar"></i></div>
+  </div>
+</div>
+
 <script type="importmap">
 {
   "imports": {
@@ -557,6 +789,11 @@ canvas { display: block; outline: none; }
 </script>
 
 <script type="module">
+// ============================================================================
+// APEX — Rifters of Aethelgard
+// Единый клиентский модуль. Three.js + WebGL2 + Post-processing.
+// ============================================================================
+
 import * as THREE from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
@@ -564,135 +801,117 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { Sky } from 'three/addons/objects/Sky.js';
 
-// ============================================================
-// 0. КОНСТАНТЫ И УТИЛИТЫ
-// ============================================================
+// ----------------------------------------------------------------------------
+// 0. УТИЛИТЫ И ЗАЩИТА
+// ----------------------------------------------------------------------------
 const clamp = (v, a, b) => v < a ? a : (v > b ? b : v);
-const lerp = (a, b, t) => a + (b - a) * t;
-const rand = (a, b) => a + Math.random() * (b - a);
+const lerp  = (a, b, t) => a + (b - a) * t;
+const rand  = (a, b) => a + Math.random() * (b - a);
 const randi = (a, b) => Math.floor(rand(a, b + 1));
-const now = () => performance.now();
-const TAU = Math.PI * 2;
-const dist2 = (ax, az, bx, bz) => { const dx = bx - ax, dz = bz - az; return dx * dx + dz * dz; };
-const dist = (ax, az, bx, bz) => Math.sqrt(dist2(ax, az, bx, bz));
+const now   = () => performance.now();
+const TAU   = Math.PI * 2;
+const dist2 = (ax, az, bx, bz) => { const dx = bx - ax, dz = bz - az; return dx*dx + dz*dz; };
+const dist  = (ax, az, bx, bz) => Math.sqrt(dist2(ax, az, bx, bz));
+const smoothstep = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
 const safe = (fn) => (...args) => { try { return fn(...args); } catch (e) { console.error('[Apex]', e); } };
 
-// DOM helper с проверкой
-const $ = (id) => document.getElementById(id);
-const must = (el, name) => { if (!el) throw new Error('[Apex] Not found: ' + name); return el; };
+const $    = (id) => document.getElementById(id);
+const must = (el, name) => { if (!el) throw new Error('[Apex] DOM not found: ' + name); return el; };
 
-// Глобальный обработчик ошибок
+// Глобальные перехватчики
 window.addEventListener('error', (e) => console.error('[Apex] window error:', e.error || e.message));
-window.addEventListener('unhandledrejection', (e) => console.error('[Apex] rejection:', e.reason));
+window.addEventListener('unhandledrejection', (e) => console.error('[Apex] promise:', e.reason));
 
-// ============================================================
-// 1. РАСЫ — данные
-// ============================================================
+// ----------------------------------------------------------------------------
+// 1. РАСЫ
+// ----------------------------------------------------------------------------
 const RACES = [
   {
-    id: 'ash_elf',
-    name: 'Пепельный Эльф',
+    id: 'ash_elf', name: 'Пепельный Эльф',
     desc: 'Дитя сожжённых лесов. Быстр, точен, повелевает пеплом и тенью.',
     tag: 'Стрелок • Тень',
     stats: { str: 6, agi: 14, int: 10, eth: 8 },
-    color: 0x4a9eff,
-    accent: 0x99ddff,
-    skin: 0xdbc8b0,
-    cloth: 0x2a3a55,
-    cape: 0x162238,
+    color: 0x4a9eff, accent: 0x99ddff, skin: 0xdbc8b0,
+    cloth: 0x2a3a55, cape: 0x162238,
   },
   {
-    id: 'iron_orc',
-    name: 'Железный Орк',
+    id: 'iron_orc', name: 'Железный Орк',
     desc: 'Кузнец войны. Каждый удар — молот, каждое слово — приговор.',
     tag: 'Танк • Берсерк',
     stats: { str: 15, agi: 5, int: 6, eth: 4 },
-    color: 0xff6b35,
-    accent: 0xffb07a,
-    skin: 0x5a7a3a,
-    cloth: 0x8a2a1a,
-    cape: 0x3a1a10,
+    color: 0xff6b35, accent: 0xffb07a, skin: 0x5a7a3a,
+    cloth: 0x8a2a1a, cape: 0x3a1a10,
   },
   {
-    id: 'cyber_angel',
-    name: 'Эфирный Кибер-Ангел',
-    desc: 'Синтез плоти и света. Рождён за гранью разлома, живёт в двух мирах.',
+    id: 'cyber_monk', name: 'Кибер-Монах',
+    desc: 'Синтез плоти и света. Управляет эфиром, лечит союзников и карает демонов.',
     tag: 'Маг • Поддержка',
     stats: { str: 5, agi: 8, int: 14, eth: 15 },
-    color: 0xb85aff,
-    accent: 0xf0c0ff,
-    skin: 0xe6d8ff,
-    cloth: 0x1a1030,
-    cape: 0x4a1a70,
+    color: 0xb85aff, accent: 0xf0c0ff, skin: 0xe6d8ff,
+    cloth: 0x1a1030, cape: 0x4a1a70,
   },
 ];
 
-// ============================================================
-// 2. МЕНЕДЖЕР РЕСУРСОВ — процедурные текстуры
-// ============================================================
+// ----------------------------------------------------------------------------
+// 2. ПРОЦЕДУРНЫЕ ТЕКСТУРЫ
+// ----------------------------------------------------------------------------
 const Textures = {
   cache: new Map(),
-  // Процедурный шум для камней/земли
-  noise(size = 256, base = [60, 55, 48], amp = 40) {
-    const key = `noise_${size}_${base.join('_')}_${amp}`;
+  noise(size = 256, base = [60,55,48], amp = 40) {
+    const key = `n_${size}_${base.join('_')}_${amp}`;
     if (this.cache.has(key)) return this.cache.get(key);
     const c = document.createElement('canvas');
     c.width = c.height = size;
     const ctx = c.getContext('2d');
     const img = ctx.createImageData(size, size);
-    for (let i = 0; i < size * size; i++) {
+    for (let i = 0; i < size*size; i++) {
       const x = i % size, y = (i / size) | 0;
-      // Многослойный шум
-      const n1 = Math.sin(x * 0.1) * Math.cos(y * 0.13) * 0.5 + 0.5;
-      const n2 = Math.sin(x * 0.37 + y * 0.21) * 0.5 + 0.5;
+      const n1 = Math.sin(x*0.1) * Math.cos(y*0.13) * 0.5 + 0.5;
+      const n2 = Math.sin(x*0.37 + y*0.21) * 0.5 + 0.5;
       const n3 = Math.random() * 0.3;
-      const v = clamp(n1 * 0.5 + n2 * 0.3 + n3 * 0.2, 0, 1);
-      const r = clamp(base[0] + (v - 0.5) * amp, 0, 255);
-      const g = clamp(base[1] + (v - 0.5) * amp, 0, 255);
-      const b = clamp(base[2] + (v - 0.5) * amp, 0, 255);
-      img.data[i * 4 + 0] = r;
-      img.data[i * 4 + 1] = g;
-      img.data[i * 4 + 2] = b;
-      img.data[i * 4 + 3] = 255;
+      const v = clamp(n1*0.5 + n2*0.3 + n3*0.2, 0, 1);
+      img.data[i*4+0] = clamp(base[0] + (v-0.5)*amp, 0, 255);
+      img.data[i*4+1] = clamp(base[1] + (v-0.5)*amp, 0, 255);
+      img.data[i*4+2] = clamp(base[2] + (v-0.5)*amp, 0, 255);
+      img.data[i*4+3] = 255;
     }
     ctx.putImageData(img, 0, 0);
     const tex = new THREE.CanvasTexture(c);
     tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
     tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 4;
     this.cache.set(key, tex);
     return tex;
   },
-  // Процедурная нормаль-карта из grayscale
-  normalFromHeight(size = 256, strength = 1.5) {
-    const key = `normal_${size}_${strength}`;
+  normalMap(size = 256, strength = 1.5) {
+    const key = `nm_${size}_${strength}`;
     if (this.cache.has(key)) return this.cache.get(key);
     const c = document.createElement('canvas');
     c.width = c.height = size;
     const ctx = c.getContext('2d');
-    // Сначала heightmap — высокочастотный шум
     const H = new Float32Array(size * size);
-    for (let i = 0; i < size * size; i++) {
+    for (let i = 0; i < size*size; i++) {
       const x = i % size, y = (i / size) | 0;
-      H[i] = (Math.sin(x * 0.21) * Math.cos(y * 0.27) * 0.4 +
-              Math.sin(x * 0.6 + y * 0.4) * 0.3 +
-              (Math.random() - 0.5) * 0.4) * 0.5 + 0.5;
+      H[i] = (Math.sin(x*0.21) * Math.cos(y*0.27) * 0.4 +
+              Math.sin(x*0.6 + y*0.4) * 0.3 +
+              (Math.random()-0.5) * 0.4) * 0.5 + 0.5;
     }
     const img = ctx.createImageData(size, size);
     for (let y = 0; y < size; y++) {
       for (let x = 0; x < size; x++) {
-        const i = y * size + x;
-        const xl = H[y * size + ((x - 1 + size) % size)];
-        const xr = H[y * size + ((x + 1) % size)];
-        const yu = H[((y - 1 + size) % size) * size + x];
-        const yd = H[((y + 1) % size) * size + x];
+        const i = y*size + x;
+        const xl = H[y*size + ((x-1+size)%size)];
+        const xr = H[y*size + ((x+1)%size)];
+        const yu = H[((y-1+size)%size)*size + x];
+        const yd = H[((y+1)%size)*size + x];
         const dx = (xl - xr) * strength;
         const dy = (yu - yd) * strength;
         const dz = 1;
         const len = Math.hypot(dx, dy, dz);
-        img.data[i * 4 + 0] = ((dx / len) * 0.5 + 0.5) * 255;
-        img.data[i * 4 + 1] = ((dy / len) * 0.5 + 0.5) * 255;
-        img.data[i * 4 + 2] = ((dz / len) * 0.5 + 0.5) * 255;
-        img.data[i * 4 + 3] = 255;
+        img.data[i*4+0] = ((dx/len)*0.5+0.5)*255;
+        img.data[i*4+1] = ((dy/len)*0.5+0.5)*255;
+        img.data[i*4+2] = ((dz/len)*0.5+0.5)*255;
+        img.data[i*4+3] = 255;
       }
     }
     ctx.putImageData(img, 0, 0);
@@ -701,66 +920,62 @@ const Textures = {
     this.cache.set(key, tex);
     return tex;
   },
+  glow(size = 64) {
+    const key = 'glow_' + size;
+    if (this.cache.has(key)) return this.cache.get(key);
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const ctx = c.getContext('2d');
+    const g = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+    g.addColorStop(0, 'rgba(255,255,255,1)');
+    g.addColorStop(0.4, 'rgba(255,240,200,0.6)');
+    g.addColorStop(1, 'rgba(255,200,120,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, size, size);
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace;
+    this.cache.set(key, t);
+    return t;
+  },
 };
 
-// ============================================================
-// 3. ПОСТРОИТЕЛЬ ПЕРСОНАЖЕЙ (процедурные модели)
-// ============================================================
+// ----------------------------------------------------------------------------
+// 3. ПОСТРОИТЕЛЬ ПЕРСОНАЖЕЙ
+// ----------------------------------------------------------------------------
 class CharacterBuilder {
   static build(raceId) {
     const race = RACES.find(r => r.id === raceId) || RACES[0];
     const g = new THREE.Group();
     g.userData.raceId = raceId;
 
-    // Материалы
-    const skinMat = new THREE.MeshStandardMaterial({
-      color: race.skin, roughness: 0.55, metalness: 0.05,
-    });
-    const clothMat = new THREE.MeshStandardMaterial({
-      color: race.cloth, roughness: 0.75, metalness: 0.15,
-    });
+    const skinMat = new THREE.MeshStandardMaterial({ color: race.skin, roughness: 0.55, metalness: 0.05 });
+    const clothMat = new THREE.MeshStandardMaterial({ color: race.cloth, roughness: 0.75, metalness: 0.15 });
     const accentMat = new THREE.MeshStandardMaterial({
       color: race.color, roughness: 0.3, metalness: 0.85,
       emissive: new THREE.Color(race.color).multiplyScalar(0.25),
       emissiveIntensity: 1.2,
     });
     const capeMat = new THREE.MeshStandardMaterial({
-      color: race.cape, roughness: 0.85, metalness: 0.05,
-      side: THREE.DoubleSide,
+      color: race.cape, roughness: 0.85, metalness: 0.05, side: THREE.DoubleSide,
     });
 
-    // Торс
-    const torso = new THREE.Mesh(
-      new THREE.CapsuleGeometry(0.42, 0.7, 8, 16),
-      clothMat
-    );
-    torso.position.y = 1.15;
-    torso.castShadow = true;
-    torso.receiveShadow = true;
+    const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.42, 0.7, 8, 16), clothMat);
+    torso.position.y = 1.15; torso.castShadow = true; torso.receiveShadow = true;
     g.add(torso);
 
-    // Плечи / нагрудник
     const chest = new THREE.Mesh(
       new THREE.BoxGeometry(0.85, 0.4, 0.6),
       raceId === 'iron_orc' ? accentMat : clothMat
     );
-    chest.position.set(0, 1.55, 0.03);
-    chest.castShadow = true;
+    chest.position.set(0, 1.55, 0.03); chest.castShadow = true;
     g.add(chest);
 
-    // Голова
-    const head = new THREE.Mesh(
-      new THREE.SphereGeometry(0.28, 24, 20),
-      skinMat
-    );
-    head.position.y = 1.95;
-    head.castShadow = true;
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.28, 24, 20), skinMat);
+    head.position.y = 1.95; head.castShadow = true;
     g.add(head);
 
-    // Глаза
     const eyeMat = new THREE.MeshStandardMaterial({
-      color: race.accent, emissive: race.accent, emissiveIntensity: 2.5,
-      roughness: 0.2,
+      color: race.accent, emissive: race.accent, emissiveIntensity: 2.5, roughness: 0.2,
     });
     for (const sx of [-1, 1]) {
       const eye = new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 12), eyeMat);
@@ -768,29 +983,17 @@ class CharacterBuilder {
       g.add(eye);
     }
 
-    // Расовые особенности
     if (raceId === 'ash_elf') {
-      // Острые уши
       for (const sx of [-1, 1]) {
-        const ear = new THREE.Mesh(
-          new THREE.ConeGeometry(0.06, 0.35, 6),
-          skinMat
-        );
+        const ear = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.35, 6), skinMat);
         ear.position.set(sx * 0.27, 2.02, 0);
-        ear.rotation.z = sx * 0.5;
-        ear.rotation.x = -0.15;
+        ear.rotation.z = sx * 0.5; ear.rotation.x = -0.15;
         g.add(ear);
       }
-      // Плащ
-      const cape = new THREE.Mesh(
-        new THREE.PlaneGeometry(0.9, 1.6, 8, 12),
-        capeMat
-      );
-      cape.position.set(0, 1.1, -0.35);
-      cape.userData.isCape = true;
+      const cape = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 1.6, 8, 12), capeMat);
+      cape.position.set(0, 1.1, -0.35); cape.userData.isCape = true;
       g.add(cape);
     } else if (raceId === 'iron_orc') {
-      // Клыки
       for (const sx of [-1, 1]) {
         const tusk = new THREE.Mesh(
           new THREE.ConeGeometry(0.035, 0.14, 6),
@@ -800,126 +1003,88 @@ class CharacterBuilder {
         tusk.rotation.x = Math.PI;
         g.add(tusk);
       }
-      // Наплечники
       for (const sx of [-1, 1]) {
         const sh = new THREE.Mesh(
           new THREE.SphereGeometry(0.22, 16, 12, 0, TAU, 0, Math.PI * 0.6),
           accentMat
         );
         sh.position.set(sx * 0.55, 1.6, 0);
-        sh.rotation.z = sx * -0.35;
-        sh.castShadow = true;
+        sh.rotation.z = sx * -0.35; sh.castShadow = true;
         g.add(sh);
       }
-      // Увеличиваем торс
       torso.scale.set(1.15, 1.05, 1.15);
       chest.scale.set(1.2, 1, 1.15);
-    } else if (raceId === 'cyber_angel') {
-      // Крылья (плоскости)
+    } else if (raceId === 'cyber_monk') {
       const wingMat = new THREE.MeshStandardMaterial({
-        color: race.accent, emissive: race.color,
-        emissiveIntensity: 1.8, transparent: true, opacity: 0.75,
-        side: THREE.DoubleSide,
+        color: race.accent, emissive: race.color, emissiveIntensity: 1.8,
+        transparent: true, opacity: 0.7, side: THREE.DoubleSide,
       });
       for (const sx of [-1, 1]) {
-        const wing = new THREE.Mesh(
-          new THREE.PlaneGeometry(1.1, 1.4, 4, 6),
-          wingMat
-        );
+        const wing = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 1.4, 4, 6), wingMat);
         wing.position.set(sx * 0.75, 1.55, -0.25);
-        wing.rotation.y = sx * 0.3;
-        wing.rotation.z = sx * 0.4;
-        wing.userData.isWing = true;
-        wing.userData.side = sx;
+        wing.rotation.y = sx * 0.3; wing.rotation.z = sx * 0.4;
+        wing.userData.isWing = true; wing.userData.side = sx;
         g.add(wing);
       }
-      // Голо-гало
       const halo = new THREE.Mesh(
         new THREE.TorusGeometry(0.35, 0.025, 8, 32),
         new THREE.MeshBasicMaterial({ color: race.accent, transparent: true, opacity: 0.85 })
       );
-      halo.position.y = 2.35;
-      halo.rotation.x = Math.PI / 2;
+      halo.position.y = 2.35; halo.rotation.x = Math.PI / 2;
       halo.userData.isHalo = true;
       g.add(halo);
     }
 
-    // Руки
     for (const sx of [-1, 1]) {
-      const arm = new THREE.Mesh(
-        new THREE.CapsuleGeometry(0.11, 0.55, 6, 12),
-        skinMat
-      );
+      const arm = new THREE.Mesh(new THREE.CapsuleGeometry(0.11, 0.55, 6, 12), skinMat);
       arm.position.set(sx * 0.5, 1.2, 0);
-      arm.rotation.z = sx * 0.08;
-      arm.castShadow = true;
-      arm.userData.isArm = true;
-      arm.userData.side = sx;
+      arm.rotation.z = sx * 0.08; arm.castShadow = true;
+      arm.userData.isArm = true; arm.userData.side = sx;
       g.add(arm);
     }
-
-    // Ноги
     for (const sx of [-1, 1]) {
-      const leg = new THREE.Mesh(
-        new THREE.CapsuleGeometry(0.14, 0.55, 6, 12),
-        clothMat
-      );
+      const leg = new THREE.Mesh(new THREE.CapsuleGeometry(0.14, 0.55, 6, 12), clothMat);
       leg.position.set(sx * 0.16, 0.42, 0);
       leg.castShadow = true;
-      leg.userData.isLeg = true;
-      leg.userData.side = sx;
+      leg.userData.isLeg = true; leg.userData.side = sx;
       g.add(leg);
     }
 
-    // Оружие в правой руке
     const weapon = this.buildWeapon(raceId, accentMat);
     weapon.position.set(0.55, 0.95, 0.15);
     weapon.userData.isWeapon = true;
     g.add(weapon);
 
     g.userData.animTime = 0;
-    g.userData.materials = { skinMat, clothMat, accentMat, capeMat, eyeMat };
-
     return g;
   }
 
   static buildWeapon(raceId, accentMat) {
     const w = new THREE.Group();
     if (raceId === 'ash_elf') {
-      // Длинный лук
       const bowMat = new THREE.MeshStandardMaterial({ color: 0x4a2a1a, roughness: 0.7 });
-      const bow = new THREE.Mesh(
-        new THREE.TorusGeometry(0.35, 0.03, 6, 20, Math.PI * 1.35),
-        bowMat
-      );
+      const bow = new THREE.Mesh(new THREE.TorusGeometry(0.35, 0.03, 6, 20, Math.PI * 1.35), bowMat);
       bow.rotation.z = Math.PI / 2;
       w.add(bow);
-      // Тетива
-      const stringMat = new THREE.MeshBasicMaterial({ color: 0xcccccc });
-      const str = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.68, 4), stringMat);
+      const str = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.005, 0.005, 0.68, 4),
+        new THREE.MeshBasicMaterial({ color: 0xcccccc })
+      );
       str.position.x = 0.3;
       w.add(str);
     } else if (raceId === 'iron_orc') {
-      // Молот
       const handleMat = new THREE.MeshStandardMaterial({ color: 0x3a2010, roughness: 0.8 });
       const headMat = new THREE.MeshStandardMaterial({ color: 0x555555, metalness: 0.9, roughness: 0.35 });
       const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 1.2, 8), handleMat);
-      handle.position.y = -0.15;
-      w.add(handle);
+      handle.position.y = -0.15; w.add(handle);
       const head = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.28, 0.28), headMat);
-      head.position.y = 0.5;
-      w.add(head);
-      // Рунные насечки
+      head.position.y = 0.5; w.add(head);
       const rune = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.05, 0.3), accentMat);
-      rune.position.y = 0.5;
-      w.add(rune);
-    } else if (raceId === 'cyber_angel') {
-      // Посох
+      rune.position.y = 0.5; w.add(rune);
+    } else {
       const staffMat = new THREE.MeshStandardMaterial({ color: 0x1a1030, roughness: 0.4, metalness: 0.7 });
       const staff = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 1.5, 8), staffMat);
-      staff.position.y = 0.2;
-      w.add(staff);
-      // Кристалл
+      staff.position.y = 0.2; w.add(staff);
       const crystal = new THREE.Mesh(
         new THREE.OctahedronGeometry(0.14, 0),
         new THREE.MeshStandardMaterial({
@@ -927,43 +1092,32 @@ class CharacterBuilder {
           transparent: true, opacity: 0.9,
         })
       );
-      crystal.position.y = 1.05;
-      crystal.userData.isCrystal = true;
+      crystal.position.y = 1.05; crystal.userData.isCrystal = true;
       w.add(crystal);
     }
     return w;
   }
 
-  // Анимация idle
   static animateIdle(group, dt) {
     if (!group || !group.userData) return;
     group.userData.animTime = (group.userData.animTime || 0) + dt;
     const t = group.userData.animTime;
     const breath = Math.sin(t * 1.8) * 0.015;
-    group.scale.y = 1 + breath;
-    group.rotation.y += dt * 0.15;
-    // Плечи / крылья
+    group.scale.y = (group.userData.baseScale || 1) * (1 + breath);
+    group.rotation.y += dt * 0.18;
     group.traverse((child) => {
       if (child.userData.isWing) {
         child.rotation.z = child.userData.side * (0.4 + Math.sin(t * 1.2) * 0.08);
       }
-      if (child.userData.isHalo) {
-        child.rotation.z = t * 1.5;
-      }
-      if (child.userData.isCrystal) {
-        child.rotation.y = t * 2;
-      }
-      if (child.userData.isCape) {
-        const pos = child.geometry.attributes.position;
-        // Лёгкое покачивание ткани
-      }
+      if (child.userData.isHalo) child.rotation.z = t * 1.5;
+      if (child.userData.isCrystal) child.rotation.y = t * 2;
     });
   }
 }
 
-// ============================================================
-// 4. МЕНЮ — 3D-сцена выбора расы
-// ============================================================
+// ----------------------------------------------------------------------------
+// 4. МЕНЮ-СЦЕНА
+// ----------------------------------------------------------------------------
 class MenuScene {
   constructor(canvas) {
     this.canvas = canvas;
@@ -978,121 +1132,109 @@ class MenuScene {
     this.scene = new THREE.Scene();
     this.scene.fog = new THREE.FogExp2(0x0a0618, 0.045);
 
-    this.camera = new THREE.PerspectiveCamera(35, 16 / 9, 0.1, 200);
+    this.camera = new THREE.PerspectiveCamera(35, 16/9, 0.1, 200);
     this.camera.position.set(0, 2.4, 6);
 
-    // Три-поинтовый свет
-    const keyLight = new THREE.DirectionalLight(0xffd8a0, 3.0);
-    keyLight.position.set(3, 6, 4);
-    keyLight.castShadow = true;
-    keyLight.shadow.mapSize.set(2048, 2048);
-    keyLight.shadow.camera.left = -4;
-    keyLight.shadow.camera.right = 4;
-    keyLight.shadow.camera.top = 4;
-    keyLight.shadow.camera.bottom = -4;
-    keyLight.shadow.bias = -0.0005;
-    this.scene.add(keyLight);
-    this.keyLight = keyLight;
+    // Свет
+    this.keyLight = new THREE.DirectionalLight(0xffd8a0, 3.0);
+    this.keyLight.position.set(3, 6, 4);
+    this.keyLight.castShadow = true;
+    this.keyLight.shadow.mapSize.set(2048, 2048);
+    this.keyLight.shadow.camera.left = -4;
+    this.keyLight.shadow.camera.right = 4;
+    this.keyLight.shadow.camera.top = 4;
+    this.keyLight.shadow.camera.bottom = -4;
+    this.keyLight.shadow.bias = -0.0005;
+    this.scene.add(this.keyLight);
 
-    const rimLight = new THREE.DirectionalLight(0x8050ff, 2.4);
-    rimLight.position.set(-4, 3, -3);
-    this.scene.add(rimLight);
-    this.rimLight = rimLight;
+    this.rimLight = new THREE.DirectionalLight(0x8050ff, 2.4);
+    this.rimLight.position.set(-4, 3, -3);
+    this.scene.add(this.rimLight);
 
-    const fillLight = new THREE.PointLight(0x4070ff, 15, 12);
-    fillLight.position.set(-2, 1, 3);
-    this.scene.add(fillLight);
+    const fill = new THREE.PointLight(0x4070ff, 15, 12);
+    fill.position.set(-2, 1, 3);
+    this.scene.add(fill);
 
-    const ambient = new THREE.AmbientLight(0x2a1a3a, 1.1);
-    this.scene.add(ambient);
+    this.scene.add(new THREE.AmbientLight(0x2a1a3a, 1.1));
 
-    // Подиум с магической сферой
-    const pedestalGeo = new THREE.CylinderGeometry(1.4, 1.6, 0.35, 32);
-    const pedMat = new THREE.MeshStandardMaterial({
-      color: 0x1a1228, roughness: 0.4, metalness: 0.7,
-    });
-    const pedestal = new THREE.Mesh(pedestalGeo, pedMat);
+    // Подиум
+    const pedestal = new THREE.Mesh(
+      new THREE.CylinderGeometry(1.4, 1.6, 0.35, 32),
+      new THREE.MeshStandardMaterial({ color: 0x1a1228, roughness: 0.4, metalness: 0.7 })
+    );
     pedestal.position.y = -0.05;
     pedestal.receiveShadow = true;
     this.scene.add(pedestal);
 
-    // Вращающееся руническое кольцо на подиуме
     const ringMat = new THREE.MeshStandardMaterial({
       color: 0xffc879, emissive: 0xff9c4a, emissiveIntensity: 1.5,
       roughness: 0.3, metalness: 0.9,
     });
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(1.45, 0.02, 8, 64), ringMat);
-    ring.rotation.x = Math.PI / 2;
-    ring.position.y = 0.13;
-    this.scene.add(ring);
-    this.ring = ring;
+    this.ring = new THREE.Mesh(new THREE.TorusGeometry(1.45, 0.02, 8, 64), ringMat);
+    this.ring.rotation.x = Math.PI / 2;
+    this.ring.position.y = 0.13;
+    this.scene.add(this.ring);
 
-    const ring2 = new THREE.Mesh(new THREE.TorusGeometry(1.55, 0.015, 8, 64), ringMat.clone());
-    ring2.material.emissiveIntensity = 0.9;
-    ring2.rotation.x = Math.PI / 2;
-    ring2.position.y = 0.14;
-    this.scene.add(ring2);
-    this.ring2 = ring2;
+    this.ring2 = new THREE.Mesh(new THREE.TorusGeometry(1.55, 0.015, 8, 64), ringMat.clone());
+    this.ring2.material.emissiveIntensity = 0.9;
+    this.ring2.rotation.x = Math.PI / 2;
+    this.ring2.position.y = 0.14;
+    this.scene.add(this.ring2);
 
-    // Подсветка-пол
-    const lightPool = new THREE.Mesh(
+    // Световое пятно
+    this.lightPool = new THREE.Mesh(
       new THREE.CircleGeometry(2.5, 48),
       new THREE.MeshBasicMaterial({
         color: 0xff9c4a, transparent: true, opacity: 0.12,
         blending: THREE.AdditiveBlending, depthWrite: false,
       })
     );
-    lightPool.rotation.x = -Math.PI / 2;
-    lightPool.position.y = 0.01;
-    this.scene.add(lightPool);
+    this.lightPool.rotation.x = -Math.PI / 2;
+    this.lightPool.position.y = 0.01;
+    this.scene.add(this.lightPool);
 
-    // Мировые частицы (магическая пыль вокруг персонажа)
+    // Портал-фон
+    const portal = new THREE.Mesh(
+      new THREE.RingGeometry(2.6, 5.5, 64),
+      new THREE.MeshBasicMaterial({
+        color: 0x8050ff, transparent: true, opacity: 0.15,
+        blending: THREE.AdditiveBlending, depthWrite: false,
+      })
+    );
+    portal.position.set(0, 2, -6);
+    this.scene.add(portal);
+
+    // Магические частицы
     const partCount = 320;
-    const partGeo = new THREE.BufferGeometry();
-    const partPos = new Float32Array(partCount * 3);
-    const partCol = new Float32Array(partCount * 3);
+    const geo = new THREE.BufferGeometry();
+    const pos = new Float32Array(partCount * 3);
+    const col = new Float32Array(partCount * 3);
     for (let i = 0; i < partCount; i++) {
       const a = rand(0, TAU);
       const r = rand(0.5, 2.8);
-      const y = rand(-0.2, 3.5);
-      partPos[i * 3 + 0] = Math.cos(a) * r;
-      partPos[i * 3 + 1] = y;
-      partPos[i * 3 + 2] = Math.sin(a) * r;
+      pos[i*3+0] = Math.cos(a) * r;
+      pos[i*3+1] = rand(-0.2, 3.5);
+      pos[i*3+2] = Math.sin(a) * r;
       const c = new THREE.Color().setHSL(rand(0.07, 0.13), 0.9, rand(0.5, 0.9));
-      partCol[i * 3 + 0] = c.r;
-      partCol[i * 3 + 1] = c.g;
-      partCol[i * 3 + 2] = c.b;
+      col[i*3+0] = c.r; col[i*3+1] = c.g; col[i*3+2] = c.b;
     }
-    partGeo.setAttribute('position', new THREE.BufferAttribute(partPos, 3));
-    partGeo.setAttribute('color', new THREE.BufferAttribute(partCol, 3));
-    const partMat = new THREE.PointsMaterial({
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    this.particles = new THREE.Points(geo, new THREE.PointsMaterial({
       size: 0.045, vertexColors: true, transparent: true, opacity: 0.9,
-      blending: THREE.AdditiveBlending, depthWrite: false,
-      map: this.makeGlowTexture(),
-    });
-    this.particles = new THREE.Points(partGeo, partMat);
+      blending: THREE.AdditiveBlending, depthWrite: false, map: Textures.glow(),
+    }));
     this.scene.add(this.particles);
-
-    // Кольцо-портал за подиумом (задний фон)
-    const portalMat = new THREE.MeshBasicMaterial({
-      color: 0x8050ff, transparent: true, opacity: 0.15,
-      blending: THREE.AdditiveBlending, depthWrite: false,
-    });
-    const portal = new THREE.Mesh(new THREE.RingGeometry(2.6, 5.5, 64), portalMat);
-    portal.position.set(0, 2, -6);
-    this.scene.add(portal);
 
     // Постобработка
     this.composer = new EffectComposer(this.renderer);
     this.composer.addPass(new RenderPass(this.scene, this.camera));
-    const bloom = new UnrealBloomPass(
+    this.composer.addPass(new UnrealBloomPass(
       new THREE.Vector2(window.innerWidth, window.innerHeight),
       0.65, 0.6, 0.82
-    );
-    this.composer.addPass(bloom);
+    ));
 
-    // Цветокоррекция
-    const gradePass = new ShaderPass({
+    this.gradePass = new ShaderPass({
       uniforms: {
         tDiffuse: { value: null },
         uSat: { value: 1.15 },
@@ -1102,22 +1244,14 @@ class MenuScene {
       },
       vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
       fragmentShader: `
-        uniform sampler2D tDiffuse;
-        uniform float uSat;
-        uniform float uContrast;
-        uniform float uVignette;
-        uniform vec3 uTint;
-        varying vec2 vUv;
+        uniform sampler2D tDiffuse; uniform float uSat, uContrast, uVignette;
+        uniform vec3 uTint; varying vec2 vUv;
         void main() {
           vec4 c = texture2D(tDiffuse, vUv);
-          // Saturation
           float l = dot(c.rgb, vec3(0.299, 0.587, 0.114));
           c.rgb = mix(vec3(l), c.rgb, uSat);
-          // Contrast
           c.rgb = (c.rgb - 0.5) * uContrast + 0.5;
-          // Tint (тёплый)
           c.rgb *= mix(vec3(1.0), uTint, 0.08);
-          // Vignette
           vec2 d = vUv - 0.5;
           float v = smoothstep(0.85, 0.25, length(d));
           c.rgb *= mix(1.0 - uVignette, 1.0, v);
@@ -1125,42 +1259,22 @@ class MenuScene {
         }
       `,
     });
-    this.composer.addPass(gradePass);
-    this.gradePass = gradePass;
+    this.composer.addPass(this.gradePass);
 
-    // Персонаж
     this.character = null;
-    this.targetYaw = 0;
     this.currentYaw = 0;
     this.targetCamPos = new THREE.Vector3(0, 2.4, 6);
     this.targetCamLook = new THREE.Vector3(0, 1.6, 0);
     this.camLook = new THREE.Vector3(0, 1.6, 0);
-
     this.clock = new THREE.Clock();
     this.rafId = null;
     this.resize();
     window.addEventListener('resize', safe(() => this.resize()));
   }
 
-  makeGlowTexture() {
-    const c = document.createElement('canvas');
-    c.width = c.height = 64;
-    const ctx = c.getContext('2d');
-    const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-    g.addColorStop(0, 'rgba(255,255,255,1)');
-    g.addColorStop(0.4, 'rgba(255,240,200,0.6)');
-    g.addColorStop(1, 'rgba(255,200,120,0)');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, 64, 64);
-    const t = new THREE.CanvasTexture(c);
-    t.colorSpace = THREE.SRGBColorSpace;
-    return t;
-  }
-
   setRace(raceId) {
     if (this.character) {
       this.scene.remove(this.character);
-      // Диспозируем
       this.character.traverse((o) => {
         if (o.geometry) o.geometry.dispose();
         if (o.material) {
@@ -1171,25 +1285,25 @@ class MenuScene {
     }
     this.character = CharacterBuilder.build(raceId);
     this.character.position.y = 0.15;
+    this.character.userData.baseScale = 1;
     this.scene.add(this.character);
 
-    // Меняем цвет света/частиц под расу
     const race = RACES.find(r => r.id === raceId) || RACES[0];
-    this.keyLight.color.setHex(0xffd8a0);
     this.rimLight.color.setHex(race.color);
-    this.gradePass.uniforms.uTint.value.setHex(race.color);
-    this.gradePass.uniforms.uTint.value.lerp(new THREE.Color(0xffffff), 0.85);
-    // Меняем свет пола
-    this.scene.traverse((o) => {
-      if (o.material && o.material.blending === THREE.AdditiveBlending && o.material.opacity !== undefined) {
-        if (o.geometry && o.geometry.type === 'CircleGeometry') {
-          o.material.color.setHex(race.color);
-        }
-      }
-    });
-    // Позиция камеры меняется в зависимости от расы
-    this.targetCamPos.set(0, 2.2, 5.5);
-    this.targetCamLook.set(0, 1.5, 0);
+    this.lightPool.material.color.setHex(race.color);
+    this.gradePass.uniforms.uTint.value.setHex(race.color).lerp(new THREE.Color(0xffffff), 0.85);
+
+    // Кинематографичные позиции камеры через кривые Безье-подобные
+    if (raceId === 'iron_orc') {
+      this.targetCamPos.set(0.5, 1.9, 5.2);
+      this.targetCamLook.set(0, 1.4, 0);
+    } else if (raceId === 'cyber_monk') {
+      this.targetCamPos.set(-0.5, 2.7, 5.8);
+      this.targetCamLook.set(0, 1.75, 0);
+    } else {
+      this.targetCamPos.set(0, 2.4, 6);
+      this.targetCamLook.set(0, 1.6, 0);
+    }
   }
 
   resize() {
@@ -1206,47 +1320,38 @@ class MenuScene {
       this.rafId = requestAnimationFrame(loop);
       try {
         const dt = Math.min(this.clock.getDelta(), 0.05);
-        // Плавная интерполяция камеры
         this.camera.position.lerp(this.targetCamPos, 1 - Math.pow(0.001, dt));
         this.camLook.lerp(this.targetCamLook, 1 - Math.pow(0.001, dt));
         this.camera.lookAt(this.camLook);
-        // Автовращение камеры вокруг сцены
-        this.currentYaw += (this.targetYaw - this.currentYaw) * (1 - Math.pow(0.001, dt));
-        // Вращение кольца
         this.ring.rotation.z += dt * 0.5;
         this.ring2.rotation.z -= dt * 0.35;
-        // Анимация персонажа
         if (this.character) CharacterBuilder.animateIdle(this.character, dt);
-        // Частицы
         if (this.particles) {
           const pos = this.particles.geometry.attributes.position;
           const t = this.clock.elapsedTime;
           for (let i = 0; i < pos.count; i++) {
-            const y = pos.getY(i);
-            pos.setY(i, y + Math.sin(t * 0.7 + i * 0.3) * dt * 0.3);
+            pos.setY(i, pos.getY(i) + Math.sin(t * 0.7 + i * 0.3) * dt * 0.3);
           }
           pos.needsUpdate = true;
         }
         this.composer.render();
-      } catch (e) { console.error('[MenuScene] loop:', e); }
+      } catch (e) { console.error('[MenuScene]', e); }
     };
     loop();
   }
 
   stop() {
-    if (this.rafId !== null) {
-      cancelAnimationFrame(this.rafId);
-      this.rafId = null;
-    }
+    if (this.rafId !== null) { cancelAnimationFrame(this.rafId); this.rafId = null; }
   }
 }
 
-// ============================================================
+// ----------------------------------------------------------------------------
 // 5. ИГРОВАЯ СЦЕНА
-// ============================================================
+// ----------------------------------------------------------------------------
 class GameScene {
-  constructor(canvas) {
+  constructor(canvas, raceId) {
     this.canvas = canvas;
+    this.raceId = raceId;
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -1256,59 +1361,66 @@ class GameScene {
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.FogExp2(0x6b5a4a, 0.012);
+    this.scene.fog = new THREE.FogExp2(0xa0b8d0, 0.014);
 
-    this.camera = new THREE.PerspectiveCamera(60, 16 / 9, 0.1, 500);
+    this.camera = new THREE.PerspectiveCamera(55, 16/9, 0.1, 500);
     this.camera.position.set(0, 6, 10);
 
-    // Небо (Sky shader)
+    // Небо и солнце
     this.sky = new Sky();
     this.sky.scale.setScalar(8000);
     this.scene.add(this.sky);
     this.sun = new THREE.Vector3();
-    this.setSunElevation(35);
 
-    // Три-поинтовый свет
-    this.keyLight = new THREE.DirectionalLight(0xffe0b0, 2.4);
+    // Свет
+    this.keyLight = new THREE.DirectionalLight(0xffe8c0, 2.6);
     this.keyLight.position.set(30, 40, 20);
     this.keyLight.castShadow = true;
     this.keyLight.shadow.mapSize.set(2048, 2048);
-    this.keyLight.shadow.camera.left = -30;
-    this.keyLight.shadow.camera.right = 30;
-    this.keyLight.shadow.camera.top = 30;
-    this.keyLight.shadow.camera.bottom = -30;
+    this.keyLight.shadow.camera.left = -35;
+    this.keyLight.shadow.camera.right = 35;
+    this.keyLight.shadow.camera.top = 35;
+    this.keyLight.shadow.camera.bottom = -35;
     this.keyLight.shadow.camera.near = 1;
-    this.keyLight.shadow.camera.far = 120;
+    this.keyLight.shadow.camera.far = 150;
     this.keyLight.shadow.bias = -0.0008;
     this.scene.add(this.keyLight);
     this.scene.add(this.keyLight.target);
 
-    const hemi = new THREE.HemisphereLight(0x99bbff, 0x4a3a2a, 0.55);
-    this.scene.add(hemi);
-
+    this.scene.add(new THREE.HemisphereLight(0x99bbff, 0x4a3a2a, 0.55));
     this.ambient = new THREE.AmbientLight(0x334466, 0.4);
     this.scene.add(this.ambient);
+
+    // Облака (billboard planes)
+    this.buildClouds();
 
     // Террейн
     this.buildTerrain();
 
-    // Окружение: деревья, камни, трава
+    // Лес
     this.buildForest();
     this.buildGrass();
     this.buildRocks();
 
+    // Город-хаб
+    this.buildCity();
+
+    // Вода
+    this.buildWater();
+
     // Игрок
-    this.player = this.buildPlayer();
+    this.player = this.buildPlayer(raceId);
 
     // Враги
     this.enemies = [];
-    this.spawnEnemies(6);
+    this.spawnEnemies(8);
+
+    // NPC-торговцы
+    this.npcs = [];
+    this.buildNPCs();
 
     // Частицы
-    this.buildParticles();
-
-    // Вода (озеро)
-    this.buildWater();
+    this.particleGroups = [];
 
     // Дождь
     this.buildRain();
@@ -1316,14 +1428,11 @@ class GameScene {
     // Постобработка
     this.composer = new EffectComposer(this.renderer);
     this.composer.addPass(new RenderPass(this.scene, this.camera));
-    const bloom = new UnrealBloomPass(
+    this.composer.addPass(new UnrealBloomPass(
       new THREE.Vector2(window.innerWidth, window.innerHeight),
       0.7, 0.7, 0.8
-    );
-    this.composer.addPass(bloom);
-
-    // Кинематографичная цветокоррекция
-    const gradePass = new ShaderPass({
+    ));
+    this.gradePass = new ShaderPass({
       uniforms: {
         tDiffuse: { value: null },
         uSat: { value: 1.08 },
@@ -1333,8 +1442,7 @@ class GameScene {
       },
       vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
       fragmentShader: `
-        uniform sampler2D tDiffuse;
-        uniform float uSat, uContrast, uVignette, uTime;
+        uniform sampler2D tDiffuse; uniform float uSat, uContrast, uVignette, uTime;
         varying vec2 vUv;
         void main() {
           vec4 c = texture2D(tDiffuse, vUv);
@@ -1348,37 +1456,73 @@ class GameScene {
         }
       `,
     });
-    this.composer.addPass(gradePass);
-    this.gradePass = gradePass;
+    this.composer.addPass(this.gradePass);
 
     // Состояние
     this.time = 0;
-    this.dayTime = 0.35; // 0..1 (0.25=полдень, 0.75=полночь)
+    this.dayTime = 0.35;
     this.weather = { rain: 0, targetRain: 0 };
     this.playerInput = { moveX: 0, moveY: 0 };
     this.clock = new THREE.Clock();
     this.rafId = null;
-
-    this.resize();
-    window.addEventListener('resize', safe(() => this.resize()));
-
-    // Мини-карта
     this.minimapCanvas = $('minimap');
     this.minimapCtx = this.minimapCanvas ? this.minimapCanvas.getContext('2d') : null;
 
-    // Обновление HUD
-    this.hud = { hp: 100, maxHp: 100, mana: 80, maxMana: 80, level: 1, xp: 0 };
+    this.hud = {
+      hp: 100, maxHp: 100, mana: 80, maxMana: 80,
+      stamina: 100, maxStamina: 100,
+      level: 1, xp: 0, gold: 50, runes: 5,
+      fatigue: 0, // 0..1 — усталость
+    };
+    this.campActive = false;
+    this.campObjects = [];
+    this.currentZone = 'wild'; // 'wild' | 'city'
+    this.cityCenter = new THREE.Vector3(60, 0, 40);
+    this.cityRadius = 22;
+
+    this.resize();
+    window.addEventListener('resize', safe(() => this.resize()));
   }
 
-  // -------- Террейн --------
+  // ---------- Облака ----------
+  buildClouds() {
+    this.clouds = new THREE.Group();
+    const cloudTex = (() => {
+      const c = document.createElement('canvas');
+      c.width = c.height = 128;
+      const ctx = c.getContext('2d');
+      const g = ctx.createRadialGradient(64, 64, 5, 64, 64, 64);
+      g.addColorStop(0, 'rgba(255,255,255,0.95)');
+      g.addColorStop(0.5, 'rgba(230,235,245,0.7)');
+      g.addColorStop(1, 'rgba(220,230,245,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 128, 128);
+      const t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    })();
+    for (let i = 0; i < 26; i++) {
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: cloudTex, transparent: true, opacity: rand(0.5, 0.8),
+        depthWrite: false,
+      }));
+      const a = rand(0, TAU);
+      const r = rand(30, 90);
+      sprite.position.set(Math.cos(a) * r, rand(35, 55), Math.sin(a) * r);
+      sprite.scale.set(rand(15, 30), rand(8, 14), 1);
+      this.clouds.add(sprite);
+    }
+    this.scene.add(this.clouds);
+  }
+
+  // ---------- Террейн ----------
   buildTerrain() {
-    const size = 120, seg = 128;
+    const size = 200, seg = 180;
     const geo = new THREE.PlaneGeometry(size, size, seg, seg);
     const pos = geo.attributes.position;
     for (let i = 0; i < pos.count; i++) {
       const x = pos.getX(i), y = pos.getY(i);
       const d = Math.hypot(x, y);
-      // Холмистая местность по краям, ровная площадка в центре
       const h = (Math.sin(x * 0.15) * Math.cos(y * 0.17) * 1.2 +
                  Math.sin(x * 0.4 + y * 0.3) * 0.5) *
                 smoothstep(6, 30, d);
@@ -1386,16 +1530,16 @@ class GameScene {
     }
     geo.computeVertexNormals();
 
-    const noiseTex = Textures.noise(256, [72, 62, 48], 55);
-    noiseTex.repeat.set(12, 12);
-    const normalTex = Textures.normalFromHeight(256, 1.6);
-    normalTex.repeat.set(12, 12);
+    const noiseTex = Textures.noise(256, [88, 76, 58], 55);
+    noiseTex.repeat.set(22, 22);
+    const normalTex = Textures.normalMap(256, 1.6);
+    normalTex.repeat.set(22, 22);
 
     const mat = new THREE.MeshStandardMaterial({
       map: noiseTex, normalMap: normalTex,
       normalScale: new THREE.Vector2(0.8, 0.8),
       roughness: 0.92, metalness: 0.03,
-      color: 0x8a7355,
+      color: 0x9a8060,
     });
     const ground = new THREE.Mesh(geo, mat);
     ground.rotation.x = -Math.PI / 2;
@@ -1404,45 +1548,43 @@ class GameScene {
     this.ground = ground;
   }
 
-  // -------- Деревья (процедурно) --------
+  // ---------- Лес ----------
   buildForest() {
     this.trees = new THREE.Group();
     const trunkMat = new THREE.MeshStandardMaterial({
       color: 0x4a3a26, roughness: 0.9, metalness: 0.05,
+      normalMap: Textures.normalMap(256, 1.2),
+      normalScale: new THREE.Vector2(0.8, 0.8),
     });
-    const leafMat = new THREE.MeshStandardMaterial({
+    const leafMatA = new THREE.MeshStandardMaterial({
       color: 0x2a4a2a, roughness: 0.85, metalness: 0.0,
       emissive: 0x0a1a0a, emissiveIntensity: 0.4,
     });
-    const leafMat2 = new THREE.MeshStandardMaterial({
+    const leafMatB = new THREE.MeshStandardMaterial({
       color: 0x3a5a2a, roughness: 0.9, metalness: 0.0,
     });
-
-    for (let i = 0; i < 34; i++) {
+    for (let i = 0; i < 60; i++) {
       const a = rand(0, TAU);
-      const r = rand(14, 50);
+      const r = rand(14, 75);
       const x = Math.cos(a) * r, z = Math.sin(a) * r;
+      // Не сажаем в городе
+      if (dist(x, z, this.cityCenter.x, this.cityCenter.z) < this.cityRadius + 3) continue;
       const scale = rand(0.75, 1.6);
-
       const tree = new THREE.Group();
-      // Ствол — сегментированный цилиндр с несколькими "коленами"
       const trunkH = 2.2 * scale;
       const trunk = new THREE.Mesh(
         new THREE.CylinderGeometry(0.12 * scale, 0.22 * scale, trunkH, 6, 4),
         trunkMat
       );
       trunk.position.y = trunkH / 2;
-      trunk.castShadow = true;
-      trunk.receiveShadow = true;
+      trunk.castShadow = true; trunk.receiveShadow = true;
       tree.add(trunk);
-
-      // Крона — 3-4 конуса/сферы
       const crownN = randi(3, 5);
       for (let c = 0; c < crownN; c++) {
         const cr = (0.9 + c * 0.15) * scale;
         const cone = new THREE.Mesh(
           new THREE.ConeGeometry(cr, 1.1 * scale, 6),
-          c % 2 === 0 ? leafMat : leafMat2
+          c % 2 === 0 ? leafMatA : leafMatB
         );
         cone.position.y = trunkH + c * 0.5 * scale;
         cone.rotation.y = rand(0, TAU);
@@ -1450,42 +1592,33 @@ class GameScene {
         tree.add(cone);
       }
       tree.position.set(x, 0, z);
-      tree.userData.baseY = 0;
-      tree.userData.wobble = rand(0, TAU);
       this.trees.add(tree);
     }
     this.scene.add(this.trees);
   }
 
-  // -------- Трава (InstancedMesh) --------
+  // ---------- Трава ----------
   buildGrass() {
-    const bladeCount = 2200;
+    const bladeCount = 2600;
     const bladeGeo = new THREE.PlaneGeometry(0.12, 0.6, 1, 3);
     bladeGeo.translate(0, 0.3, 0);
-    // Сделаем двусторонним и добавим лёгкий изгиб
     const pos = bladeGeo.attributes.position;
     for (let i = 0; i < pos.count; i++) {
       const y = pos.getY(i);
       pos.setX(i, pos.getX(i) + y * y * 0.2);
     }
-
     const grassMat = new THREE.MeshStandardMaterial({
-      color: 0x4a6a3a, roughness: 0.85, metalness: 0.0,
-      side: THREE.DoubleSide, transparent: false,
-      alphaTest: 0.05,
+      color: 0x4a6a3a, roughness: 0.85, metalness: 0.0, side: THREE.DoubleSide,
     });
-
     const inst = new THREE.InstancedMesh(bladeGeo, grassMat, bladeCount);
-    inst.castShadow = false;
-    inst.receiveShadow = false;
-
     const dummy = new THREE.Object3D();
     const bladeData = [];
     for (let i = 0; i < bladeCount; i++) {
       const a = rand(0, TAU);
-      const r = rand(3, 40);
+      const r = rand(3, 70);
       const x = Math.cos(a) * r;
       const z = Math.sin(a) * r;
+      if (dist(x, z, this.cityCenter.x, this.cityCenter.z) < this.cityRadius) continue;
       const s = rand(0.6, 1.6);
       dummy.position.set(x, 0, z);
       dummy.rotation.y = rand(0, TAU);
@@ -1498,104 +1631,295 @@ class GameScene {
     this.scene.add(inst);
     this.grass = inst;
     this.grassData = bladeData;
-
-    // Покачивание травы — обновляем каждый кадр (для демонстрации vertex anim)
-    // В реальном билде — на GPU через кастомный шейдер.
     this.grassTime = 0;
   }
 
-  // -------- Камни --------
+  // ---------- Камни ----------
   buildRocks() {
     this.rocks = new THREE.Group();
     const rockMat = new THREE.MeshStandardMaterial({
       color: 0x6a6255, roughness: 0.85, metalness: 0.1,
-      normalMap: Textures.normalFromHeight(256, 1.2),
+      normalMap: Textures.normalMap(256, 1.2),
       normalScale: new THREE.Vector2(0.6, 0.6),
     });
-    const rockMat2 = new THREE.MeshStandardMaterial({
-      color: 0x5a5245, roughness: 0.9, metalness: 0.15,
-    });
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 50; i++) {
       const a = rand(0, TAU);
-      const r = rand(4, 45);
+      const r = rand(4, 65);
       const x = Math.cos(a) * r, z = Math.sin(a) * r;
       const geo = new THREE.IcosahedronGeometry(rand(0.4, 1.4), 1);
-      // Деформация для реалистичной формы
       const pos = geo.attributes.position;
       for (let j = 0; j < pos.count; j++) {
         const vx = pos.getX(j), vy = pos.getY(j), vz = pos.getZ(j);
-        const n = Math.sin(vx * 3 + vy * 2 + vz * 4) * 0.2;
+        const n = Math.sin(vx*3 + vy*2 + vz*4) * 0.2;
         pos.setXYZ(j, vx * (1 + n), vy * (1 + n * 0.5), vz * (1 + n));
       }
       geo.computeVertexNormals();
-      const mesh = new THREE.Mesh(geo, Math.random() < 0.5 ? rockMat : rockMat2);
+      const mesh = new THREE.Mesh(geo, rockMat);
       mesh.position.set(x, rand(0.1, 0.4), z);
       mesh.rotation.set(rand(0, TAU), rand(0, TAU), rand(0, TAU));
       mesh.scale.y = rand(0.6, 1.2);
-      mesh.castShadow = true;
-      mesh.receiveShadow = true;
+      mesh.castShadow = true; mesh.receiveShadow = true;
       this.rocks.add(mesh);
     }
     this.scene.add(this.rocks);
   }
 
-  // -------- Вода (озеро) --------
+  // ---------- Вода ----------
   buildWater() {
-    const geo = new THREE.CircleGeometry(9, 64);
+    const geo = new THREE.CircleGeometry(9, 48);
     const mat = new THREE.MeshStandardMaterial({
-      color: 0x2a4a80,
-      roughness: 0.08,
-      metalness: 0.9,
-      transparent: true,
-      opacity: 0.85,
-      envMapIntensity: 1.2,
+      color: 0x2a4a80, roughness: 0.08, metalness: 0.9,
+      transparent: true, opacity: 0.85, envMapIntensity: 1.2,
     });
     const water = new THREE.Mesh(geo, mat);
     water.rotation.x = -Math.PI / 2;
-    water.position.set(24, 0.02, -18);
-    water.receiveShadow = false;
+    water.position.set(30, 0.02, -25);
     this.scene.add(water);
     this.water = water;
   }
 
-  // -------- Игрок --------
-  buildPlayer() {
-    const g = CharacterBuilder.build('ash_elf');
-    // Уменьшим масштаб для игрового мира
+  // ---------- Город-хаб ----------
+  buildCity() {
+    const city = new THREE.Group();
+    const c = this.cityCenter;
+
+    // Каменная мостовая
+    const plazaGeo = new THREE.CircleGeometry(this.cityRadius, 48);
+    const plazaMat = new THREE.MeshStandardMaterial({
+      color: 0x8a7a60, roughness: 0.85, metalness: 0.05,
+      map: Textures.noise(256, [140, 122, 100], 30),
+      normalMap: Textures.normalMap(256, 1.5),
+      normalScale: new THREE.Vector2(1.2, 1.2),
+    });
+    plazaMat.map.repeat.set(6, 6);
+    plazaMat.normalMap.repeat.set(6, 6);
+    const plaza = new THREE.Mesh(plazaGeo, plazaMat);
+    plaza.rotation.x = -Math.PI / 2;
+    plaza.position.set(c.x, 0.05, c.z);
+    plaza.receiveShadow = true;
+    city.add(plaza);
+
+    // Стена-кольцо
+    const wallSegments = 24;
+    const wallMat = new THREE.MeshStandardMaterial({
+      color: 0x5a5040, roughness: 0.9, metalness: 0.05,
+      map: Textures.noise(128, [90, 80, 65], 40),
+    });
+    for (let i = 0; i < wallSegments; i++) {
+      const a = (i / wallSegments) * TAU;
+      const r = this.cityRadius;
+      const wx = c.x + Math.cos(a) * r;
+      const wz = c.z + Math.sin(a) * r;
+      // Проём для ворот
+      if (i > 0 && i < 3) continue;
+      const block = new THREE.Mesh(
+        new THREE.BoxGeometry(2.4, rand(3, 4.5), 1.2),
+        wallMat
+      );
+      block.position.set(wx, 1.8, wz);
+      block.rotation.y = -a;
+      block.castShadow = true; block.receiveShadow = true;
+      city.add(block);
+      // Зубцы
+      const top = new THREE.Mesh(
+        new THREE.BoxGeometry(2.6, 0.4, 1.5),
+        wallMat
+      );
+      top.position.set(wx, 3.8, wz);
+      top.rotation.y = -a;
+      top.castShadow = true;
+      city.add(top);
+    }
+
+    // Фонтаны
+    for (let f = 0; f < 2; f++) {
+      const fx = c.x + (f === 0 ? -6 : 6);
+      const fz = c.z + (f === 0 ? -4 : 4);
+      const fbase = new THREE.Mesh(
+        new THREE.CylinderGeometry(1.2, 1.4, 0.5, 16),
+        new THREE.MeshStandardMaterial({ color: 0x8a7a60, roughness: 0.8 })
+      );
+      fbase.position.set(fx, 0.25, fz);
+      fbase.castShadow = true; fbase.receiveShadow = true;
+      city.add(fbase);
+      const fbowl = new THREE.Mesh(
+        new THREE.CylinderGeometry(1.0, 1.0, 0.3, 16),
+        new THREE.MeshStandardMaterial({ color: 0x3a5a90, roughness: 0.15, metalness: 0.7 })
+      );
+      fbowl.position.set(fx, 0.65, fz);
+      city.add(fbowl);
+      const fpillar = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.15, 0.2, 1.2, 8),
+        new THREE.MeshStandardMaterial({ color: 0x6a5a40, roughness: 0.8 })
+      );
+      fpillar.position.set(fx, 1.2, fz);
+      city.add(fpillar);
+      // Частицы воды (billboard)
+      const waterSpr = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: Textures.glow(64), transparent: true, opacity: 0.6,
+        color: 0x9cc8ff, blending: THREE.AdditiveBlending, depthWrite: false,
+      }));
+      waterSpr.position.set(fx, 1.9, fz);
+      waterSpr.scale.set(1.8, 1.8, 1);
+      city.add(waterSpr);
+    }
+
+    // Торговые прилавки
+    const stallPositions = [
+      { x: -3, z: -6, rot: 0, type: 'potion' },
+      { x: 3,  z: -6, rot: 0, type: 'weapon' },
+      { x: -3, z: 6,  rot: Math.PI, type: 'armor' },
+      { x: 3,  z: 6,  rot: Math.PI, type: 'runes' },
+    ];
+    this.stallPositions = [];
+    for (const sp of stallPositions) {
+      const sx = c.x + sp.x, sz = c.z + sp.z;
+      const stall = new THREE.Group();
+      // Прилавок
+      const woodMat = new THREE.MeshStandardMaterial({ color: 0x4a2f1a, roughness: 0.85 });
+      const counter = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.8, 1.2), woodMat);
+      counter.position.y = 0.4;
+      counter.castShadow = true; counter.receiveShadow = true;
+      stall.add(counter);
+      // Навес
+      const canopy = new THREE.Mesh(
+        new THREE.BoxGeometry(2.8, 0.15, 1.8),
+        new THREE.MeshStandardMaterial({ color: 0x8a2a2a, roughness: 0.9 })
+      );
+      canopy.position.y = 2.4;
+      canopy.castShadow = true;
+      stall.add(canopy);
+      // Столбы
+      for (const sx2 of [-1.2, 1.2]) {
+        for (const sz2 of [-0.6, 0.6]) {
+          const pillar = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.06, 0.06, 2.4, 6),
+            woodMat
+          );
+          pillar.position.set(sx2, 1.2, sz2);
+          stall.add(pillar);
+        }
+      }
+      // Знамя
+      const banner = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.6, 1.5, 1, 6),
+        new THREE.MeshStandardMaterial({
+          color: sp.type === 'potion' ? 0x4a9e4a :
+                 sp.type === 'weapon' ? 0xff6030 :
+                 sp.type === 'armor' ? 0x4a5aa0 : 0xa04ad0,
+          side: THREE.DoubleSide, roughness: 0.85,
+        })
+      );
+      banner.position.set(0, 1.6, 0);
+      banner.userData.isBanner = true;
+      banner.userData.phase = rand(0, TAU);
+      stall.add(banner);
+      // Товары на прилавке
+      for (let k = 0; k < 3; k++) {
+        const item = new THREE.Mesh(
+          new THREE.SphereGeometry(0.12, 8, 8),
+          new THREE.MeshStandardMaterial({
+            color: [0xff5555, 0x55aaff, 0xffdd55, 0xb85aff][k],
+            emissive: [0xff5555, 0x55aaff, 0xffdd55, 0xb85aff][k],
+            emissiveIntensity: 0.5,
+          })
+        );
+        item.position.set((k - 1) * 0.5, 0.9, 0);
+        stall.add(item);
+      }
+      stall.position.set(sx, 0, sz);
+      stall.rotation.y = sp.rot;
+      city.add(stall);
+      this.stallPositions.push({ x: sx, z: sz, type: sp.type });
+    }
+
+    // Центральный обелиск
+    const obelisk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.5, 0.8, 6, 6),
+      new THREE.MeshStandardMaterial({
+        color: 0x2a2a4a, metalness: 0.7, roughness: 0.3,
+        emissive: 0x3a5aff, emissiveIntensity: 0.4,
+      })
+    );
+    obelisk.position.set(c.x, 3, c.z);
+    obelisk.castShadow = true;
+    city.add(obelisk);
+    const obeliskRune = new THREE.Mesh(
+      new THREE.TorusGeometry(0.9, 0.06, 8, 32),
+      new THREE.MeshBasicMaterial({ color: 0x7cd9ff, transparent: true, opacity: 0.9 })
+    );
+    obeliskRune.rotation.x = Math.PI / 2;
+    obeliskRune.position.set(c.x, 5.5, c.z);
+    obeliskRune.userData.isHalo = true;
+    city.add(obeliskRune);
+
+    this.scene.add(city);
+    this.cityGroup = city;
+  }
+
+  // ---------- NPC ----------
+  buildNPCs() {
+    const types = [
+      { id: 'potion', name: 'Аптекарь Линэль', emoji: '🧝‍♀️', text: 'Зелья хранят жизнь. Купи — не пожалеешь.', prices: [30] },
+      { id: 'weapon', name: 'Кузнец Борн', emoji: '🧔', text: 'Сталь не лжёт. Хочешь крепкий клинок?', prices: [80] },
+      { id: 'armor', name: 'Бронник Мирра', emoji: '🛡️', text: 'Броня — вторая кожа. Выбирай с умом.', prices: [100] },
+      { id: 'runes', name: 'Рунослов Тейн', emoji: '🧙', text: 'Руны помнят древние силы. Используй мудро.', prices: [40] },
+    ];
+    for (let i = 0; i < this.stallPositions.length; i++) {
+      const sp = this.stallPositions[i];
+      const t = types.find(x => x.id === sp.type) || types[0];
+      const npc = CharacterBuilder.build('cyber_monk');
+      npc.scale.setScalar(0.5);
+      npc.position.set(sp.x, 0.1, sp.z + 1.5);
+      npc.rotation.y = Math.PI;
+      npc.userData.isNPC = true;
+      npc.userData.dialog = t;
+      npc.userData.stall = sp;
+      // Не двигаем NPC
+      npc.userData.isFrozen = true;
+      this.scene.add(npc);
+      this.npcs.push(npc);
+    }
+  }
+
+  // ---------- Игрок ----------
+  buildPlayer(raceId) {
+    const g = CharacterBuilder.build(raceId);
     g.scale.setScalar(0.5);
+    g.userData.baseScale = 0.5;
     g.position.set(0, 0.1, 0);
-    // Отключаем авто-вращение
-    g.userData.noAutoRotate = true;
-    this.scene.add(g);
     g.userData.vel = new THREE.Vector3();
     g.userData.facing = 0;
-    g.userData.hp = 100;
-    g.userData.maxHp = 100;
     g.userData.attackCd = 0;
     g.userData.hitFlash = 0;
+    this.scene.add(g);
     return g;
   }
 
-  // -------- Враги --------
-  spawnEnemies(n) {
-    for (let i = 0; i < n; i++) this.spawnEnemy();
-  }
+  // ---------- Враги ----------
+  spawnEnemies(n) { for (let i = 0; i < n; i++) this.spawnEnemy(); }
   spawnEnemy() {
     const a = rand(0, TAU);
-    const r = rand(12, 30);
+    const r = rand(20, 40);
     const x = Math.cos(a) * r, z = Math.sin(a) * r;
+    // Не спавним в городе
+    if (dist(x, z, this.cityCenter.x, this.cityCenter.z) < this.cityRadius + 5) return;
     const enemy = CharacterBuilder.build(Math.random() < 0.5 ? 'iron_orc' : 'ash_elf');
-    enemy.scale.setScalar(0.45);
+    enemy.scale.setScalar(0.48);
+    enemy.userData.baseScale = 0.48;
     enemy.position.set(x, 0.1, z);
     enemy.userData.isEnemy = true;
-    enemy.userData.hp = 60;
-    enemy.userData.maxHp = 60;
-    enemy.userData.speed = rand(1.8, 3.2);
+    // Ночью враги сильнее
+    const nightBonus = this.dayTime > 0.7 || this.dayTime < 0.2 ? 1.4 : 1.0;
+    enemy.userData.hp = 55 * nightBonus;
+    enemy.userData.maxHp = 55 * nightBonus;
+    enemy.userData.speed = rand(1.6, 2.8) * nightBonus;
+    enemy.userData.damage = 7 * nightBonus;
     enemy.userData.attackCd = 0;
     enemy.userData.hitFlash = 0;
     enemy.userData.vel = new THREE.Vector3();
     enemy.userData.phase = rand(0, TAU);
-    // Красные глаза для врага
+    // Красные глаза
     enemy.traverse((o) => {
       if (o.material && o.material.emissive && o.material.emissive.r > 0.5) {
         o.material = o.material.clone();
@@ -1607,134 +1931,83 @@ class GameScene {
     this.enemies.push(enemy);
   }
 
-  // -------- Частицы (эффекты) --------
-  buildParticles() {
-    this.particleGroups = [];
-    // Пыль вокруг игрока
-    const count = 60;
-    const geo = new THREE.BufferGeometry();
-    const pos = new Float32Array(count * 3);
-    const col = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      pos[i * 3 + 0] = rand(-0.4, 0.4);
-      pos[i * 3 + 1] = rand(0, 1.5);
-      pos[i * 3 + 2] = rand(-0.4, 0.4);
-      const c = new THREE.Color().setHSL(0.08, 0.9, rand(0.6, 1.0));
-      col[i * 3 + 0] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
-    }
-    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-    const mat = new THREE.PointsMaterial({
-      size: 0.12, vertexColors: true, transparent: true,
-      opacity: 0.7, blending: THREE.AdditiveBlending,
-      depthWrite: false, map: this.makeGlowTex(),
-    });
-    const pts = new THREE.Points(geo, mat);
-    pts.userData.isPlayerDust = true;
-    this.scene.add(pts);
-    this.playerDust = pts;
-  }
-
-  makeGlowTex() {
-    const c = document.createElement('canvas');
-    c.width = c.height = 64;
-    const ctx = c.getContext('2d');
-    const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-    g.addColorStop(0, 'rgba(255,255,255,1)');
-    g.addColorStop(0.5, 'rgba(255,220,140,0.5)');
-    g.addColorStop(1, 'rgba(255,200,120,0)');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, 64, 64);
-    const t = new THREE.CanvasTexture(c);
-    t.colorSpace = THREE.SRGBColorSpace;
-    return t;
-  }
-
-  // -------- Дождь --------
+  // ---------- Дождь ----------
   buildRain() {
     const count = 800;
     const geo = new THREE.BufferGeometry();
     const pos = new Float32Array(count * 3);
     const vel = new Float32Array(count);
     for (let i = 0; i < count; i++) {
-      pos[i * 3 + 0] = rand(-40, 40);
-      pos[i * 3 + 1] = rand(0, 40);
-      pos[i * 3 + 2] = rand(-40, 40);
+      pos[i*3+0] = rand(-40, 40);
+      pos[i*3+1] = rand(0, 40);
+      pos[i*3+2] = rand(-40, 40);
       vel[i] = rand(18, 30);
     }
     geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    const mat = new THREE.PointsMaterial({
-      size: 0.15, color: 0xaaccff,
-      transparent: true, opacity: 0.0,
+    const rain = new THREE.Points(geo, new THREE.PointsMaterial({
+      size: 0.15, color: 0xaaccff, transparent: true, opacity: 0.0,
       blending: THREE.AdditiveBlending, depthWrite: false,
-    });
-    const rain = new THREE.Points(geo, mat);
+    }));
     rain.userData.vel = vel;
     this.scene.add(rain);
     this.rain = rain;
 
-    // Брызги-подсветка вокруг камеры (симулируем капли на объективе)
+    // Капли на "объективе"
     const dropCount = 40;
     const dropGeo = new THREE.BufferGeometry();
     const dropPos = new Float32Array(dropCount * 3);
     for (let i = 0; i < dropCount; i++) {
-      dropPos[i * 3 + 0] = rand(-1, 1);
-      dropPos[i * 3 + 1] = rand(-1, 1);
-      dropPos[i * 3 + 2] = -1.0;
+      dropPos[i*3+0] = rand(-1, 1);
+      dropPos[i*3+1] = rand(-1, 1);
+      dropPos[i*3+2] = -1.0;
     }
     dropGeo.setAttribute('position', new THREE.BufferAttribute(dropPos, 3));
-    const dropMat = new THREE.PointsMaterial({
-      size: 0.03, color: 0xffffff,
-      transparent: true, opacity: 0,
+    this.rainDrops = new THREE.Points(dropGeo, new THREE.PointsMaterial({
+      size: 0.03, color: 0xffffff, transparent: true, opacity: 0,
       blending: THREE.AdditiveBlending, depthWrite: false,
-    });
-    const drops = new THREE.Points(dropGeo, dropMat);
-    this.camera.add(drops);
+    }));
+    this.camera.add(this.rainDrops);
     this.scene.add(this.camera);
-    this.rainDrops = drops;
   }
 
-  // -------- Солнце и день/ночь --------
+  // ---------- Солнце / день-ночь ----------
   setSunElevation(elevDeg) {
     const phi = THREE.MathUtils.degToRad(90 - elevDeg);
     const theta = THREE.MathUtils.degToRad(180);
     this.sun.setFromSphericalCoords(1, phi, theta);
-    const uniforms = this.sky.material.uniforms;
-    uniforms['sunPosition'].value.copy(this.sun);
-    uniforms['turbidity'].value = 8;
-    uniforms['rayleigh'].value = 2.2;
-    uniforms['mieCoefficient'].value = 0.006;
-    uniforms['mieDirectionalG'].value = 0.75;
+    const u = this.sky.material.uniforms;
+    u['sunPosition'].value.copy(this.sun);
+    u['turbidity'].value = 8;
+    u['rayleigh'].value = 2.2;
+    u['mieCoefficient'].value = 0.006;
+    u['mieDirectionalG'].value = 0.75;
   }
 
   updateDayNight(dt) {
-    this.dayTime = (this.dayTime + dt / 120) % 1; // полный цикл = 120 сек
-    // Солнце: 0.25 = зенит, 0.75 = под землёй
+    this.dayTime = (this.dayTime + dt / 180) % 1;
     const elev = Math.sin((this.dayTime - 0.25) * TAU) * 90;
     this.setSunElevation(clamp(elev, -6, 90));
 
-    // Яркость и цвет света
     const dayFactor = clamp(elev / 60 + 0.15, 0, 1);
     this.keyLight.intensity = 0.2 + dayFactor * 3.0;
     this.keyLight.color.setHSL(lerp(0.07, 0.13, dayFactor), 0.7, lerp(0.35, 0.7, dayFactor));
     this.ambient.intensity = lerp(0.15, 0.5, dayFactor);
-    // Небо меняет яркость через экспозицию
     this.renderer.toneMappingExposure = lerp(0.55, 1.1, dayFactor);
 
-    // Туман
     const fogColor = new THREE.Color();
-    fogColor.setHSL(lerp(0.62, 0.08, dayFactor), lerp(0.5, 0.5, dayFactor), lerp(0.08, 0.55, dayFactor));
+    fogColor.setHSL(lerp(0.62, 0.08, dayFactor), 0.5, lerp(0.08, 0.55, dayFactor));
     this.scene.fog.color.copy(fogColor);
     this.renderer.setClearColor(fogColor);
+
+    // Ночью враги злее — множитель применяется при спавне, но и AI активнее
+    this._nightAggression = 1 + (1 - dayFactor) * 0.6;
   }
 
   updateWeather(dt) {
-    // Целевой уровень дождя меняется случайно раз в ~30 сек
-    if (Math.random() < dt / 30) {
-      this.weather.targetRain = Math.random() < 0.4 ? 1 : 0;
+    if (Math.random() < dt / 40) {
+      this.weather.targetRain = Math.random() < 0.35 ? 1 : 0;
     }
     this.weather.rain = lerp(this.weather.rain, this.weather.targetRain, 1 - Math.pow(0.001, dt));
-
     if (this.rain) {
       this.rain.material.opacity = this.weather.rain * 0.7;
       const pos = this.rain.geometry.attributes.position;
@@ -1751,10 +2024,7 @@ class GameScene {
       }
       pos.needsUpdate = true;
     }
-    if (this.rainDrops) {
-      this.rainDrops.material.opacity = this.weather.rain * 0.6;
-    }
-    // Мокрая поверхность — меняем roughness
+    if (this.rainDrops) this.rainDrops.material.opacity = this.weather.rain * 0.6;
     if (this.ground && this.ground.material) {
       this.ground.material.roughness = lerp(0.92, 0.55, this.weather.rain);
       this.ground.material.metalness = lerp(0.03, 0.25, this.weather.rain);
@@ -1762,8 +2032,6 @@ class GameScene {
   }
 
   updateGrass(dt) {
-    // Покачивание травы (упрощённо, на CPU через instanceMatrix)
-    // Для производительности обновляем только часть каждый кадр
     if (!this.grass || !this.grassData) return;
     this.grassTime += dt;
     const dummy = new THREE.Object3D();
@@ -1782,104 +2050,173 @@ class GameScene {
     this.grass.instanceMatrix.needsUpdate = true;
   }
 
-  // -------- Игрок --------
+  updateBanners(dt) {
+    const t = this.time;
+    if (this.cityGroup) {
+      this.cityGroup.traverse((o) => {
+        if (o.userData.isBanner) {
+          const phase = o.userData.phase || 0;
+          const geo = o.geometry;
+          const pos = geo.attributes.position;
+          for (let i = 0; i < pos.count; i++) {
+            const y = pos.getY(i);
+            pos.setZ(i, Math.sin(t * 2 + phase + y * 2) * 0.08 * y);
+          }
+          pos.needsUpdate = true;
+        }
+        if (o.userData.isHalo) {
+          o.rotation.z = t * 0.8;
+        }
+      });
+    }
+  }
+
+  // ---------- Игрок ----------
   updatePlayer(dt) {
     const p = this.player;
     if (!p) return;
-    const input = this.playerInput;
     p.userData.attackCd = Math.max(0, p.userData.attackCd - dt);
     p.userData.hitFlash = Math.max(0, p.userData.hitFlash - dt);
 
-    // Движение
-    const speed = 6;
-    const targetVx = input.moveX * speed;
-    const targetVz = input.moveY * speed;
-    p.userData.vel.x = lerp(p.userData.vel.x, targetVx, 1 - Math.pow(0.001, dt));
-    p.userData.vel.z = lerp(p.userData.vel.z, targetVz, 1 - Math.pow(0.001, dt));
+    const input = this.playerInput;
+    // Скорость зависит от усталости
+    const fatigueFactor = 1 - this.hud.fatigue * 0.4;
+    const speed = 6 * fatigueFactor;
+    const tx = input.moveX * speed;
+    const tz = input.moveY * speed;
+    p.userData.vel.x = lerp(p.userData.vel.x, tx, 1 - Math.pow(0.001, dt));
+    p.userData.vel.z = lerp(p.userData.vel.z, tz, 1 - Math.pow(0.001, dt));
     p.position.x += p.userData.vel.x * dt;
     p.position.z += p.userData.vel.z * dt;
 
-    // Ориентация
     const mag = Math.hypot(input.moveX, input.moveY);
     if (mag > 0.1) {
-      const targetFacing = Math.atan2(input.moveX, input.moveY);
-      let diff = targetFacing - p.rotation.y;
+      const tf = Math.atan2(input.moveX, input.moveY);
+      let diff = tf - p.rotation.y;
       while (diff > Math.PI) diff -= TAU;
       while (diff < -Math.PI) diff += TAU;
       p.rotation.y += diff * (1 - Math.pow(0.0001, dt));
+      // Тратим стамину при беге
+      this.hud.stamina = Math.max(0, this.hud.stamina - dt * 8);
+    } else {
+      // Восстанавливаем стамину в покое
+      this.hud.stamina = Math.min(this.hud.maxStamina, this.hud.stamina + dt * 15);
+    }
+    // Восстанавливаем стамину в городе быстрее
+    if (this.isInCity()) {
+      this.hud.stamina = Math.min(this.hud.maxStamina, this.hud.stamina + dt * 20);
+      this.hud.fatigue = Math.max(0, this.hud.fatigue - dt * 0.15);
+    } else {
+      this.hud.fatigue = Math.min(1, this.hud.fatigue + dt * 0.01);
     }
 
-    // Ограничение по миру
-    p.position.x = clamp(p.position.x, -55, 55);
-    p.position.z = clamp(p.position.z, -55, 55);
+    p.position.x = clamp(p.position.x, -95, 95);
+    p.position.z = clamp(p.position.z, -95, 95);
 
-    // Покачивание при движении
     const moveSpeed = Math.hypot(p.userData.vel.x, p.userData.vel.z);
-    p.position.y = 0.1 + Math.sin(this.time * 12) * 0.02 * (moveSpeed / speed);
+    p.position.y = 0.1 + Math.sin(this.time * 12) * 0.02 * (moveSpeed / Math.max(speed, 0.001));
+
+    // Зона
+    this.currentZone = this.isInCity() ? 'city' : 'wild';
   }
 
-  // -------- Враги --------
+  isInCity() {
+    const p = this.player;
+    if (!p) return false;
+    return dist(p.position.x, p.position.z, this.cityCenter.x, this.cityCenter.z) < this.cityRadius - 2;
+  }
+
+  // ---------- NPC ----------
+  updateNPCs(dt) {
+    if (!this.player) return;
+    for (const npc of this.npcs) {
+      // Простая анимация приветствия
+      const d = dist(npc.position.x, npc.position.z, this.player.position.x, this.player.position.z);
+      npc.userData.playerNear = d < 3;
+      const t = this.time;
+      npc.position.y = 0.1 + Math.sin(t * 1.5 + npc.position.x) * 0.03;
+      npc.rotation.y = Math.sin(t * 0.5) * 0.3 + Math.PI;
+    }
+  }
+
+  // ---------- Враги ----------
   updateEnemies(dt) {
     const p = this.player;
     if (!p) return;
-    for (const e of this.enemies) {
-      if (!e) continue;
+    const aggroBonus = this._nightAggression || 1;
+    for (let i = this.enemies.length - 1; i >= 0; i--) {
+      const e = this.enemies[i];
+      if (!e || e.userData.hp <= 0) continue;
       e.userData.attackCd = Math.max(0, e.userData.attackCd - dt);
       e.userData.hitFlash = Math.max(0, e.userData.hitFlash - dt);
       e.userData.phase += dt;
 
-      // Простая AI: движемся к игроку
+      // В городе враги не появляются, но если игрок притащил — они убегают
+      if (this.isInCity()) {
+        const away = Math.atan2(e.position.x - this.cityCenter.x, e.position.z - this.cityCenter.z);
+        e.userData.vel.x = lerp(e.userData.vel.x, Math.sin(away) * 3, 1 - Math.pow(0.01, dt));
+        e.userData.vel.z = lerp(e.userData.vel.z, Math.cos(away) * 3, 1 - Math.pow(0.01, dt));
+        e.position.x += e.userData.vel.x * dt;
+        e.position.z += e.userData.vel.z * dt;
+        continue;
+      }
+
       const dx = p.position.x - e.position.x;
       const dz = p.position.z - e.position.z;
       const d = Math.hypot(dx, dz);
-      if (d > 1.2 && d < 30) {
+      const aggroRange = 14 * aggroBonus;
+      if (d > 1.2 && d < aggroRange) {
         const nx = dx / d, nz = dz / d;
         e.userData.vel.x = lerp(e.userData.vel.x, nx * e.userData.speed, 1 - Math.pow(0.01, dt));
         e.userData.vel.z = lerp(e.userData.vel.z, nz * e.userData.speed, 1 - Math.pow(0.01, dt));
         e.position.x += e.userData.vel.x * dt;
         e.position.z += e.userData.vel.z * dt;
-        // Разворот
-        const targetFacing = Math.atan2(nx, nz);
-        let diff = targetFacing - e.rotation.y;
+        const tf = Math.atan2(nx, nz);
+        let diff = tf - e.rotation.y;
         while (diff > Math.PI) diff -= TAU;
         while (diff < -Math.PI) diff += TAU;
         e.rotation.y += diff * (1 - Math.pow(0.001, dt));
       } else if (d <= 1.6 && e.userData.attackCd <= 0) {
-        e.userData.attackCd = 1.2;
-        // Урон игроку
-        this.hud.hp = Math.max(0, this.hud.hp - 8);
+        e.userData.attackCd = 1.3;
+        this.hud.hp = Math.max(0, this.hud.hp - e.userData.damage);
         p.userData.hitFlash = 0.2;
-        // Вспышка
-        const flash = document.getElementById('dmgFlash');
-        if (flash) {
-          flash.classList.add('hit');
-          setTimeout(() => flash.classList.remove('hit'), 150);
-        }
-        this.showToast('ВРАГ ПОРАЖАЕТ');
+        const flash = $('dmgFlash');
+        if (flash) { flash.classList.add('hit'); setTimeout(() => flash.classList.remove('hit'), 140); }
+        if (this.hud.hp <= 0) this.respawnPlayer();
       }
-      // Визуальное покачивание
       e.position.y = 0.1 + Math.sin(e.userData.phase * 5) * 0.03;
     }
   }
 
-  // -------- Атака игрока --------
+  respawnPlayer() {
+    const p = this.player;
+    if (!p) return;
+    p.position.set(this.cityCenter.x, 0.1, this.cityCenter.z + 5);
+    this.hud.hp = this.hud.maxHp;
+    this.hud.mana = this.hud.maxMana;
+    this.hud.fatigue = 0;
+    this.showToast('ВОЗРОЖДЕНИЕ У ОБЕЛИСКА');
+  }
+
+  // ---------- Атаки ----------
   playerAttack(type) {
     const p = this.player;
     if (!p || p.userData.attackCd > 0) return;
-    p.userData.attackCd = type === 'heavy' ? 0.7 : 0.35;
+    if (this.hud.stamina < (type === 'heavy' ? 25 : 10)) {
+      this.showToast('НЕ ХВАТАЕТ СТАМИНЫ');
+      return;
+    }
+    this.hud.stamina -= type === 'heavy' ? 25 : 10;
+    p.userData.attackCd = type === 'heavy' ? 0.75 : 0.35;
 
-    // Анимируем руку
-    const arm = p.getObjectByProperty('userData', 'isArm');
-    // Найти правую руку
     let rightArm = null;
     p.traverse((o) => { if (o.userData.isArm && o.userData.side === 1) rightArm = o; });
     if (rightArm) {
-      const origRot = rightArm.rotation.z;
+      const orig = rightArm.rotation.z;
       rightArm.rotation.z = -0.9;
-      setTimeout(() => { if (rightArm) rightArm.rotation.z = origRot; }, 150);
+      setTimeout(() => { if (rightArm) rightArm.rotation.z = orig; }, 150);
     }
 
-    // Ищем ближайшего врага в радиусе
     const range = type === 'heavy' ? 3.5 : 2.5;
     const facing = p.rotation.y;
     let hitCount = 0;
@@ -1889,29 +2226,23 @@ class GameScene {
       const dz = e.position.z - p.position.z;
       const d = Math.hypot(dx, dz);
       if (d > range) continue;
-      // Проверка угла
       const ang = Math.atan2(dx, dz);
       let diff = ang - facing;
       while (diff > Math.PI) diff -= TAU;
       while (diff < -Math.PI) diff += TAU;
       if (Math.abs(diff) > 1.4) continue;
-      // Урон
       const dmg = type === 'heavy' ? 45 : 22;
       e.userData.hp -= dmg;
       e.userData.hitFlash = 0.25;
-      // Отталкивание
       e.userData.vel.x += (dx / d) * 6;
       e.userData.vel.z += (dz / d) * 6;
       hitCount++;
-      // Частицы
       this.spawnHitParticles(e.position, type === 'heavy');
-      this.showDamageNumber(e.position, dmg, type === 'heavy');
-      if (e.userData.hp <= 0) {
-        this.killEnemy(e);
-      }
+      this.showDamageNumber(e.position, dmg, type === 'heavy' ? 'heavy' : 'slash');
+      if (e.userData.hp <= 0) this.killEnemy(e);
     }
     if (hitCount === 0 && type === 'heavy') {
-      // Удар в воздух — пыль
+      const facing = p.rotation.y;
       this.spawnHitParticles({
         x: p.position.x + Math.sin(facing) * 2,
         y: 0.3,
@@ -1931,55 +2262,56 @@ class GameScene {
         else o.material.dispose();
       }
     });
-    this.hud.xp = (this.hud.xp || 0) + 25;
+    this.hud.xp += 25;
+    this.hud.gold += randi(3, 12);
+    this.hud.runes += Math.random() < 0.4 ? 1 : 0;
     if (this.hud.xp >= 100) {
       this.hud.xp -= 100;
-      this.hud.level = (this.hud.level || 1) + 1;
+      this.hud.level++;
       this.hud.maxHp += 15;
       this.hud.hp = this.hud.maxHp;
       this.hud.maxMana += 10;
       this.hud.mana = this.hud.maxMana;
-      this.showToast('УРОВЕНЬ ' + this.hud.level);
+      this.showToast('УРОВЕНЬ ' + this.hud.level, 'magic');
     }
-    // Спавним нового через 3 сек
     setTimeout(() => { if (this.rafId !== null) this.spawnEnemy(); }, 3000);
   }
 
   playerCast() {
-    if (this.hud.mana < 15) return;
+    if (this.hud.mana < 15) { this.showToast('НЕ ХВАТАЕТ МАНЫ'); return; }
     this.hud.mana -= 15;
     const p = this.player;
     if (!p) return;
     const facing = p.rotation.y;
     const cx = p.position.x + Math.sin(facing) * 3;
     const cz = p.position.z + Math.cos(facing) * 3;
-    // Сфера-снаряд
+
+    // Визуальный снаряд
     const sphere = new THREE.Mesh(
       new THREE.SphereGeometry(0.3, 16, 16),
       new THREE.MeshBasicMaterial({ color: 0xb85aff, transparent: true, opacity: 0.9 })
     );
     sphere.position.set(cx, 1.2, cz);
     this.scene.add(sphere);
-    // Анимация снаряда
     const startTime = this.time;
-    const duration = 0.6;
+    const duration = 0.55;
     const tick = () => {
-      if (!sphere.parent || this.time - startTime > duration) {
+      if (!sphere.parent) return;
+      const t = (this.time - startTime) / duration;
+      if (t >= 1) {
         this.scene.remove(sphere);
         sphere.geometry.dispose();
         sphere.material.dispose();
         return;
       }
-      const t = (this.time - startTime) / duration;
-      sphere.scale.setScalar(1 + t * 1.5);
+      sphere.scale.setScalar(1 + t * 1.8);
       requestAnimationFrame(tick);
     };
     tick();
-    // Урон в радиусе
+
     for (const e of this.enemies) {
       if (!e) continue;
-      const d = dist(cx, cz, e.position.x, e.position.z);
-      if (d < 3) {
+      if (dist(cx, cz, e.position.x, e.position.z) < 3) {
         e.userData.hp -= 55;
         e.userData.hitFlash = 0.3;
         this.spawnHitParticles(e.position, true);
@@ -1991,11 +2323,10 @@ class GameScene {
   }
 
   playerUlt() {
-    if (this.hud.mana < 40) return;
+    if (this.hud.mana < 40) { this.showToast('НЕ ХВАТАЕТ МАНЫ'); return; }
     this.hud.mana -= 40;
     const p = this.player;
     if (!p) return;
-    // Взрыв вокруг игрока
     for (const e of Array.from(this.enemies)) {
       if (!e) continue;
       const d = dist(p.position.x, p.position.z, e.position.x, e.position.z);
@@ -2012,9 +2343,8 @@ class GameScene {
         if (e.userData.hp <= 0) this.killEnemy(e);
       }
     }
-    // Мощная вспышка
     this.spawnUltBurst(p.position);
-    this.showToast('РАЗЛОМ ОТКРЫТ');
+    this.showToast('РАЗЛОМ ОТКРЫТ', 'magic');
   }
 
   spawnHitParticles(pos, big) {
@@ -2068,8 +2398,7 @@ class GameScene {
       const geo = new THREE.SphereGeometry(rand(0.06, 0.2), 6, 6);
       const mat = new THREE.MeshBasicMaterial({
         color: new THREE.Color().setHSL(rand(0.75, 0.9), 0.9, 0.65),
-        transparent: true, opacity: 0.9,
-        blending: THREE.AdditiveBlending,
+        transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending,
       });
       const pt = new THREE.Mesh(geo, mat);
       pt.position.set(pos.x, rand(0.5, 1.5), pos.z);
@@ -2089,8 +2418,8 @@ class GameScene {
       pt.userData.life -= dt;
       if (pt.userData.life <= 0) {
         this.scene.remove(pt);
-        pt.geometry.dispose();
-        pt.material.dispose();
+        if (pt.geometry) pt.geometry.dispose();
+        if (pt.material) pt.material.dispose();
         continue;
       }
       pt.position.x += pt.userData.vx * dt;
@@ -2108,7 +2437,6 @@ class GameScene {
   }
 
   showDamageNumber(pos, dmg, kind) {
-    // Создаём спрайт с цифрой
     const c = document.createElement('canvas');
     c.width = 128; c.height = 64;
     const ctx = c.getContext('2d');
@@ -2126,67 +2454,131 @@ class GameScene {
     ctx.fillText('-' + dmg, 64, 32);
     const tex = new THREE.CanvasTexture(c);
     tex.colorSpace = THREE.SRGBColorSpace;
-    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false });
-    const sprite = new THREE.Sprite(mat);
+    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }));
     sprite.position.set(pos.x, pos.y + 1.6, pos.z);
     sprite.scale.set(1.5, 0.75, 1);
     sprite.userData.vy = 2.2;
     sprite.userData.life = 1.0;
     sprite.userData.maxLife = 1.0;
+    sprite.userData.isFloat = true;
     this.scene.add(sprite);
     this.particleGroups.push(sprite);
   }
 
-  updateDamageNumbers(dt) {
-    // Обрабатываем спрайты урона — они уже в particleGroups, но им нужна отдельная логика
+  updateFloatNumbers(dt) {
     for (const pt of this.particleGroups) {
-      if (pt.isSprite && pt.userData.vy !== undefined && pt.userData.maxLife === 1.0) {
+      if (pt.userData.isFloat && pt.userData.vy !== undefined) {
         pt.position.y += pt.userData.vy * dt;
         pt.userData.vy *= 0.94;
       }
     }
   }
 
-  showToast(text) {
-    const wrap = document.getElementById('toasts');
-    if (!wrap) return;
-    const el = document.createElement('div');
-    el.className = 'toast';
-    el.textContent = text;
-    wrap.appendChild(el);
-    setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 1800);
+  // ---------- Лагерь ----------
+  buildCamp() {
+    const p = this.player;
+    if (!p || this.campActive) return;
+    this.campActive = true;
+    const cx = p.position.x + Math.sin(p.rotation.y) * 2;
+    const cz = p.position.z + Math.cos(p.rotation.y) * 2;
+
+    // Костёр
+    const fire = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.5, 0.7, 0.3, 8),
+      new THREE.MeshStandardMaterial({ color: 0x3a2a1a, roughness: 0.9 })
+    );
+    fire.position.set(cx, 0.15, cz);
+    fire.castShadow = true;
+    this.scene.add(fire);
+    // Поленья
+    for (let i = 0; i < 5; i++) {
+      const a = (i / 5) * TAU;
+      const log = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.06, 0.08, 0.8, 6),
+        new THREE.MeshStandardMaterial({ color: 0x2a1a10, roughness: 0.95 })
+      );
+      log.position.set(cx + Math.cos(a) * 0.3, 0.35, cz + Math.sin(a) * 0.3);
+      log.rotation.z = Math.PI / 2;
+      log.rotation.y = a;
+      log.castShadow = true;
+      this.scene.add(log);
+      this.campObjects.push(log);
+    }
+    // Пламя (спрайты + свет)
+    this.campFireLight = new THREE.PointLight(0xff8030, 12, 8, 2);
+    this.campFireLight.position.set(cx, 0.8, cz);
+    this.campFireLight.castShadow = true;
+    this.scene.add(this.campFireLight);
+    const flameMat = new THREE.MeshBasicMaterial({
+      color: 0xffa040, transparent: true, opacity: 0.85,
+      blending: THREE.AdditiveBlending, depthWrite: false,
+    });
+    this.campFlames = [];
+    for (let i = 0; i < 3; i++) {
+      const flame = new THREE.Mesh(new THREE.ConeGeometry(0.25, 0.7, 6), flameMat.clone());
+      flame.position.set(cx + rand(-0.08, 0.08), 0.5 + i * 0.15, cz + rand(-0.08, 0.08));
+      flame.userData.baseY = flame.position.y;
+      flame.userData.phase = rand(0, TAU);
+      this.scene.add(flame);
+      this.campFlames.push(flame);
+    }
+    // Наковальня
+    const anvil = new THREE.Mesh(
+      new THREE.BoxGeometry(0.7, 0.3, 0.4),
+      new THREE.MeshStandardMaterial({ color: 0x2a2a2a, metalness: 0.9, roughness: 0.4 })
+    );
+    anvil.position.set(cx + 1.5, 0.55, cz);
+    anvil.castShadow = true;
+    this.scene.add(anvil);
+    const anvilBase = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.25, 0.3, 0.5, 8),
+      new THREE.MeshStandardMaterial({ color: 0x2a1a10, roughness: 0.9 })
+    );
+    anvilBase.position.set(cx + 1.5, 0.25, cz);
+    this.scene.add(anvilBase);
+    this.campObjects.push(anvil, anvilBase, fire);
+    this.showToast('ЛАГЕРЬ РАЗБИТ');
   }
 
-  // -------- Камера --------
+  updateCamp(dt) {
+    if (!this.campActive) return;
+    if (this.campFireLight) {
+      this.campFireLight.intensity = 10 + Math.sin(this.time * 20) * 3;
+    }
+    if (this.campFlames) {
+      for (const f of this.campFlames) {
+        f.position.y = f.userData.baseY + Math.sin(this.time * 8 + f.userData.phase) * 0.06;
+        f.scale.y = 1 + Math.sin(this.time * 6 + f.userData.phase) * 0.15;
+      }
+    }
+  }
+
+  // ---------- Камера ----------
   updateCamera(dt) {
     const p = this.player;
     if (!p) return;
-    // Камера следует за игроком с лагом
     const camTargetX = p.position.x;
     const camTargetZ = p.position.z + 9;
     this.camera.position.x = lerp(this.camera.position.x, camTargetX, 1 - Math.pow(0.0005, dt));
     this.camera.position.z = lerp(this.camera.position.z, camTargetZ, 1 - Math.pow(0.0005, dt));
     this.camera.position.y = lerp(this.camera.position.y, 6, 1 - Math.pow(0.001, dt));
     this.camera.lookAt(p.position.x, 1.2, p.position.z);
-
-    // Тряска при получении урона
     if (p.userData.hitFlash > 0) {
-      const shake = p.userData.hitFlash * 15;
-      this.camera.position.x += rand(-shake, shake) * 0.02;
-      this.camera.position.y += rand(-shake, shake) * 0.02;
+      const s = p.userData.hitFlash * 15;
+      this.camera.position.x += rand(-s, s) * 0.02;
+      this.camera.position.y += rand(-s, s) * 0.02;
     }
   }
 
-  // -------- Мини-карта --------
+  // ---------- Мини-карта ----------
   updateMinimap() {
     const ctx = this.minimapCtx;
     if (!ctx || !this.player) return;
     const W = this.minimapCanvas.width;
     const H = this.minimapCanvas.height;
     const p = this.player;
-    const range = 40;
+    const range = 60;
     ctx.clearRect(0, 0, W, H);
-    // Фон
     const grad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W/2);
     grad.addColorStop(0, 'rgba(20,30,60,0.7)');
     grad.addColorStop(1, 'rgba(5,8,20,0.95)');
@@ -2195,40 +2587,60 @@ class GameScene {
     // Сетка
     ctx.strokeStyle = 'rgba(120,200,255,0.15)';
     ctx.lineWidth = 1;
-    for (let g = -range; g <= range; g += 10) {
+    for (let g = -range; g <= range; g += 20) {
       const nx = W/2 + (g / range) * (W/2);
       const ny = H/2 + (g / range) * (H/2);
       ctx.beginPath(); ctx.moveTo(nx, 0); ctx.lineTo(nx, H); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(0, ny); ctx.lineTo(W, ny); ctx.stroke();
     }
+    const toScreen = (wx, wz) => ({
+      x: W/2 + ((wx - p.position.x) / range) * (W/2),
+      y: H/2 + ((wz - p.position.z) / range) * (H/2),
+    });
+    // Город
+    const cityScreen = toScreen(this.cityCenter.x, this.cityCenter.z);
+    const cityR = (this.cityRadius / range) * (W/2);
+    ctx.fillStyle = 'rgba(124, 217, 255, 0.12)';
+    ctx.strokeStyle = 'rgba(124, 217, 255, 0.5)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(cityScreen.x, cityScreen.y, cityR, 0, TAU);
+    ctx.fill();
+    ctx.stroke();
     // Деревья
-    for (const t of this.trees.children) {
-      const dx = t.position.x - p.position.x;
-      const dz = t.position.z - p.position.z;
-      if (Math.abs(dx) > range || Math.abs(dz) > range) continue;
-      const sx = W/2 + (dx / range) * (W/2);
-      const sy = H/2 + (dz / range) * (H/2);
-      ctx.fillStyle = 'rgba(60,120,60,0.7)';
+    ctx.fillStyle = 'rgba(60,120,60,0.7)';
+    if (this.trees) {
+      for (const t of this.trees.children) {
+        const s = toScreen(t.position.x, t.position.z);
+        if (s.x < 0 || s.y < 0 || s.x > W || s.y > H) continue;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, 2, 0, TAU);
+        ctx.fill();
+      }
+    }
+    // NPC
+    for (const n of this.npcs) {
+      const s = toScreen(n.position.x, n.position.z);
+      ctx.fillStyle = '#ffe7b0';
+      ctx.shadowColor = '#ffd88a';
+      ctx.shadowBlur = 6;
       ctx.beginPath();
-      ctx.arc(sx, sy, 2.5, 0, TAU);
+      ctx.arc(s.x, s.y, 4, 0, TAU);
       ctx.fill();
+      ctx.shadowBlur = 0;
     }
     // Враги
     for (const e of this.enemies) {
-      const dx = e.position.x - p.position.x;
-      const dz = e.position.z - p.position.z;
-      if (Math.abs(dx) > range || Math.abs(dz) > range) continue;
-      const sx = W/2 + (dx / range) * (W/2);
-      const sy = H/2 + (dz / range) * (H/2);
+      const s = toScreen(e.position.x, e.position.z);
       ctx.fillStyle = '#ff4040';
       ctx.shadowColor = '#ff2020';
       ctx.shadowBlur = 8;
       ctx.beginPath();
-      ctx.arc(sx, sy, 4, 0, TAU);
+      ctx.arc(s.x, s.y, 4, 0, TAU);
       ctx.fill();
       ctx.shadowBlur = 0;
     }
-    // Игрок — стрелка
+    // Игрок
     ctx.save();
     ctx.translate(W/2, H/2);
     ctx.rotate(p.rotation.y);
@@ -2236,38 +2648,65 @@ class GameScene {
     ctx.shadowColor = '#7cd9ff';
     ctx.shadowBlur = 10;
     ctx.beginPath();
-    ctx.moveTo(0, -8);
-    ctx.lineTo(5, 6);
-    ctx.lineTo(0, 3);
-    ctx.lineTo(-5, 6);
+    ctx.moveTo(0, -10);
+    ctx.lineTo(6, 7);
+    ctx.lineTo(0, 4);
+    ctx.lineTo(-6, 7);
     ctx.closePath();
     ctx.fill();
     ctx.restore();
   }
 
-  updateHUD() {
-    const hpLbl = document.getElementById('orbHpLbl');
-    const manaLbl = document.getElementById('orbManaLbl');
-    const orbHp = document.getElementById('orbHp');
-    const orbMana = document.getElementById('orbMana');
-    const uiLevel = document.getElementById('uiLevel');
-    const uiTime = document.getElementById('uiTime');
+  // ---------- HUD ----------
+  updateHUD(dt) {
+    const hpLbl = $('orbHpLbl');
+    const manaLbl = $('orbManaLbl');
+    const orbHp = $('orbHp');
+    const orbMana = $('orbMana');
+    const uiLevel = $('uiLevel');
+    const uiTime = $('uiTime');
+    const uiZone = $('uiZone');
+    const uiGold = $('uiGold');
+    const staminaBar = $('staminaBar');
     if (hpLbl) hpLbl.textContent = String(Math.round(this.hud.hp));
     if (manaLbl) manaLbl.textContent = String(Math.round(this.hud.mana));
     if (orbHp) orbHp.style.setProperty('--pct', (this.hud.hp / this.hud.maxHp * 100) + '%');
     if (orbMana) orbMana.style.setProperty('--pct', (this.hud.mana / this.hud.maxMana * 100) + '%');
     if (uiLevel) uiLevel.textContent = String(this.hud.level);
-    // Время
+    if (uiGold) uiGold.textContent = String(this.hud.gold);
+    if (staminaBar) staminaBar.style.width = (this.hud.stamina / this.hud.maxStamina * 100) + '%';
     if (uiTime) {
       const h = Math.floor(this.dayTime * 24);
       const m = Math.floor((this.dayTime * 24 - h) * 60);
       uiTime.textContent = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
     }
-    // Мана регенерируется
-    this.hud.mana = clamp(this.hud.mana + 6 * 0.016, 0, this.hud.maxMana);
+    if (uiZone) {
+      const isCity = this.isInCity();
+      uiZone.textContent = isCity ? 'Тихий Причал' : 'Лес Шепчущих';
+      uiZone.className = 'val ' + (isCity ? 'zone-city' : 'zone-wild');
+    }
+    // Реген маны и HP
+    this.hud.mana = clamp(this.hud.mana + 6 * dt, 0, this.hud.maxMana);
+    if (this.isInCity()) {
+      this.hud.hp = clamp(this.hud.hp + 8 * dt, 0, this.hud.maxHp);
+    } else if (this.hud.fatigue > 0.5) {
+      // Усталость замедляет реген
+      this.hud.hp = clamp(this.hud.hp + 2 * dt * (1 - this.hud.fatigue), 0, this.hud.maxHp);
+    } else {
+      this.hud.hp = clamp(this.hud.hp + 3 * dt, 0, this.hud.maxHp);
+    }
   }
 
-  // -------- Resize --------
+  showToast(text, kind) {
+    const wrap = $('toasts');
+    if (!wrap) return;
+    const el = document.createElement('div');
+    el.className = 'toast' + (kind ? ' ' + kind : '');
+    el.textContent = text;
+    wrap.appendChild(el);
+    setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 1800);
+  }
+
   resize() {
     const w = window.innerWidth, h = window.innerHeight;
     this.renderer.setSize(w, h, false);
@@ -2276,7 +2715,7 @@ class GameScene {
     if (this.composer) this.composer.setSize(w, h);
   }
 
-  // -------- Запуск --------
+  // ---------- Запуск ----------
   start() {
     if (this.rafId !== null) return;
     const loop = () => {
@@ -2284,22 +2723,20 @@ class GameScene {
       try {
         const dt = Math.min(this.clock.getDelta(), 0.05);
         this.time += dt;
-
         this.updateDayNight(dt);
         this.updateWeather(dt);
         this.updatePlayer(dt);
         this.updateEnemies(dt);
+        this.updateNPCs(dt);
         this.updateParticles(dt);
-        this.updateDamageNumbers(dt);
+        this.updateFloatNumbers(dt);
         this.updateGrass(dt);
+        this.updateBanners(dt);
+        this.updateCamp(dt);
         this.updateCamera(dt);
-
-        // Частицы вокруг игрока
-        if (this.playerDust && this.player) {
-          this.playerDust.position.copy(this.player.position);
-        }
-
-        // Синхронизация источников света с игроком
+        // Облака плывут
+        if (this.clouds) this.clouds.rotation.y += dt * 0.005;
+        // Свет следует за игроком
         if (this.player) {
           this.keyLight.target.position.copy(this.player.position);
           this.keyLight.position.set(
@@ -2308,35 +2745,79 @@ class GameScene {
             this.player.position.z + 20
           );
         }
-
-        this.updateHUD();
+        this.updateHUD(dt);
         this.updateMinimap();
-
         if (this.gradePass) this.gradePass.uniforms.uTime.value = this.time;
-
         this.composer.render();
-      } catch (e) { console.error('[GameScene] loop:', e); }
+      } catch (e) { console.error('[GameScene]', e); }
     };
     loop();
   }
 
   stop() {
-    if (this.rafId !== null) {
-      cancelAnimationFrame(this.rafId);
-      this.rafId = null;
+    if (this.rafId !== null) { cancelAnimationFrame(this.rafId); this.rafId = null; }
+  }
+
+  dispose() {
+    this.stop();
+    // Освобождаем ресурсы
+    this.scene.traverse((o) => {
+      if (o.geometry) o.geometry.dispose();
+      if (o.material) {
+        if (Array.isArray(o.material)) o.material.forEach(m => m.dispose());
+        else o.material.dispose();
+      }
+    });
+    this.renderer.dispose();
+  }
+}
+
+// ----------------------------------------------------------------------------
+// 6. PWA — РЕГИСТРАЦИЯ SERVICE WORKER + INSTALL PROMPT
+// ----------------------------------------------------------------------------
+class PWA {
+  static init() {
+    // Регистрируем Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then((reg) => console.log('[PWA] SW зарегистрирован:', reg.scope))
+          .catch((err) => console.warn('[PWA] SW ошибка:', err));
+      });
+    }
+    // Ловим beforeinstallprompt
+    this.deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      this.deferredPrompt = e;
+      const btn = $('btnInstall');
+      if (btn) btn.style.display = 'inline-block';
+    });
+    const btn = $('btnInstall');
+    if (btn) {
+      btn.addEventListener('click', async () => {
+        if (!this.deferredPrompt) {
+          alert('Установка недоступна: откройте меню браузера → «Добавить на главный экран».');
+          return;
+        }
+        this.deferredPrompt.prompt();
+        const { outcome } = await this.deferredPrompt.userChoice;
+        console.log('[PWA] Install outcome:', outcome);
+        this.deferredPrompt = null;
+        btn.style.display = 'none';
+      });
+    }
+    // Скрываем кнопку если установлено
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      const b = $('btnInstall');
+      if (b) b.style.display = 'none';
     }
   }
 }
 
-// Вспомогательная функция smoothstep
-function smoothstep(a, b, x) {
-  const t = clamp((x - a) / (b - a), 0, 1);
-  return t * t * (3 - 2 * t);
-}
-
-// ============================================================
-// 6. ПРИЛОЖЕНИЕ — оркестратор
-// ============================================================
+// ----------------------------------------------------------------------------
+// 7. ГЛАВНЫЙ ОРКЕСТРАТОР
+// ----------------------------------------------------------------------------
 class App {
   constructor() {
     this.menuCanvas = must($('menuCanvas'), 'menuCanvas');
@@ -2345,19 +2826,23 @@ class App {
     this.gameEl = must($('game'), 'game');
     this.loaderEl = must($('loader'), 'loader');
     this.loaderStatus = $('loaderStatus');
+    this.loaderBar = $('loaderBar');
 
     this.menuScene = null;
     this.gameScene = null;
     this.currentRace = RACES[0].id;
-    this.mode = 'loading'; // loading | menu | game
+    this.mode = 'loading';
 
     this.initRacesUI();
     this.initButtons();
     this.initGameInput();
+    this.initCampMenu();
+    this.initDialogue();
   }
 
-  setLoaderStatus(text) {
+  setLoaderStatus(text, pct) {
     if (this.loaderStatus) this.loaderStatus.textContent = text;
+    if (this.loaderBar && pct !== undefined) this.loaderBar.style.width = (pct * 100) + '%';
   }
 
   initRacesUI() {
@@ -2382,11 +2867,9 @@ class App {
     this.currentRace = raceId;
     const race = RACES.find(r => r.id === raceId);
     if (!race) return;
-    // UI
     document.querySelectorAll('.race-card').forEach((el) => {
       el.classList.toggle('active', el.dataset.raceId === raceId);
     });
-    // Статы
     const setStat = (id, barId, val) => {
       const el = $(id); const bar = $(barId);
       if (el) el.textContent = String(val);
@@ -2396,49 +2879,20 @@ class App {
     setStat('statAgi', 'barAgi', race.stats.agi);
     setStat('statInt', 'barInt', race.stats.int);
     setStat('statEth', 'barEth', race.stats.eth);
-    // 3D
-    if (this.menuScene) {
-      this.menuScene.setRace(raceId);
-      // Небольшая смена камеры
-      if (raceId === 'iron_orc') {
-        this.menuScene.targetCamPos.set(0.4, 2.0, 5.2);
-        this.menuScene.targetCamLook.set(0, 1.4, 0);
-      } else if (raceId === 'cyber_angel') {
-        this.menuScene.targetCamPos.set(-0.4, 2.6, 5.8);
-        this.menuScene.targetCamLook.set(0, 1.7, 0);
-      } else {
-        this.menuScene.targetCamPos.set(0, 2.4, 6);
-        this.menuScene.targetCamLook.set(0, 1.6, 0);
-      }
-    }
+    if (this.menuScene) this.menuScene.setRace(raceId);
     if (!silent) console.log('[Apex] Выбрана раса:', race.name);
   }
 
   initButtons() {
     const btnEnter = $('btnEnter');
     const btnEnterText = $('btnEnterText');
-    if (btnEnter) {
-      btnEnter.addEventListener('click', safe(() => this.enterGame()));
-    }
+    if (btnEnter) btnEnter.addEventListener('click', safe(() => this.enterGame()));
     const btnSettings = $('btnSettings');
-    if (btnSettings) {
-      btnSettings.addEventListener('click', () => this.toastMenu('Настройки: скоро'));
-    }
-    const btnHelp = $('btnHelp');
-    if (btnHelp) {
-      btnHelp.addEventListener('click', () => this.toastMenu('Помощь: скоро'));
-    }
-    // Кнопки в игре
-    const btnAttack = $('btnAttack');
-    const btnCast = $('btnCast');
-    const btnUlt = $('btnUlt');
-    if (btnAttack && this.gameScene === null) {
-      // навесим позже, когда создадим gameScene
-    }
+    if (btnSettings) btnSettings.addEventListener('click', () => this.toastMenu('Настройки: скоро'));
   }
 
   toastMenu(text) {
-    const wrap = document.getElementById('toasts');
+    const wrap = $('toasts');
     if (!wrap) return;
     const el = document.createElement('div');
     el.className = 'toast';
@@ -2448,49 +2902,49 @@ class App {
   }
 
   initGameInput() {
-    // Кнопки атаки/каста/ульта привязываются после входа в игру
-    this.actionHandlers = [];
-  }
-
-  bindGameButtons() {
-    const btnAttack = $('btnAttack');
+    // Кнопки атаки/каста/уpointerльта/лагеря
+    const btnAttack = $('btnAttackup');
     const btnCast = $('btnCast');
-    const btnUlt = $('btnUlt');
-    if (btnAttack) {
-      const down = (e) => { e.preventDefault(); this.gameScene && this.gameScene.playerAttack('light'); };
-      const up = (e) => { e.preventDefault(); };
-      btnAttack.addEventListener('pointerdown', down, { passive: false });
-      btnAttack.addEventListener('pointerup', up, { passive: false });
-      // Удержание = тяжёлый удар
+   ', const btnUlt = $('btnUlt');
+    const clear btnCamp = $('btnCamp');
+
+    if (btn,Attack) {
       let holdTimer = null;
-      btnAttack.addEventListener('pointerdown', () => {
+      btnAttack.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        if (!this.gameScene) return;
+        this.gameScene.playerAttack('light');
         holdTimer = setTimeout(() => {
-          this.gameScene && this.gameScene.playerAttack('heavy');
+          if (this.gameScene) this.gameScene.playerAttack('heavy');
         }, 250);
-      });
-      btnAttack.addEventListener('pointerup', () => {
-        if (holdTimer) clearTimeout(holdTimer);
-      });
-      btnAttack.addEventListener('pointercancel', () => {
-        if (holdTimer) clearTimeout(holdTimer);
-      });
+      }, { passive: false });
+      const clear = () => { if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; } };
+      btnAttack.addEventListener(' { passive: false });
+      btnAttack.addEventListener('pointercancel', clear, { passive: false });
+      btnAttack.addEventListener('pointerleave', clear, { passive: false });
     }
     if (btnCast) {
       btnCast.addEventListener('pointerdown', (e) => {
         e.preventDefault();
-        this.gameScene && this.gameScene.playerCast();
+        if (this.gameScene) this.gameScene.playerCast();
       }, { passive: false });
     }
     if (btnUlt) {
       btnUlt.addEventListener('pointerdown', (e) => {
         e.preventDefault();
-        this.gameScene && this.gameScene.playerUlt();
+        if (this.gameScene) this.gameScene.playerUlt();
+      }, { passive: false });
+    }
+    if (btnCamp) {
+      btnCamp.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        this.openCampMenu();
       }, { passive: false });
     }
 
-    // Управление движением — джойстик через касания левой половины экрана
+    // Джойстик + тап по NPC
     const canvas = this.gameCanvas;
-    const state = { active: false, pointerId: null, baseX: 0, baseY: 0 };
+    const state = { active: false, pointerId: null, baseX: 0, baseY: 0, moved: false, startX: 0, startY: 0 };
     const onDown = (e) => {
       if (state.active) return;
       if (e.clientX > window.innerWidth * 0.55) return;
@@ -2498,6 +2952,9 @@ class App {
       state.pointerId = e.pointerId;
       state.baseX = e.clientX;
       state.baseY = e.clientY;
+      state.startX = e.clientX;
+      state.startY = e.clientY;
+      state.moved = false;
       try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
       e.preventDefault();
     };
@@ -2505,6 +2962,7 @@ class App {
       if (!state.active || state.pointerId !== e.pointerId) return;
       const dx = e.clientX - state.baseX;
       const dy = e.clientY - state.baseY;
+      if (Math.hypot(e.clientX - state.startX, e.clientY - state.startY) > 8) state.moved = true;
       const maxR = 90;
       const d = Math.hypot(dx, dy);
       let nx = dx, ny = dy;
@@ -2531,6 +2989,11 @@ class App {
         this.gameScene.playerInput.moveY = 0;
       }
       try { canvas.releasePointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+      // Тап по NPC — если не двигались и игра в городе
+      if (!state.moved && this.gameScene && this.gameScene.isInCity()) {
+        this.tryInteractNPC(e.clientX, e.clientY);
+      }
+      e.preventDefault();
     };
     canvas.addEventListener('pointerdown', onDown, { passive: false });
     canvas.addEventListener('pointermove', onMove, { passive: false });
@@ -2538,7 +3001,7 @@ class App {
     canvas.addEventListener('pointercancel', onUp, { passive: false });
     canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
-    // Клавиатура (для ПК)
+    // Клавиатура для ПК
     window.addEventListener('keydown', (e) => {
       if (!this.gameScene) return;
       const k = e.key.toLowerCase();
@@ -2549,6 +3012,7 @@ class App {
       if (k === ' ') { e.preventDefault(); this.gameScene.playerAttack('light'); }
       if (k === 'e') this.gameScene.playerCast();
       if (k === 'q') this.gameScene.playerUlt();
+      if (k === 'c') this.openCampMenu();
     });
     window.addEventListener('keyup', (e) => {
       if (!this.gameScene) return;
@@ -2560,27 +3024,195 @@ class App {
     });
   }
 
-  // -------- Запуск --------
+  // Проверка попадания тапа в NPC
+  tryInteractNPC(clientX, clientY) {
+    const gs = this.gameScene;
+    if (!gs || !gs.player) return;
+    // Проецируем мировые координаты NPC в экранные
+    const rect = this.gameCanvas.getBoundingClientRect();
+    const sx = clientX - rect.left;
+    const sy = clientY - rect.top;
+    const w = rect.width, h = rect.height;
+    for (const npc of gs.npcs) {
+      const pos = npc.position.clone();
+      pos.y += 1.0;
+      pos.project(gs.camera);
+      const nx = (pos.x * 0.5 + 0.5) * w;
+      const ny = (-pos.y * 0.5 + 0.5) * h;
+      const d = Math.hypot(nx - sx, ny - sy);
+      if (d < 80) {
+        this.openDialogue(npc);
+        return;
+      }
+    }
+  }
+
+  // ---------- Диалог NPC ----------
+  initDialogue() {
+    const closeBtn = document.createElement('button');
+    // Клик вне диалога закрывает
+    document.addEventListener('pointerdown', (e) => {
+      const dlg = $('dialogue');
+      if (!dlg || !dlg.classList.contains('open')) return;
+      if (!dlg.contains(e.target)) dlg.classList.remove('open');
+    }, { passive: true });
+  }
+
+  openDialogue(npc) {
+    const dlg = $('dialogue');
+    if (!dlg) return;
+    const d = npc.userData.dialog;
+    const dlgPortrait = $('dlgPortrait');
+    const dlgName = $('dlgName');
+    const dlgText = $('dlgText');
+    const dlgActions = $('dlgActions');
+    if (dlgPortrait) dlgPortrait.textContent = d.emoji;
+    if (dlgName) dlgName.textContent = d.name;
+    if (dlgText) dlgText.textContent = d.text;
+    if (dlgActions) {
+      dlgActions.innerHTML = '';
+      const actions = this.getMerchantActions(d.id);
+      for (const a of actions) {
+        const btn = document.createElement('button');
+        btn.className = 'dlg-action';
+        btn.textContent = a.label;
+        btn.addEventListener('click', () => {
+          a.run(this);
+          dlg.classList.remove('open');
+        });
+        dlgActions.appendChild(btn);
+      }
+    }
+    dlg.classList.add('open');
+  }
+
+  getMerchantActions(type) {
+    const gs = this.gameScene;
+    if (!gs) return [];
+    const actions = [];
+    if (type === 'potion') {
+      actions.push({
+        label: 'Купить зелье HP (30 золотых)',
+        run: (app) => {
+          if (gs.hud.gold < 30) { gs.showToast('НЕ ХВАТАЕТ ЗОЛОТА'); return; }
+          gs.hud.gold -= 30;
+          gs.hud.hp = Math.min(gs.hud.maxHp, gs.hud.hp + 50);
+          gs.showToast('+50 HP');
+        },
+      });
+      actions.push({
+        label: 'Купить зелье MP (30 золотых)',
+        run: (app) => {
+          if (gs.hud.gold < 30) { gs.showToast('НЕ ХВАТАЕТ ЗОЛОТА'); return; }
+          gs.hud.gold -= 30;
+          gs.hud.mana = Math.min(gs.hud.maxMana, gs.hud.mana + 40);
+          gs.showToast('+40 MP');
+        },
+      });
+    } else if (type === 'weapon') {
+      actions.push({
+        label: 'Заточить клинок (80 золотых)',
+        run: () => {
+          if (gs.hud.gold < 80) { gs.showToast('НЕ ХВАТАЕТ ЗОЛОТА'); return; }
+          gs.hud.gold -= 80;
+          gs.hud.maxHp += 10;
+          gs.hud.hp = gs.hud.maxHp;
+          gs.showToast('+10 МАКС. HP', 'magic');
+        },
+      });
+    } else if (type === 'armor') {
+      actions.push({
+        label: 'Починить броню (100 золотых)',
+        run: () => {
+          if (gs.hud.gold < 100) { gs.showToast('НЕ ХВАТАЕТ ЗОЛОТА'); return; }
+          gs.hud.gold -= 100;
+          gs.hud.maxHp += 20;
+          gs.hud.hp = gs.hud.maxHp;
+          gs.showToast('+20 МАКС. HP', 'magic');
+        },
+      });
+    } else if (type === 'runes') {
+      actions.push({
+        label: 'Купить руны (40 золотых ×3)',
+        run: () => {
+          if (gs.hud.gold < 40) { gs.showToast('НЕ ХВАТАЕТ ЗОЛОТА'); return; }
+          gs.hud.gold -= 40;
+          gs.hud.runes += 3;
+          gs.showToast('+3 РУНЫ');
+        },
+      });
+    }
+    actions.push({ label: 'Уйти', run: () => {} });
+    return actions;
+  }
+
+  // ---------- Лагерь ----------
+  initCampMenu() {
+    const menu = $('campMenu');
+    const close = $('closeCamp');
+    if (close && menu) close.addEventListener('click', () => menu.classList.remove('open'));
+    if (!menu) return;
+    menu.querySelectorAll('.camp-btn').forEach((btn) => {
+      btn.addEventListener('click', safe(() => {
+        const action = btn.dataset.action;
+        const gs = this.gameScene;
+        if (!gs) return;
+        if (action === 'fire') {
+          if (!gs.campActive) gs.buildCamp();
+          gs.hud.hp = Math.min(gs.hud.maxHp, gs.hud.hp + 60);
+          gs.hud.mana = Math.min(gs.hud.maxMana, gs.hud.mana + 40);
+          gs.showToast('+60 HP / +40 MP');
+        } else if (action === 'forge') {
+          gs.hud.maxHp += 20;
+          gs.hud.hp = gs.hud.maxHp;
+          gs.showToast('+20 МАКС. HP', 'magic');
+        } else if (action === 'alchemy') {
+          if (gs.hud.runes < 3) { gs.showToast('НУЖНО 3 РУНЫ'); return; }
+          gs.hud.runes -= 3;
+          gs.hud.gold += 15;
+          gs.showToast('+15 ЗОЛОТА (ЗЕЛЬЕ)');
+        } else if (action === 'rest') {
+          gs.hud.hp = gs.hud.maxHp;
+          gs.hud.mana = gs.hud.maxMana;
+          gs.hud.stamina = gs.hud.maxStamina;
+          gs.hud.fatigue = 0;
+          gs.showToast('ПОЛНОЕ ВОССТАНОВЛЕНИЕ', 'magic');
+        }
+        menu.classList.remove('open');
+      }));
+    });
+  }
+
+  openCampMenu() {
+    const menu = $('campMenu');
+    if (!menu || !this.gameScene) return;
+    if (this.gameScene.isInCity()) {
+      this.gameScene.showToast('В ГОРОДЕ НЕ НУЖЕН ЛАГЕРЬ');
+      return;
+    }
+    menu.classList.add('open');
+  }
+
+  // ---------- Запуск ----------
   async boot() {
     try {
-      this.setLoaderStatus('Загрузка шейдеров…');
-      await new Promise(r => setTimeout(r, 200));
-
-      this.setLoaderStatus('Компиляция сцены…');
+      this.setLoaderStatus('Загрузка шейдеров…', 0.2);
+      await new Promise(r => setTimeout(r, 250));
+      this.setLoaderStatus('Компиляция меню…', 0.5);
       this.menuScene = new MenuScene(this.menuCanvas);
       this.menuScene.setRace(this.currentRace);
-
-      this.setLoaderStatus('Готово');
+      await new Promise(r => setTimeout(r, 250));
+      this.setLoaderStatus('Подготовка ресурсов…', 0.8);
       await new Promise(r => setTimeout(r, 300));
-
-      // Скрываем лоадер
+      this.setLoaderStatus('Готово', 1.0);
+      await new Promise(r => setTimeout(r, 300));
       if (this.loaderEl) this.loaderEl.classList.add('hide');
       this.mode = 'menu';
       this.menuScene.start();
       console.log('[Apex] Меню загружено');
     } catch (e) {
-      console.error('[Apex] boot error:', e);
-      this.setLoaderStatus('Ошибка загрузки: ' + (e.message || 'неизвестная'));
+      console.error('[Apex] boot:', e);
+      this.setLoaderStatus('Ошибка: ' + (e.message || ''), 1);
     }
   }
 
@@ -2591,84 +3223,53 @@ class App {
     if (btnEnter) btnEnter.classList.add('loading');
     if (btnEnterText) btnEnterText.textContent = 'СОЗДАНИЕ РАЗЛОМА…';
     this.toastMenu('ВХОД В AETHELGARD');
-
-    // Пауза на эффект
     await new Promise(r => setTimeout(r, 400));
-
-    // Скрываем меню
     if (this.menuEl) this.menuEl.classList.add('fade-out');
-    if (this.menuScene) {
-      this.menuScene.stop();
-      // Даём меню доиграть fadeout
-    }
-
+    if (this.menuScene) this.menuScene.stop();
     await new Promise(r => setTimeout(r, 700));
-
-    // Убираем меню канвас и запускаем игру
     if (this.menuEl) this.menuEl.style.display = 'none';
     if (this.gameEl) this.gameEl.classList.add('active');
-
-    // Создаём игровую сцену
     try {
-      this.setLoaderStatus('Генерация мира…');
-      this.gameScene = new GameScene(this.gameCanvas);
-      // Применяем расу
-      if (this.gameScene.player) {
-        this.gameScene.scene.remove(this.gameScene.player);
-        // Диспозируем
-        this.gameScene.player.traverse((o) => {
-          if (o.geometry) o.geometry.dispose();
-          if (o.material) {
-            if (Array.isArray(o.material)) o.material.forEach(m => m.dispose());
-            else o.material.dispose();
-          }
-        });
-        this.gameScene.player = this.gameScene.buildPlayer();
-        // Меняем расу
-        this.gameScene.scene.remove(this.gameScene.player);
-        const newPlayer = CharacterBuilder.build(this.currentRace);
-        newPlayer.scale.setScalar(0.5);
-        newPlayer.position.set(0, 0.1, 0);
-        newPlayer.userData.noAutoRotate = true;
-        newPlayer.userData.vel = new THREE.Vector3();
-        newPlayer.userData.facing = 0;
-        newPlayer.userData.hp = 100;
-        newPlayer.userData.maxHp = 100;
-        newPlayer.userData.attackCd = 0;
-        newPlayer.userData.hitFlash = 0;
-        this.gameScene.scene.add(newPlayer);
-        this.gameScene.player = newPlayer;
-      }
+      this.gameScene = new GameScene(this.gameCanvas, this.currentRace);
       this.gameScene.start();
       this.mode = 'game';
-
-      // Привязываем кнопки
-      this.bindGameButtons();
-      // Убираем sceneLoader
-      const sl = $('sceneLoader');
-      if (sl) sl.style.display = 'none';
     } catch (e) {
-      console.error('[Apex] enterGame error:', e);
+      console.error('[Apex] enterGame:', e);
       this.toastMenu('ОШИБКА: ' + (e.message || ''));
     }
   }
 }
 
-// ============================================================
-// 7. ЗАПУСК
-// ============================================================
+// ----------------------------------------------------------------------------
+// 8. BIND LIFECYCLE (пауза при сворачивании)
+// ----------------------------------------------------------------------------
+document.addEventListener('visibilitychange', safe(() => {
+  const app = window.Apex;
+  if (!app) return;
+  if (document.hidden) {
+    if (app.menuScene) app.menuScene.stop();
+    if (app.gameScene) app.gameScene.stop();
+  } else {
+    if (app.mode === 'menu' && app.menuScene) app.menuScene.start();
+    if (app.mode === 'game' && app.gameScene) app.gameScene.start();
+  }
+}));
+
+// ----------------------------------------------------------------------------
+// 9. START
+// ----------------------------------------------------------------------------
 function start() {
   try {
+    PWA.init();
     const app = new App();
     window.Apex = app;
     app.boot().catch(e => console.error('[Apex] fatal:', e));
   } catch (e) {
     console.error('[Apex] app init failed:', e);
-    const loaderStatus = document.getElementById('loaderStatus');
-    if (loaderStatus) loaderStatus.textContent = 'ОШИБКА: ' + (e.message || e);
+    const status = document.getElementById('loaderStatus');
+    if (status) status.textContent = 'ОШИБКА: ' + (e.message || e);
   }
 }
-
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', start, { once: true });
 } else {
